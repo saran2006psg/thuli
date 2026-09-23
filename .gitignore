@@ -1,0 +1,31 @@
+# .gitignore
+
+# Data — images are large; don't track them
+data/catalogue/
+data/raw_catalogue.csv
+
+# Artifacts — generated offline
+artifacts/
+
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Kaggle temp
+.kaggle_tmp/
+
+# HuggingFace cache
+~/.cache/huggingface/
+
+# OS
+.DS_Store
+Thumbs.db

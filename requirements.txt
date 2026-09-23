@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────────
+# PS2 – Stump the Model  |  requirements.txt
+# Updated per phase – add new deps at the phase mark
+# ─────────────────────────────────────────────────
+
+# ── Phase 1: Catalogue Setup ──────────────────────
+kaggle>=1.6.17            # Kaggle API (optional – needed only if using Kaggle source)
+Pillow>=10.0.0            # Image validation / opening
+pandas>=2.0.0             # CSV / DataFrame operations
+tqdm>=4.66.0              # Progress bars
+python-dotenv>=1.0.0      # .env config loading
+requests>=2.31.0          # HTTP downloads (fallback / direct URL downloads)
+imagehash>=4.3.1          # Perceptual hash deduplication
+datasets>=2.20.0          # HuggingFace datasets (primary catalogue source)
+
+# ── Phase 2: Embeddings ───────────────────────────
+# torch>=2.1.0
+# torchvision>=0.16.0
+# transformers>=4.40.0
+# numpy>=1.26.0
+
+# ── Phase 3: FAISS ────────────────────────────────
+# faiss-cpu>=1.8.0
+
+# ── Phase 5: API ──────────────────────────────────
+# fastapi>=0.110.0
+# uvicorn[standard]>=0.29.0
+# python-multipart>=0.0.9
+
+# ── Testing ───────────────────────────────────────
+pytest>=8.0.0
