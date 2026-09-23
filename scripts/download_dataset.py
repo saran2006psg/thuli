@@ -228,7 +228,7 @@ def write_raw_csv(records: list[dict]) -> None:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(records)
-    print(f"\n[OK] Raw catalogue written → {RAW_CSV}  ({len(records)} rows)")
+    print(f"\n[OK] Raw catalogue written -> {RAW_CSV}  ({len(records)} rows)")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -229,26 +229,26 @@ def clean_catalogue() -> None:
         writer.writeheader()
         writer.writerows(rejected_records)
 
-    # ── Summary ───────────────────────────────────────────────────────────────
+    # -- Summary ---------------------------------------------------------------
     print("\n" + "=" * 55)
     print("  Catalogue Cleaning Summary")
     print("=" * 55)
     print(f"  Raw entries          : {total_raw:>6}")
-    print(f"  ─ File not found     : {stats['file_not_found']:>6}")
-    print(f"  ─ Corrupt / unreadable: {stats['corrupt_image']:>5}")
-    print(f"  ─ Too small (<{IMAGE_MIN_DIM}px)   : {stats['too_small']:>6}")
-    print(f"  ─ Blank image        : {stats['blank_image']:>6}")
-    print(f"  ─ Duplicate          : {stats['duplicate']:>6}")
-    print(f"  ──────────────────────────────")
+    print(f"  - File not found     : {stats['file_not_found']:>6}")
+    print(f"  - Corrupt / unreadable: {stats['corrupt_image']:>5}")
+    print(f"  - Too small (<{IMAGE_MIN_DIM}px)   : {stats['too_small']:>6}")
+    print(f"  - Blank image        : {stats['blank_image']:>6}")
+    print(f"  - Duplicate          : {stats['duplicate']:>6}")
+    print(f"  ------------------------------")
     print(f"  Clean entries        : {stats['accepted']:>6}")
     print("=" * 55)
-    print(f"\n  catalogue.csv  →  {CLEAN_CSV}")
-    print(f"  rejected.csv   →  {REJECTED_CSV}")
+    print(f"\n  catalogue.csv  ->  {CLEAN_CSV}")
+    print(f"  rejected.csv   ->  {REJECTED_CSV}")
 
-    # ── Final check ───────────────────────────────────────────────────────────
+    # -- Final check -----------------------------------------------------------
     if stats["accepted"] < CATALOGUE_MIN_SIZE:
         print(
-            f"\n[WARN] ⚠  Only {stats['accepted']} clean items — "
+            f"\n[WARN] Only {stats['accepted']} clean items -- "
             f"need {CATALOGUE_MIN_SIZE}+.\n"
             "       Consider:\n"
             "         1. Using a larger source dataset.\n"
@@ -258,7 +258,7 @@ def clean_catalogue() -> None:
         sys.exit(2)   # non-zero exit so CI catches it
     else:
         print(
-            f"\n[OK] ✓  {stats['accepted']} clean jewellery items ready.\n"
+            f"\n[OK] {stats['accepted']} clean jewellery items ready.\n"
             "     Minimum requirement (5,000) met.\n"
             "\nNext step: python scripts/generate_embeddings.py  (Phase 2)"
         )

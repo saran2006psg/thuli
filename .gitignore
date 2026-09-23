@@ -3,6 +3,8 @@
 # Data — images are large; don't track them
 data/catalogue/
 data/raw_catalogue.csv
+data/sources/**/images/
+# (source_info.json and README.md inside sources/ ARE tracked)
 
 # Artifacts — generated offline
 artifacts/

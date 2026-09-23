@@ -57,21 +57,20 @@ thuli/
 
 ---
 
-## Issues / Notes
+## Final Outcome — Phase 1 Complete
 
-- The HF dataset `ashraq/fashion-product-images-small` contains 44k products. Jewellery will be a subset. Need to verify ≥5,000 after filtering.
-- If jewellery count is below 5,000, plan is to:
-  1. Broaden keyword filter (include "watches" etc.)
-  2. Try an additional Kaggle jewellery dataset
-  3. Combine multiple sources
+- **Primary Source**: `sidd707/jewelry-design-dataset` (HuggingFace)
+- **Ingested Items**: 8,565 raw images
+- **Clean Catalogue**: 5,804 validated items in `data/catalogue.csv`
+- **Catalogue Images**: Stored in `data/catalogue/` (JW_000001 ... JW_008565)
+- **Tests**: `pytest tests/test_catalogue.py -v` -> **11/11 tests PASSED** (100% pass)
+- **Cleanup**: Temporary unstandardized `dataset/` folder removed to save disk space.
 
 ---
 
 ## Next Steps
 
-1. Install Phase 1 requirements: `pip install -r requirements.txt`
-2. Copy `.env.example` → `.env`
-3. Run `python scripts/download_dataset.py`
-4. Run `python scripts/clean_catalogue.py`
-5. Run `pytest tests/test_catalogue.py -v`
-6. If ≥5,000 clean items → Phase 2 ready
+1. Phase 2: Embedding Generation (CLIP / DINOv2)
+2. Generate catalogue embeddings (`artifacts/embeddings/catalogue_embeddings.npy`)
+3. Build vector index (FAISS / HNSW)
+
