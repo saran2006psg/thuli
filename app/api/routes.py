@@ -168,3 +168,52 @@ async def match_image(
             status_code=500,
             detail=f"Internal matching error: {e}",
         )
+
+
+@router.post("/catalogue/add")
+async def add_catalogue_item(
+    file: UploadFile = File(..., description="Jewellery image file to add to catalogue"),
+    category: str = Form(..., description="Product category (e.g. ring, necklace, earring, bracelet, pendant)"),
+    product_name: Optional[str] = Form(None, description="Optional product name/title"),
+    subcategory: Optional[str] = Form(None, description="Optional subcategory"),
+) -> Dict[str, Any]:
+    """
+    Upload an image, add it to the catalogue, compute its CLIP embedding,
+    and index it immediately into FAISS.
+    """
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type '{file.content_type}'. Please upload an image file (JPEG, PNG, WebP).",
+        )
+
+    try:
+        contents = await file.read()
+        if len(contents) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+        pil_image = Image.open(io.BytesIO(contents))
+        pil_image.load()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to decode uploaded image: {e}",
+        )
+
+    try:
+        matcher = get_matcher()
+        item = matcher.add_catalogue_item(
+            image_input=pil_image,
+            category=category,
+            product_name=product_name,
+            subcategory=subcategory,
+        )
+        return item
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to add item to catalogue: {e}",
+        )
+

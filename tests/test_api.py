@@ -39,14 +39,14 @@ class TestAPIEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "healthy"
-        assert data["index_size"] == 6157
+        assert data["index_size"] >= 6157
         assert data["dimension"] == 512
 
     def test_stats_endpoint(self):
         response = client.get("/api/stats")
         assert response.status_code == 200
         data = response.json()
-        assert data["total_items"] == 6157
+        assert data["total_items"] >= 6157
         assert "earring" in data["categories"]
         assert "benchmarks" in data
 
@@ -99,3 +99,27 @@ class TestAPIEndpoints:
         response = client.post("/api/match", files=files)
         assert response.status_code == 400
         assert "Failed to decode" in response.json()["detail"]
+
+    def test_add_catalogue_endpoint(self):
+        # Create a mock image
+        img = Image.new("RGB", (100, 100), color="blue")
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG")
+        buf.seek(0)
+
+        files = {"file": ("blue_gem.jpg", buf, "image/jpeg")}
+        data = {
+            "category": "ring",
+            "product_name": "Test Sapphire Ring",
+            "subcategory": "cocktail_ring",
+        }
+        response = client.post("/api/catalogue/add", files=files, data=data)
+        assert response.status_code == 200
+        res = response.json()
+        assert res["status"] == "success"
+        assert res["product_id"].startswith("JW_")
+        assert res["product_name"] == "Test Sapphire Ring"
+        assert res["category"] == "ring"
+        assert res["catalogue_size"] >= 6157
+        assert "image_url" in res
+

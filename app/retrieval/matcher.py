@@ -23,6 +23,7 @@ from app.config import (
     ENCODER_MODEL,
     FAISS_INDEX_PATH,
     PRODUCT_IDS_PATH,
+    PROJECT_ROOT,
     SIMILARITY_THRESHOLD,
     TOP_K,
 )
@@ -73,6 +74,9 @@ class JewelleryMatcher:
         """
         self.default_threshold = float(threshold)
         self.default_top_k = int(top_k)
+        self.index_path = Path(index_path)
+        self.product_ids_path = Path(product_ids_path)
+        self.catalogue_csv_path = Path(catalogue_csv_path)
 
         # 1. Load or assign FAISS index
         if index is not None:
@@ -178,3 +182,109 @@ class JewelleryMatcher:
             "top_k": k,
             "results": candidate_results,
         }
+
+    def add_catalogue_item(
+        self,
+        image_input: Union[str, Path, Image.Image],
+        category: str,
+        product_name: Optional[str] = None,
+        subcategory: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Dynamically add a new jewellery item to the catalogue, extract its CLIP
+        embedding, index it into FAISS, and persist metadata and indexes to disk.
+
+        Args:
+            image_input: PIL Image, filepath string, or Path.
+            category: Category name (e.g. 'ring', 'necklace', 'earring', 'bracelet', 'pendant').
+            product_name: Optional product name/title.
+            subcategory: Optional subcategory descriptor.
+
+        Returns:
+            Dictionary containing the created item metadata and updated catalogue size.
+        """
+        # 1. Preprocess and validate image
+        pil_img = load_and_preprocess_image(image_input)
+
+        # 2. Determine next sequential unique product_id (e.g. JW_006158)
+        max_num = 0
+        for pid in self.product_ids:
+            if pid.startswith("JW_"):
+                try:
+                    num = int(pid[3:])
+                    if num > max_num:
+                        max_num = num
+                except ValueError:
+                    pass
+        next_num = max_num + 1 if max_num > 0 else len(self.product_ids) + 1
+        product_id = f"JW_{next_num:06d}"
+
+        # 3. Save image into category folder
+        norm_cat = category.strip().lower() if category else "jewellery"
+        target_dir = PROJECT_ROOT / "data" / "catalogue" / "jewelry_dataset" / norm_cat
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        target_file = target_dir / f"{product_id.lower()}.jpg"
+        pil_img.save(target_file, format="JPEG", quality=95)
+        relative_path = str(target_file.relative_to(PROJECT_ROOT)).replace("\\", "/")
+
+        # 4. Extract 512-d normalized embedding vector
+        embedding = self.encoder.encode_image(pil_img)
+
+        # 5. Add vector to FAISS index & persist
+        self.index.add(embedding.reshape(1, -1))
+        self.index.save(self.index_path)
+
+        # 6. Append to product_ids & persist
+        self.product_ids.append(product_id)
+        with open(self.product_ids_path, "w", encoding="utf-8") as f:
+            json.dump(self.product_ids, f, indent=2)
+
+        # 7. Append to catalogue_embeddings.npy if it exists
+        if EMBEDDINGS_PATH.exists():
+            try:
+                old_embs = np.load(EMBEDDINGS_PATH)
+                new_embs = np.vstack([old_embs, embedding.reshape(1, -1)])
+                np.save(EMBEDDINGS_PATH, new_embs.astype(np.float32))
+            except Exception as e:
+                print(f"[WARN] Failed to update embeddings.npy: {e}")
+
+        # 8. Update catalogue.csv and self.catalogue_lookup
+        prod_title = product_name.strip() if product_name and product_name.strip() else f"{norm_cat.capitalize()} {product_id}"
+        row_dict = {
+            "product_id": product_id,
+            "product_name": prod_title,
+            "category": norm_cat,
+            "subcategory": subcategory.strip() if subcategory else norm_cat,
+            "image_path": relative_path,
+            "source_url": "user_upload",
+            "width": str(pil_img.width),
+            "height": str(pil_img.height),
+        }
+
+        # Append to CSV
+        file_exists = self.catalogue_csv_path.exists()
+        with open(self.catalogue_csv_path, "a", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=["product_id", "product_name", "category", "subcategory", "image_path", "source_url", "width", "height"]
+            )
+            if not file_exists:
+                writer.writeheader()
+            writer.writerow(row_dict)
+
+        self.catalogue_lookup[product_id] = row_dict
+
+        return {
+            "status": "success",
+            "product_id": product_id,
+            "product_name": prod_title,
+            "category": norm_cat,
+            "subcategory": row_dict["subcategory"],
+            "image_path": relative_path,
+            "image_url": "/" + relative_path,
+            "catalogue_size": self.index.size,
+            "width": pil_img.width,
+            "height": pil_img.height,
+        }
+

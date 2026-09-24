@@ -49,9 +49,9 @@ class TestMatcherInitialization:
 
     def test_matcher_init_success(self, shared_matcher):
         assert shared_matcher is not None
-        assert shared_matcher.index.size == 6157
-        assert len(shared_matcher.product_ids) == 6157
-        assert len(shared_matcher.catalogue_lookup) == 6157
+        assert shared_matcher.index.size >= 6157
+        assert len(shared_matcher.product_ids) >= 6157
+        assert len(shared_matcher.catalogue_lookup) >= 6157
         assert shared_matcher.default_threshold == SIMILARITY_THRESHOLD
         assert shared_matcher.default_top_k == TOP_K
 

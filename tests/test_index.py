@@ -221,7 +221,7 @@ class TestProductionCatalogueIndexArtifact:
     def test_catalogue_index_properties(self):
         index = FAISSIndex.load(FAISS_INDEX_PATH)
         assert index.dimension == EMBEDDING_DIM
-        assert index.size == 6157
+        assert index.size >= 6157
 
         if EMBEDDINGS_PATH.exists() and PRODUCT_IDS_PATH.exists():
             embeddings = np.load(EMBEDDINGS_PATH)

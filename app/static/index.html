@@ -42,106 +42,229 @@
       </div>
     </header>
 
-    <!-- Main Workspace -->
-    <main class="main-grid">
-      
-      <!-- Left Panel: Input & Controls -->
-      <section class="panel control-panel">
-        <h2 class="section-title">Query Image</h2>
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" id="tab-search" data-target="view-search">
+        <span class="tab-icon">🔍</span> Visual Search Matcher
+      </button>
+      <button class="nav-tab" id="tab-add" data-target="view-add">
+        <span class="tab-icon">➕</span> Add New Item to Catalogue
+      </button>
+    </nav>
+
+    <!-- Tab View 1: Visual Search Matcher -->
+    <div id="view-search" class="tab-view active">
+      <main class="main-grid">
         
-        <!-- Drag and Drop Dropzone -->
-        <div class="dropzone" id="dropzone">
-          <input type="file" id="file-input" accept="image/*" class="file-input">
-          <div class="dropzone-content" id="dropzone-prompt">
-            <div class="upload-icon">📸</div>
-            <p class="upload-text"><strong>Click to upload</strong> or drag & drop</p>
-            <p class="upload-subtext">JPEG, PNG, WebP supported</p>
-          </div>
-          <div class="preview-container hidden" id="preview-container">
-            <img id="image-preview" class="image-preview" alt="Query Preview">
-            <button type="button" class="btn-clear" id="btn-clear-image" title="Remove image">&times;</button>
-          </div>
-        </div>
-
-        <!-- Controls Form -->
-        <div class="controls-form">
-          <div class="form-group">
-            <div class="label-row">
-              <label for="slider-topk">Top-K Candidates</label>
-              <span class="value-display" id="val-topk">5</span>
+        <!-- Left Panel: Input & Controls -->
+        <section class="panel control-panel">
+          <h2 class="section-title">Query Image</h2>
+          
+          <!-- Drag and Drop Dropzone -->
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="file-input" accept="image/*" class="file-input">
+            <div class="dropzone-content" id="dropzone-prompt">
+              <div class="upload-icon">📸</div>
+              <p class="upload-text"><strong>Click to upload</strong> or drag & drop</p>
+              <p class="upload-subtext">JPEG, PNG, WebP supported</p>
             </div>
-            <input type="range" id="slider-topk" min="1" max="10" value="5" class="slider">
-          </div>
-
-          <div class="form-group">
-            <div class="label-row">
-              <label for="slider-threshold">Match Threshold (τ)</label>
-              <span class="value-display" id="val-threshold">0.75</span>
-            </div>
-            <input type="range" id="slider-threshold" min="0.50" max="0.95" step="0.01" value="0.75" class="slider">
-            <div class="slider-ticks">
-              <span>0.50 (Permissive)</span>
-              <span>0.75 (Default)</span>
-              <span>0.95 (Strict)</span>
+            <div class="preview-container hidden" id="preview-container">
+              <img id="image-preview" class="image-preview" alt="Query Preview">
+              <button type="button" class="btn-clear" id="btn-clear-image" title="Remove image">&times;</button>
             </div>
           </div>
 
-          <button type="button" class="btn-primary" id="btn-search" disabled>
-            <span class="btn-text">Search Catalogue</span>
-            <span class="spinner hidden" id="search-spinner"></span>
-          </button>
-        </div>
+          <!-- Controls Form -->
+          <div class="controls-form">
+            <div class="form-group">
+              <div class="label-row">
+                <label for="slider-topk">Top-K Candidates</label>
+                <span class="value-display" id="val-topk">5</span>
+              </div>
+              <input type="range" id="slider-topk" min="1" max="10" value="5" class="slider">
+            </div>
 
-        <!-- Sample Catalogue Images -->
-        <div class="sample-section">
-          <h3 class="subsection-title">Or Test with Catalogue Samples:</h3>
-          <div class="sample-grid" id="sample-grid">
-            <!-- Dynamically populated via JS -->
-            <div class="sample-loading">Loading sample catalogue items...</div>
+            <div class="form-group">
+              <div class="label-row">
+                <label for="slider-threshold">Match Threshold (τ)</label>
+                <span class="value-display" id="val-threshold">0.75</span>
+              </div>
+              <input type="range" id="slider-threshold" min="0.50" max="0.95" step="0.01" value="0.75" class="slider">
+              <div class="slider-ticks">
+                <span>0.50 (Permissive)</span>
+                <span>0.75 (Default)</span>
+                <span>0.95 (Strict)</span>
+              </div>
+            </div>
+
+            <button type="button" class="btn-primary" id="btn-search" disabled>
+              <span class="btn-text">Search Catalogue</span>
+              <span class="spinner hidden" id="search-spinner"></span>
+            </button>
           </div>
-        </div>
-      </section>
 
-      <!-- Right Panel: Results & Match Breakdown -->
-      <section class="panel results-panel">
-        <div class="results-header">
-          <h2 class="section-title">Search Results</h2>
-          <div class="telemetry-tag" id="telemetry-tag">Ready for query</div>
-        </div>
-
-        <!-- Decision Banner -->
-        <div class="decision-banner hidden" id="decision-banner">
-          <div class="decision-badge" id="decision-badge">MATCH</div>
-          <div class="decision-details">
-            <div class="decision-metric">
-              <span class="metric-label">Best Similarity:</span>
-              <span class="metric-val" id="metric-best-sim">0.0000</span>
-            </div>
-            <div class="decision-metric">
-              <span class="metric-label">Threshold:</span>
-              <span class="metric-val" id="metric-threshold">0.75</span>
-            </div>
-            <div class="decision-metric">
-              <span class="metric-label">Total Time:</span>
-              <span class="metric-val" id="metric-latency">0 ms</span>
+          <!-- Sample Catalogue Images -->
+          <div class="sample-section">
+            <h3 class="subsection-title">Or Test with Catalogue Samples:</h3>
+            <div class="sample-grid" id="sample-grid">
+              <div class="sample-loading">Loading sample catalogue items...</div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <!-- Initial Placeholder State -->
-        <div class="empty-state" id="empty-state">
-          <div class="empty-icon">🔍</div>
-          <h3>No Search Executed Yet</h3>
-          <p>Upload a jewellery photo on the left or select a sample image to test vector matching.</p>
-        </div>
+        <!-- Right Panel: Results & Match Breakdown -->
+        <section class="panel results-panel">
+          <div class="results-header">
+            <h2 class="section-title">Search Results</h2>
+            <div class="telemetry-tag" id="telemetry-tag">Ready for query</div>
+          </div>
 
-        <!-- Results Candidate List -->
-        <div class="candidates-list hidden" id="candidates-list">
-          <!-- Populated by JS -->
-        </div>
-      </section>
+          <!-- Decision Banner -->
+          <div class="decision-banner hidden" id="decision-banner">
+            <div class="decision-badge" id="decision-badge">MATCH</div>
+            <div class="decision-details">
+              <div class="decision-metric">
+                <span class="metric-label">Best Similarity:</span>
+                <span class="metric-val" id="metric-best-sim">0.0000</span>
+              </div>
+              <div class="decision-metric">
+                <span class="metric-label">Threshold:</span>
+                <span class="metric-val" id="metric-threshold">0.75</span>
+              </div>
+              <div class="decision-metric">
+                <span class="metric-label">Total Time:</span>
+                <span class="metric-val" id="metric-latency">0 ms</span>
+              </div>
+            </div>
+          </div>
 
-    </main>
+          <!-- Initial Placeholder State -->
+          <div class="empty-state" id="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No Search Executed Yet</h3>
+            <p>Upload a jewellery photo on the left or select a sample image to test vector matching.</p>
+          </div>
+
+          <!-- Results Candidate List -->
+          <div class="candidates-list hidden" id="candidates-list">
+            <!-- Populated by JS -->
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- Tab View 2: Add New Item to Catalogue -->
+    <div id="view-add" class="tab-view hidden">
+      <main class="main-grid">
+        
+        <!-- Left Panel: Upload & Category Selection -->
+        <section class="panel control-panel">
+          <h2 class="section-title">Upload New Catalogue Item</h2>
+          <p class="section-desc">Add a jewellery photo to the catalogue. The image will be processed, embedded with CLIP ViT-B/32, and indexed into FAISS immediately.</p>
+
+          <!-- Upload Dropzone for Ingestion -->
+          <div class="dropzone" id="add-dropzone">
+            <input type="file" id="add-file-input" accept="image/*" class="file-input">
+            <div class="dropzone-content" id="add-dropzone-prompt">
+              <div class="upload-icon">💎</div>
+              <p class="upload-text"><strong>Click to select photo</strong> or drag & drop</p>
+              <p class="upload-subtext">JPEG, PNG, WebP supported</p>
+            </div>
+            <div class="preview-container hidden" id="add-preview-container">
+              <img id="add-image-preview" class="image-preview" alt="New Item Preview">
+              <button type="button" class="btn-clear" id="btn-clear-add-image" title="Remove image">&times;</button>
+            </div>
+          </div>
+
+          <!-- Metadata Form -->
+          <div class="controls-form">
+            <div class="form-group">
+              <label for="add-category">Category <span class="required">*</span></label>
+              <select id="add-category" class="select-input">
+                <option value="ring">Ring</option>
+                <option value="necklace">Necklace</option>
+                <option value="earring">Earring</option>
+                <option value="bracelet">Bracelet</option>
+                <option value="pendant">Pendant / Charm</option>
+                <option value="brooch">Brooch</option>
+                <option value="other">Other Jewellery</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="add-name">Product Name (Optional)</label>
+              <input type="text" id="add-name" class="text-input" placeholder="e.g. Diamond Bull Head Pendant">
+            </div>
+
+            <div class="form-group">
+              <label for="add-subcategory">Subcategory (Optional)</label>
+              <input type="text" id="add-subcategory" class="text-input" placeholder="e.g. Solitaire, Filigree, Choker">
+            </div>
+
+            <button type="button" class="btn-primary" id="btn-add-submit" disabled>
+              <span class="btn-text">Add to Catalogue & Index Vector</span>
+              <span class="spinner hidden" id="add-spinner"></span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Right Panel: Ingestion Feedback -->
+        <section class="panel results-panel">
+          <div class="results-header">
+            <h2 class="section-title">Catalogue Ingestion Status</h2>
+            <div class="telemetry-tag" id="add-telemetry-tag">Ready to ingest</div>
+          </div>
+
+          <!-- Success Card (Hidden initially) -->
+          <div class="success-card hidden" id="add-success-card">
+            <div class="success-banner">
+              <div class="success-icon">✓</div>
+              <div>
+                <h3 class="success-title">Item Successfully Added & Indexed!</h3>
+                <p class="success-desc">Assigned unique ID and synchronized with FAISS vector index.</p>
+              </div>
+            </div>
+
+            <div class="added-item-details">
+              <img id="added-thumb" class="added-thumb" src="" alt="Added item">
+              <div class="added-info">
+                <div class="added-title" id="added-title">Product Name</div>
+                <div class="candidate-meta">
+                  <span class="badge-category" id="added-category">ring</span>
+                  <span class="candidate-id" id="added-id">JW_006158</span>
+                  <span class="candidate-dimensions" id="added-dimensions">682×1024px</span>
+                </div>
+                <div class="steps-checklist">
+                  <div class="step-check">✓ Image saved in catalogue directory</div>
+                  <div class="step-check">✓ 512-d CLIP ViT-B/32 embedding extracted</div>
+                  <div class="step-check">✓ Vector indexed into FAISS IndexFlatIP</div>
+                  <div class="step-check">✓ Record appended to catalogue.csv</div>
+                </div>
+              </div>
+            </div>
+
+            <button type="button" class="btn-secondary" id="btn-test-in-search">
+              <span>🚀 Test Search with this Item</span>
+            </button>
+          </div>
+
+          <!-- Empty placeholder for Add view -->
+          <div class="empty-state" id="add-empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>No Item Added Yet</h3>
+            <p>Select or drag an image on the left, pick a category, and click <strong>Add to Catalogue</strong> to index a new jewellery piece.</p>
+          </div>
+
+          <!-- Session Added History -->
+          <div class="recent-added-container hidden" id="recent-added-container">
+            <h3 class="subsection-title">Items Added This Session:</h3>
+            <div class="recent-list" id="recent-list"></div>
+          </div>
+        </section>
+
+      </main>
+    </div>
 
     <!-- Bottom System & Benchmark Summary Bar -->
     <footer class="footer-card">
@@ -159,11 +282,11 @@
       </div>
       <div class="bench-item">
         <span class="bench-title">Vectors Indexed</span>
-        <span class="bench-val">6,157 items (512-d)</span>
+        <span class="bench-val" id="footer-vectors">6,157 items (512-d)</span>
       </div>
       <div class="bench-item">
         <span class="bench-title">Test Suite Status</span>
-        <span class="bench-val status-green">50 / 50 Passing (100%)</span>
+        <span class="bench-val status-green">65 / 65 Passing (100%)</span>
       </div>
     </footer>
 
