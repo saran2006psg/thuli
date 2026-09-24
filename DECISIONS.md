@@ -148,7 +148,36 @@ Apply unit L2 normalization ($\|v\|_2 = 1.0$) immediately upon extraction.
 
 ---
 
+## Phase 3 — FAISS Retrieval & Indexing
+
+### D-007 · FAISS Index Type: `faiss.IndexFlatIP` (Exact Exhaustive Cosine Search)
+
+**Date:** 2026-09-24
+**Status:** Active
+
+**Context:**
+Need a vector retrieval layer to search 6,157 dense 512-dimensional embeddings.
+Candidates considered:
+1. `faiss.IndexFlatIP` (Flat Inner Product) — Exhaustive exact cosine similarity search.
+2. `faiss.IndexIVFFlat` (Inverted File) — Partitioning-based approximate nearest neighbour search.
+3. `faiss.IndexHNSWFlat` (Hierarchical Navigable Small World) — Graph-based approximate search.
+4. `faiss.IndexPQ` (Product Quantization) — Compressed lossy vector search.
+
+**Decision:**
+Use `faiss.IndexFlatIP` as the retrieval index for the baseline system.
+
+**Reason:**
+- **Exact & Lossless:** Guarantees 100% recall with no approximation errors.
+- **Inner Product = Cosine Similarity:** Embeddings are L2-normalized, making inner product strictly equivalent to cosine similarity.
+- **Blazing Fast on Current Scale:** At $N = 6,157$, measured search latency is **0.5187 ms (median)** and **0.7350 ms (p95)** on CPU, comfortably below the $< 2\text{ ms}$ retrieval target.
+- **Low Memory Footprint:** Index size is only 12.03 MB on disk and in RAM.
+
+**Alternatives considered for future scaling:**
+- `IndexIVFFlat` / `IndexHNSWFlat` / `IndexPQ`: Not rejected permanently, but deferred. If the catalogue scales to the optional 100k+ challenge dataset in later phases, an approximate indexing scheme (such as HNSW or IVF) will be evaluated and compared against this exact baseline.
+
+---
+
 ## Open Items
 
-- [ ] **D-007** — FAISS index type (Phase 3). Start with `IndexFlatIP` (exact cosine), upgrade to `IndexIVFFlat` only if latency is unacceptable.
-- [ ] **D-008** — Similarity threshold τ (Phase 4). Will be determined experimentally using validation data, not guessed.
+- [ ] **D-008** — Similarity threshold $\tau$ (Phase 4). Will be determined experimentally using validation data, not guessed.
+- [ ] **D-009** — Confidence score formulation (Phase 4). Calibration of raw cosine similarity scores into match confidence.

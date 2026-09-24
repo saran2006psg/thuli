@@ -42,9 +42,9 @@ BATCH_SIZE: int = int(os.getenv("BATCH_SIZE", "64"))
 EMBEDDINGS_PATH = PROJECT_ROOT / os.getenv("EMBEDDINGS_PATH", "artifacts/embeddings/catalogue_embeddings.npy")
 PRODUCT_IDS_PATH = PROJECT_ROOT / os.getenv("PRODUCT_IDS_PATH", "artifacts/embeddings/product_ids.json")
 
-# ── Phase 3+ ─────────────────────────────────────────────────────────────────
-# FAISS_INDEX_PATH = PROJECT_ROOT / os.getenv("FAISS_INDEX_PATH", "artifacts/indexes/catalogue.faiss")
-# FAISS_INDEX_TYPE: str = os.getenv("FAISS_INDEX_TYPE", "Flat")
+# -- Phase 3: FAISS ------------------------------------------------------------
+FAISS_INDEX_PATH = PROJECT_ROOT / os.getenv("FAISS_INDEX_PATH", "artifacts/indexes/catalogue.faiss")
+FAISS_INDEX_TYPE: str = os.getenv("FAISS_INDEX_TYPE", "Flat")
 
 # ── Phase 4+ ─────────────────────────────────────────────────────────────────
 # SIMILARITY_THRESHOLD: float = float(os.getenv("SIMILARITY_THRESHOLD", "0.75"))

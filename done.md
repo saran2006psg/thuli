@@ -1,16 +1,17 @@
 # Project Status & Work Completed — PS2: Stump the Model
 
 **Project:** Jewellery Image Retrieval System ("Stump the Model")  
-**Current Status:** **Phase 1 & Phase 2 Complete**  
-**All Tests Passing:** **19 / 19 (100%)**
+- **Current Status:** **Phase 1, Phase 2 & Phase 3 Complete**  
+- **All Tests Passing:** **37 / 37 (100%)**
 
 ---
 
 ## 1. Executive Summary
 
-We have built the complete end-to-end foundation for the jewellery retrieval engine:
+We have built the complete end-to-end vector retrieval foundation for the jewellery retrieval engine:
 1. **Phase 1 (Catalogue Setup):** Standardized, cleaned, and verified **6,157 jewellery images** across 4 categories into a structured catalogue with unique IDs and metadata.
-2. **Phase 2 (Image Embedding):** Integrated a pretrained vision encoder (**CLIP ViT-B/32**), batch-extracted **512-dimensional L2-normalized embeddings** for all 6,157 items, and stored persistent artifacts on disk for vector search.
+2. **Phase 2 (Image Embedding):** Integrated a pretrained vision encoder (**CLIP ViT-B/32**), batch-extracted **512-dimensional L2-normalized embeddings** for all 6,157 items, and stored persistent artifacts on disk.
+3. **Phase 3 (FAISS Retrieval & Indexing):** Built an exact inner-product vector index (**`faiss.IndexFlatIP`**), persisted `artifacts/indexes/catalogue.faiss` (12.03 MB), implemented Top-$K$ retrieval with product ID mapping, and achieved **0.5187 ms median latency** on CPU.
 
 ---
 
@@ -53,7 +54,24 @@ We have built the complete end-to-end foundation for the jewellery retrieval eng
 
 ---
 
-## 5. Architectural Decisions (DECISIONS.md)
+## 5. Phase 3 — FAISS Retrieval & Indexing (Completed)
+
+- **Vector Index:** **`faiss.IndexFlatIP`** in [`app/retrieval/index.py`](file:///d:/PL/thuli/app/retrieval/index.py) (Decision **D-007**).
+- **Exact Exhaustive Search:** 100% recall lossless search over all 6,157 normalized 512-d embeddings.
+- **Artifacts Saved:**
+  - `artifacts/indexes/catalogue.faiss` — Persisted FAISS binary (12.03 MB).
+- **Top-$K$ Search & Mapping:** Returns sorted cosine similarity scores, vector indices, and mapped `JW_NNNNNN` product IDs.
+- **Measured FAISS Search Latency (500 queries, $K=5$, CPU):**
+  - **Median Latency ($p_{50}$):** `0.5187 ms`
+  - **Mean Latency:** `0.5406 ms`
+  - **$p_{95}$ Latency:** `0.7350 ms`
+  - **$p_{99}$ Latency:** `0.8373 ms`
+  - **Throughput:** `1,849.9 queries/sec`
+- **Tests:** [`tests/test_index.py`](file:///d:/PL/thuli/tests/test_index.py) — **18/18 tests PASSED**.
+
+---
+
+## 6. Architectural Decisions (DECISIONS.md)
 
 | ID | Title | Decision |
 |---|---|---|
@@ -63,87 +81,78 @@ We have built the complete end-to-end foundation for the jewellery retrieval eng
 | **D-004** | Product ID Scheme | Sequential, stable `JW_NNNNNN` IDs |
 | **D-005** | Vision Encoder | CLIP ViT-B/32 (512-dim zero-shot semantic representation) |
 | **D-006** | Normalization | Unit L2-norm for instant inner-product cosine similarity in FAISS |
+| **D-007** | FAISS Index Type | `faiss.IndexFlatIP` exact cosine index (sub-millisecond retrieval on 6k items) |
 
 ---
 
-## 6. Verification & Test Suite Summary
+## 7. Verification & Test Suite Summary
 
 Command:
 ```bash
-python -m pytest tests/test_catalogue.py tests/test_embeddings.py -v
+python -m pytest tests/test_catalogue.py tests/test_embeddings.py tests/test_index.py -v
 ```
 
 Output:
 ```
-tests/test_catalogue.py::TestCatalogueSchema::test_csv_exists PASSED          [ 5%]
-tests/test_catalogue.py::TestCatalogueSchema::test_minimum_rows PASSED        [10%]
-tests/test_catalogue.py::TestCatalogueSchema::test_required_columns_present PASSED [15%]
-tests/test_catalogue.py::TestCatalogueSchema::test_no_empty_rows PASSED       [21%]
-tests/test_catalogue.py::TestProductIds::test_product_ids_unique PASSED       [26%]
-tests/test_catalogue.py::TestProductIds::test_product_id_format PASSED        [31%]
-tests/test_catalogue.py::TestImageFiles::test_image_files_exist PASSED        [36%]
-tests/test_catalogue.py::TestImageFiles::test_images_openable PASSED          [42%]
-tests/test_catalogue.py::TestImageFiles::test_image_dimensions_recorded PASSED [47%]
-tests/test_catalogue.py::TestCategories::test_category_values PASSED          [52%]
-tests/test_catalogue.py::TestCoverageStats::test_category_distribution PASSED [57%]
-tests/test_embeddings.py::TestJewelleryEncoder::test_encoder_initialization PASSED [63%]
-tests/test_embeddings.py::TestJewelleryEncoder::test_encode_single_image PASSED [68%]
-tests/test_embeddings.py::TestJewelleryEncoder::test_encode_batch PASSED      [73%]
-tests/test_embeddings.py::TestCatalogueEmbeddingsArtifacts::test_embeddings_file_exists PASSED [78%]
-tests/test_embeddings.py::TestCatalogueEmbeddingsArtifacts::test_product_ids_file_exists PASSED [84%]
-tests/test_embeddings.py::TestCatalogueEmbeddingsArtifacts::test_embeddings_properties PASSED [89%]
-tests/test_embeddings.py::TestCatalogueEmbeddingsArtifacts::test_l2_normalization_all_rows PASSED [94%]
-tests/test_embeddings.py::TestCatalogueEmbeddingsArtifacts::test_product_ids_alignment PASSED [100%]
-
-============================= 19 passed in 24.19s =============================
+============================= 37 passed in 16.31s =============================
 ```
+- **Phase 1 Tests:** 11 / 11 PASSED
+- **Phase 2 Tests:** 8 / 8 PASSED
+- **Phase 3 Tests:** 18 / 18 PASSED
+- **Total:** **37 / 37 PASSED (100%)**
 
 ---
 
-## 7. Key Files & Structure
+## 8. Repository Layout & Key Files Directory
 
 ```
 thuli/
 ├── app/
 │   ├── config.py                     # Central configuration & typed env settings
-│   ├── main.py                       # FastAPI application stub
-│   ├── api/routes.py                 # /match API router stub
+│   ├── main.py                       # FastAPI application stub (Phase 5)
+│   ├── api/routes.py                 # /match API router stub (Phase 5)
 │   ├── preprocessing/image.py        # Image transformations
 │   └── retrieval/
-│       ├── encoder.py                # CLIP JewelleryEncoder wrapper
-│       ├── index.py                  # FAISS index wrapper (Phase 3)
+│       ├── encoder.py                # CLIP JewelleryEncoder wrapper (Phase 2)
+│       ├── index.py                  # FAISSIndex wrapper & ID mapping (Phase 3)
 │       └── matcher.py                # Retrieval & confidence logic (Phase 4)
 ├── artifacts/
-│   └── embeddings/
-│       ├── catalogue_embeddings.npy  # 6,157 x 512 float32 embedding matrix
-│       └── product_ids.json          # 6,157 product IDs mapping
+│   ├── embeddings/
+│   │   ├── catalogue_embeddings.npy  # 6,157 x 512 float32 embedding matrix
+│   │   └── product_ids.json          # 6,157 product IDs mapping
+│   └── indexes/
+│       └── catalogue.faiss           # Persisted FAISS IndexFlatIP (12.03 MB)
 ├── data/
 │   ├── catalogue.csv                 # 6,157 validated rows
 │   └── catalogue/
 │       └── jewelry_dataset/          # 6,157 JPEG images (bracelet, earring, necklace, ring)
 ├── phases/
 │   ├── README.md                     # Roadmap index
-│   └── phase_02_embedding.md         # Phase 2 specification & checklist (Complete)
+│   ├── phase_02_embedding.md         # Phase 2 specification & checklist
+│   └── phase_03_faiss.md             # Phase 3 specification & benchmark results
 ├── logs/
 │   ├── session_01.md                 # AI session log: Phase 1
 │   └── session_02.md                 # AI session log: Phase 2
+│   └── session_03.md                 # AI session log: Phase 3
 ├── scripts/
 │   ├── build_catalogue_csv.py        # Validates images & builds catalogue.csv
-│   └── generate_embeddings.py        # Batch embedding extraction
+│   ├── generate_embeddings.py        # Batch embedding extraction
+│   ├── build_index.py                # Constructs & saves catalogue.faiss
+│   └── benchmark_index.py            # Latency benchmark for FAISS search
 ├── tests/
 │   ├── test_catalogue.py             # 11 Phase 1 tests
-│   └── test_embeddings.py            # 8 Phase 2 tests
-├── DECISIONS.md                      # Technical decision log (D-001 to D-006)
+│   ├── test_embeddings.py            # 8 Phase 2 tests
+│   └── test_index.py                 # 18 Phase 3 tests
+├── DECISIONS.md                      # Technical decision log (D-001 to D-007)
 ├── done.md                           # Project status & completed work summary
 └── requirements.txt                  # Python dependencies
 ```
 
 ---
 
-## 8. What's Next: Phase 3 (FAISS Retrieval & Indexing)
+## 9. What's Next: Phase 4 (Baseline Matcher Pipeline)
 
-1. **Install `faiss-cpu`**
-2. **Build FAISS Index (`IndexFlatIP`):** Load `catalogue_embeddings.npy` and construct the exact inner-product vector index.
-3. **Persist Index:** Save to `artifacts/indexes/catalogue.faiss`.
-4. **Implement Search API:** Retrieve Top-$K$ (e.g. Top-5) closest neighbours with similarity scores in $< 2\text{ms}$.
-5. **Write Unit Tests (`tests/test_index.py`):** Verify index loading, query shape, Top-$K$ retrieval, and score bounds.
+1. **Implement `app/retrieval/matcher.py`**: Connect query preprocessing $\to$ CLIP embedding $\to$ FAISS retrieval.
+2. **Metadata Lookup**: Join retrieved vector indices to full catalogue product information from [`data/catalogue.csv`](file:///d:/PL/thuli/data/catalogue.csv).
+3. **Similarity Score Formulation**: Structure raw cosine similarity metrics.
+4. **Prepare Validation Data**: Calibrate the similarity decision boundary $\tau$ for `MATCH` vs `UNKNOWN`.
