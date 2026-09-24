@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thuli — Jewellery Retrieval Engine</title>
+  <meta name="description" content="Test jewellery visual search, image retrieval, and FAISS benchmarks for PS2 Stump the Model.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-container">
+    
+    <!-- Top Header & Stats Bar -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon">💎</div>
+        <div>
+          <h1 class="brand-title">THULI</h1>
+          <p class="brand-subtitle">Jewellery Image Retrieval & Visual Search Engine</p>
+        </div>
+      </div>
+      <div class="stats-pills">
+        <div class="pill">
+          <span class="pill-label">Catalogue</span>
+          <span class="pill-value" id="stat-catalogue">6,157 Items</span>
+        </div>
+        <div class="pill">
+          <span class="pill-label">Vision Model</span>
+          <span class="pill-value">CLIP ViT-B/32</span>
+        </div>
+        <div class="pill">
+          <span class="pill-label">Vector Index</span>
+          <span class="pill-value">FAISS IndexFlatIP</span>
+        </div>
+        <div class="pill highlight">
+          <span class="pill-label">FAISS Latency</span>
+          <span class="pill-value" id="stat-latency">0.52 ms</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <main class="main-grid">
+      
+      <!-- Left Panel: Input & Controls -->
+      <section class="panel control-panel">
+        <h2 class="section-title">Query Image</h2>
+        
+        <!-- Drag and Drop Dropzone -->
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="file-input" accept="image/*" class="file-input">
+          <div class="dropzone-content" id="dropzone-prompt">
+            <div class="upload-icon">📸</div>
+            <p class="upload-text"><strong>Click to upload</strong> or drag & drop</p>
+            <p class="upload-subtext">JPEG, PNG, WebP supported</p>
+          </div>
+          <div class="preview-container hidden" id="preview-container">
+            <img id="image-preview" class="image-preview" alt="Query Preview">
+            <button type="button" class="btn-clear" id="btn-clear-image" title="Remove image">&times;</button>
+          </div>
+        </div>
+
+        <!-- Controls Form -->
+        <div class="controls-form">
+          <div class="form-group">
+            <div class="label-row">
+              <label for="slider-topk">Top-K Candidates</label>
+              <span class="value-display" id="val-topk">5</span>
+            </div>
+            <input type="range" id="slider-topk" min="1" max="10" value="5" class="slider">
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="slider-threshold">Match Threshold (τ)</label>
+              <span class="value-display" id="val-threshold">0.75</span>
+            </div>
+            <input type="range" id="slider-threshold" min="0.50" max="0.95" step="0.01" value="0.75" class="slider">
+            <div class="slider-ticks">
+              <span>0.50 (Permissive)</span>
+              <span>0.75 (Default)</span>
+              <span>0.95 (Strict)</span>
+            </div>
+          </div>
+
+          <button type="button" class="btn-primary" id="btn-search" disabled>
+            <span class="btn-text">Search Catalogue</span>
+            <span class="spinner hidden" id="search-spinner"></span>
+          </button>
+        </div>
+
+        <!-- Sample Catalogue Images -->
+        <div class="sample-section">
+          <h3 class="subsection-title">Or Test with Catalogue Samples:</h3>
+          <div class="sample-grid" id="sample-grid">
+            <!-- Dynamically populated via JS -->
+            <div class="sample-loading">Loading sample catalogue items...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Panel: Results & Match Breakdown -->
+      <section class="panel results-panel">
+        <div class="results-header">
+          <h2 class="section-title">Search Results</h2>
+          <div class="telemetry-tag" id="telemetry-tag">Ready for query</div>
+        </div>
+
+        <!-- Decision Banner -->
+        <div class="decision-banner hidden" id="decision-banner">
+          <div class="decision-badge" id="decision-badge">MATCH</div>
+          <div class="decision-details">
+            <div class="decision-metric">
+              <span class="metric-label">Best Similarity:</span>
+              <span class="metric-val" id="metric-best-sim">0.0000</span>
+            </div>
+            <div class="decision-metric">
+              <span class="metric-label">Threshold:</span>
+              <span class="metric-val" id="metric-threshold">0.75</span>
+            </div>
+            <div class="decision-metric">
+              <span class="metric-label">Total Time:</span>
+              <span class="metric-val" id="metric-latency">0 ms</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Initial Placeholder State -->
+        <div class="empty-state" id="empty-state">
+          <div class="empty-icon">🔍</div>
+          <h3>No Search Executed Yet</h3>
+          <p>Upload a jewellery photo on the left or select a sample image to test vector matching.</p>
+        </div>
+
+        <!-- Results Candidate List -->
+        <div class="candidates-list hidden" id="candidates-list">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom System & Benchmark Summary Bar -->
+    <footer class="footer-card">
+      <div class="bench-item">
+        <span class="bench-title">FAISS Median Latency</span>
+        <span class="bench-val">0.5187 ms</span>
+      </div>
+      <div class="bench-item">
+        <span class="bench-title">FAISS p95 Latency</span>
+        <span class="bench-val">0.7350 ms</span>
+      </div>
+      <div class="bench-item">
+        <span class="bench-title">FAISS Throughput</span>
+        <span class="bench-val">1,849.9 QPS</span>
+      </div>
+      <div class="bench-item">
+        <span class="bench-title">Vectors Indexed</span>
+        <span class="bench-val">6,157 items (512-d)</span>
+      </div>
+      <div class="bench-item">
+        <span class="bench-title">Test Suite Status</span>
+        <span class="bench-val status-green">50 / 50 Passing (100%)</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

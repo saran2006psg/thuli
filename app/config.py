@@ -46,6 +46,6 @@ PRODUCT_IDS_PATH = PROJECT_ROOT / os.getenv("PRODUCT_IDS_PATH", "artifacts/embed
 FAISS_INDEX_PATH = PROJECT_ROOT / os.getenv("FAISS_INDEX_PATH", "artifacts/indexes/catalogue.faiss")
 FAISS_INDEX_TYPE: str = os.getenv("FAISS_INDEX_TYPE", "Flat")
 
-# ── Phase 4+ ─────────────────────────────────────────────────────────────────
-# SIMILARITY_THRESHOLD: float = float(os.getenv("SIMILARITY_THRESHOLD", "0.75"))
-# TOP_K: int = int(os.getenv("TOP_K", "5"))
+# -- Phase 4: Matcher ----------------------------------------------------------
+SIMILARITY_THRESHOLD: float = float(os.getenv("SIMILARITY_THRESHOLD", "0.75"))
+TOP_K: int = int(os.getenv("TOP_K", "5"))

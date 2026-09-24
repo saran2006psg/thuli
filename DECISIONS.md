@@ -177,7 +177,47 @@ Use `faiss.IndexFlatIP` as the retrieval index for the baseline system.
 
 ---
 
+---
+
+## Phase 4 — Baseline Matcher Pipeline
+
+### D-008 · Decision Rule: Geometric Cosine Similarity Match vs Unknown
+
+**Date:** 2026-09-24
+**Status:** Active
+
+**Context:**
+The matcher needs a clear decision rule to determine whether a query image depicts a known catalogue product (`MATCH`) or an out-of-catalogue/dissimilar object (`UNKNOWN`).
+
+**Decision:**
+Use the Top-1 inner-product score (cosine similarity $s \in [-1, 1]$) against a configurable decision threshold $\tau$:
+$$\text{decision} = \begin{cases} \text{"MATCH"}, & \text{if } s_{\text{top1}} \ge \tau \\ \text{"UNKNOWN"}, & \text{if } s_{\text{top1}} < \tau \end{cases}$$
+
+**Reason:**
+- For unit L2-normalized embeddings, inner product represents exact cosine similarity.
+- Directly measures visual angular proximity to the closest catalogue item.
+- Preserves raw similarity metric without inventing uncalibrated probabilities.
+
+---
+
+### D-009 · Baseline Threshold Setting ($\tau = 0.75$)
+
+**Date:** 2026-09-24
+**Status:** Active (Temporary Baseline)
+
+**Context:**
+A default similarity threshold is required to run the baseline retrieval pipeline before stumper evaluation datasets are gathered.
+
+**Decision:**
+Adopt $\tau = 0.75$ as a clearly documented uncalibrated baseline setting, exposed via `.env` and runtime parameter overrides.
+
+**Reason:**
+- Allows full pipeline integration and testing before formal calibration.
+- Full calibration of $\tau$ will be performed empirically on the 100+ stumper dataset and out-of-catalogue unknown sets in Phase 8 and Phase 10.
+
+---
+
 ## Open Items
 
-- [ ] **D-008** — Similarity threshold $\tau$ (Phase 4). Will be determined experimentally using validation data, not guessed.
-- [ ] **D-009** — Confidence score formulation (Phase 4). Calibration of raw cosine similarity scores into match confidence.
+- [ ] **D-010** — FastAPI architecture & validation schema (Phase 5).
+- [ ] **D-011** — Stumper failure taxonomy & phone photography protocol (Phase 7).

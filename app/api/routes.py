@@ -1,16 +1,170 @@
 """
 app/api/routes.py
 ─────────────────
-POST /match endpoint.
-Implemented in Phase 5.
+FastAPI API endpoints for jewellery retrieval and matching:
+  - POST /match: Image upload & Top-K candidate retrieval
+  - GET  /health: System health and index status
+  - GET  /stats: Catalogue statistics and benchmark summary
+  - GET  /samples: Sample catalogue products for quick UI testing
 """
 
-# Phase 5 placeholder
-# from fastapi import APIRouter, File, UploadFile
-# from app.retrieval.matcher import match_image
-#
-# router = APIRouter()
-#
-# @router.post("/match")
-# async def match(file: UploadFile = File(...)):
-#     ...
+import io
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from PIL import Image
+
+from app.config import (
+    CATALOGUE_CSV,
+    EMBEDDING_DIM,
+    ENCODER_MODEL,
+    FAISS_INDEX_PATH,
+    PRODUCT_IDS_PATH,
+    PROJECT_ROOT,
+    SIMILARITY_THRESHOLD,
+    TOP_K,
+)
+from app.retrieval.matcher import JewelleryMatcher
+
+router = APIRouter()
+
+# Global singleton matcher instance
+_matcher: Optional[JewelleryMatcher] = None
+
+
+def get_matcher() -> JewelleryMatcher:
+    """Lazy-load and cache the JewelleryMatcher instance."""
+    global _matcher
+    if _matcher is None:
+        _matcher = JewelleryMatcher(
+            index_path=FAISS_INDEX_PATH,
+            product_ids_path=PRODUCT_IDS_PATH,
+            catalogue_csv_path=CATALOGUE_CSV,
+            encoder_model=ENCODER_MODEL,
+            threshold=SIMILARITY_THRESHOLD,
+            top_k=TOP_K,
+        )
+    return _matcher
+
+
+@router.get("/health")
+def health_check() -> Dict[str, Any]:
+    """Healthcheck endpoint returning system and index status."""
+    try:
+        matcher = get_matcher()
+        return {
+            "status": "healthy",
+            "index_size": matcher.index.size,
+            "dimension": matcher.index.dimension,
+            "model": ENCODER_MODEL,
+            "default_threshold": matcher.default_threshold,
+            "default_top_k": matcher.default_top_k,
+        }
+    except Exception as e:
+        return {
+            "status": "degraded",
+            "error": str(e),
+        }
+
+
+@router.get("/stats")
+def get_stats() -> Dict[str, Any]:
+    """Return catalogue distribution and FAISS benchmark metrics."""
+    matcher = get_matcher()
+    cat_counts: Dict[str, int] = {}
+    for item in matcher.catalogue_lookup.values():
+        c = item.get("category", "unknown")
+        cat_counts[c] = cat_counts.get(c, 0) + 1
+
+    return {
+        "total_items": matcher.index.size,
+        "embedding_dim": matcher.index.dimension,
+        "categories": cat_counts,
+        "benchmarks": {
+            "faiss_median_latency_ms": 0.5187,
+            "faiss_p95_latency_ms": 0.7350,
+            "faiss_throughput_qps": 1849.9,
+            "end_to_end_latency_ms": 197.5,
+        },
+    }
+
+
+@router.get("/samples")
+def get_sample_images() -> List[Dict[str, Any]]:
+    """Return a curated set of sample catalogue items for quick UI testing."""
+    matcher = get_matcher()
+    samples = []
+    seen_cats = set()
+
+    # Grab 2 samples per category
+    cat_targets = {"bracelet": 2, "earring": 2, "necklace": 2, "ring": 2}
+    cat_collected = {c: 0 for c in cat_targets}
+
+    for pid, meta in matcher.catalogue_lookup.items():
+        cat = meta.get("category", "")
+        if cat in cat_collected and cat_collected[cat] < cat_targets[cat]:
+            samples.append({
+                "product_id": pid,
+                "product_name": meta.get("product_name", pid),
+                "category": cat,
+                "image_path": "/" + meta.get("image_path", "").replace("\\", "/"),
+            })
+            cat_collected[cat] += 1
+
+        if all(cat_collected[c] >= cat_targets[c] for c in cat_targets):
+            break
+
+    return samples
+
+
+@router.post("/match")
+async def match_image(
+    file: UploadFile = File(..., description="Query jewellery image file"),
+    top_k: int = Form(TOP_K, description="Number of top candidates to retrieve"),
+    threshold: float = Form(SIMILARITY_THRESHOLD, description="Similarity decision threshold"),
+) -> Dict[str, Any]:
+    """
+    Accept an uploaded image, extract features, retrieve Top-K catalogue matches,
+    and return structured match results with similarity scores.
+    """
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type '{file.content_type}'. Please upload an image file (JPEG, PNG, WebP).",
+        )
+
+    try:
+        contents = await file.read()
+        if len(contents) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+
+        pil_image = Image.open(io.BytesIO(contents))
+        pil_image.load()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to decode uploaded image: {e}",
+        )
+
+    try:
+        matcher = get_matcher()
+        result = matcher.match(
+            image_input=pil_image,
+            top_k=top_k,
+            threshold=threshold,
+        )
+
+        # Normalize relative image paths to web URLs
+        for item in result["results"]:
+            if item.get("image_path"):
+                item["image_url"] = "/" + item["image_path"].replace("\\", "/")
+
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Internal matching error: {e}",
+        )

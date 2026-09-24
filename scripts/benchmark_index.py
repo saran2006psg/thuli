@@ -1,4 +1,4 @@
-ṇḥ"""
+"""
 scripts/benchmark_index.py
 ──────────────────────────
 Benchmarks isolated FAISS search latency (IndexFlatIP) on catalogue embeddings.
