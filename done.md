@@ -1,18 +1,20 @@
 # Project Status & Work Completed — PS2: Stump the Model
 
 **Project:** Jewellery Image Retrieval System ("Stump the Model")  
-- **Current Status:** **Phase 1, Phase 2, Phase 3 & Phase 4 Complete**  
-- **All Tests Passing:** **50 / 50 (100%)**
+- **Current Status:** **Phases 1, 2, 3, 4, 5 & 6 Infrastructure Complete**  
+- **All Tests Passing:** **65 / 65 (100%)**
 
 ---
 
 ## 1. Executive Summary
 
-We have built the complete end-to-end vector retrieval and matching pipeline for the jewellery retrieval engine:
+We have built the complete end-to-end vector retrieval, matching, serving, and evaluation pipeline for the jewellery retrieval engine:
 1. **Phase 1 (Catalogue Setup):** Standardized, cleaned, and verified **6,157 jewellery images** across 4 categories into a structured catalogue with unique IDs and metadata.
 2. **Phase 2 (Image Embedding):** Integrated a pretrained vision encoder (**CLIP ViT-B/32**), batch-extracted **512-dimensional L2-normalized embeddings** for all 6,157 items, and stored persistent artifacts on disk.
 3. **Phase 3 (FAISS Retrieval & Indexing):** Built an exact inner-product vector index (**`faiss.IndexFlatIP`**), persisted `artifacts/indexes/catalogue.faiss` (12.03 MB), implemented Top-$K$ retrieval with product ID mapping, and achieved **0.5187 ms median latency** on CPU.
 4. **Phase 4 (Baseline Matcher Pipeline):** Built [`app/retrieval/matcher.py`](file:///d:/PL/thuli/app/retrieval/matcher.py) (`JewelleryMatcher`) connecting query preprocessing $\to$ CLIP encoding $\to$ FAISS search $\to$ Top-5 metadata resolution $\to$ MATCH / UNKNOWN decision logic.
+5. **Phase 5 (FastAPI Backend & Web UI):** Implemented async REST API (`/match`, `/health`, `/stats`, `/samples`) and a dark-themed responsive Web UI with drag-and-drop querying, candidate previews, similarity scores, and execution metrics.
+6. **Phase 6 (Stumper Dataset & Evaluation Setup):** Built the real-world evaluation dataset structure (`evaluation/stumper.csv`), validation tool (`scripts/validate_stumper_dataset.py`), and evaluation runner (`scripts/evaluate.py`) computing Top-1, Top-5, per-condition breakdown, MATCH/UNKNOWN decisions, and CPU latency percentiles. Ready for 100+ real phone photos.
 
 ---
 
@@ -83,7 +85,27 @@ We have built the complete end-to-end vector retrieval and matching pipeline for
 
 ---
 
-## 7. Architectural Decisions (DECISIONS.md)
+## 7. Phase 5 — FastAPI Backend & Web UI (Completed)
+
+- **REST API:** [`app/main.py`](file:///d:/PL/thuli/app/main.py), [`app/api/routes.py`](file:///d:/PL/thuli/app/api/routes.py) with `/match`, `/health`, `/stats`, `/samples`.
+- **Frontend UI:** [`app/static/index.html`](file:///d:/PL/thuli/app/static/index.html), [`app/static/style.css`](file:///d:/PL/thuli/app/static/style.css), [`app/static/app.js`](file:///d:/PL/thuli/app/static/app.js).
+- **Tests:** [`tests/test_api.py`](file:///d:/PL/thuli/tests/test_api.py) — **7/7 tests PASSED**.
+
+---
+
+## 8. Phase 6 — Stumper Dataset & Evaluation Setup (Completed)
+
+- **Evaluation Directory:** [`evaluation/`](file:///d:/PL/thuli/evaluation/)
+  - `stumper.csv` (schema: `image_id,product_id,failure_condition,notes,image_path`)
+  - `images/` (directory for phone-captured photos)
+  - `README.md` (guidelines for capturing & annotating 100+ stumper queries)
+- **Validation Script:** [`scripts/validate_stumper_dataset.py`](file:///d:/PL/thuli/scripts/validate_stumper_dataset.py) verifies CSV schema, PIL image readability, catalogue ID presence, and taxonomy compliance.
+- **Evaluation Runner:** [`scripts/evaluate.py`](file:///d:/PL/thuli/scripts/evaluate.py) runs the production `JewelleryMatcher` and outputs `results.csv`, `metrics.json`, and `analysis.md`.
+- **Tests:** [`tests/test_evaluation.py`](file:///d:/PL/thuli/tests/test_evaluation.py) — **8/8 tests PASSED**.
+
+---
+
+## 9. Architectural Decisions (DECISIONS.md)
 
 | ID | Title | Decision |
 |---|---|---|
