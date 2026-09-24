@@ -1,17 +1,12 @@
 /**
- * Thuli Jewellery Retrieval — Web Test Client
- * Handles Visual Search, Sample Testing, and Live Catalogue Ingestion.
+ * Thuli — Minimalist Jewellery Visual Search Client
  */
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ── Global Stats & Tab Elements ──────────────────────────────────────────
-  const statCatalogue = document.getElementById("stat-catalogue");
-  const footerVectors = document.getElementById("footer-vectors");
+  // ── Tab Navigation ───────────────────────────────────────────────────────
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  const tabViews = document.querySelectorAll(".view-pane");
 
-  const tabButtons = document.querySelectorAll(".nav-tab");
-  const tabViews = document.querySelectorAll(".tab-view");
-
-  // Tab switching
   tabButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
       const targetId = btn.getAttribute("data-target");
@@ -31,23 +26,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Fetch initial live statistics
+  // Live Catalogue Size
+  const statCatalogue = document.getElementById("stat-catalogue");
   async function refreshStats() {
     try {
       const res = await fetch("/api/stats");
       if (res.ok) {
         const data = await res.json();
-        const formatted = `${data.total_items.toLocaleString()} Items`;
-        if (statCatalogue) statCatalogue.textContent = formatted;
-        if (footerVectors) footerVectors.textContent = `${data.total_items.toLocaleString()} items (512-d)`;
+        if (statCatalogue) {
+          statCatalogue.textContent = `${data.total_items.toLocaleString()} Items`;
+        }
       }
     } catch (e) {
-      console.warn("Could not fetch live stats:", e);
+      console.warn("Could not fetch stats:", e);
     }
   }
   refreshStats();
 
-  // ── Tab 1: Visual Search Elements & Logic ────────────────────────────────
+  // ── Tab 1: Visual Search ─────────────────────────────────────────────────
   const dropzone = document.getElementById("dropzone");
   const fileInput = document.getElementById("file-input");
   const dropzonePrompt = document.getElementById("dropzone-prompt");
@@ -62,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const btnSearch = document.getElementById("btn-search");
   const searchSpinner = document.getElementById("search-spinner");
-  const btnText = btnSearch ? btnSearch.querySelector(".btn-text") : null;
+  const btnLabel = btnSearch ? btnSearch.querySelector(".btn-label") : null;
 
   const sampleGrid = document.getElementById("sample-grid");
   const telemetryTag = document.getElementById("telemetry-tag");
@@ -70,7 +66,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const decisionBanner = document.getElementById("decision-banner");
   const decisionBadge = document.getElementById("decision-badge");
   const metricBestSim = document.getElementById("metric-best-sim");
-  const metricThreshold = document.getElementById("metric-threshold");
   const metricLatency = document.getElementById("metric-latency");
 
   const emptyState = document.getElementById("empty-state");
@@ -78,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentSearchFile = null;
 
-  // Search Controls Sync
+  // Sliders Sync
   if (sliderTopk && valTopk) {
     sliderTopk.addEventListener("input", (e) => {
       valTopk.textContent = e.target.value;
@@ -91,17 +86,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Search Dropzone events
+  // Dropzone Handlers
   if (dropzone && fileInput) {
-    ["dragenter", "dragover"].forEach((eventName) => {
-      dropzone.addEventListener(eventName, (e) => {
+    ["dragenter", "dragover"].forEach((evt) => {
+      dropzone.addEventListener(evt, (e) => {
         e.preventDefault();
         dropzone.classList.add("dragover");
       });
     });
 
-    ["dragleave", "drop"].forEach((eventName) => {
-      dropzone.addEventListener(eventName, (e) => {
+    ["dragleave", "drop"].forEach((evt) => {
+      dropzone.addEventListener(evt, (e) => {
         e.preventDefault();
         dropzone.classList.remove("dragover");
       });
@@ -109,21 +104,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     dropzone.addEventListener("drop", (e) => {
       const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        handleSearchFile(files[0]);
-      }
+      if (files && files.length > 0) handleSearchFile(files[0]);
     });
 
     fileInput.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files.length > 0) {
-        handleSearchFile(e.target.files[0]);
-      }
+      if (e.target.files && e.target.files.length > 0) handleSearchFile(e.target.files[0]);
     });
   }
 
   function handleSearchFile(file) {
     if (!file.type.startsWith("image/")) {
-      alert("Please upload a valid image file (JPEG, PNG, WebP).");
+      alert("Please upload a valid image (JPEG, PNG, WebP).");
       return;
     }
     currentSearchFile = file;
@@ -150,23 +141,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Load Catalogue Samples
+  // Load Samples
   async function loadSamples() {
     if (!sampleGrid) return;
     try {
       const res = await fetch("/api/samples");
-      if (!res.ok) throw new Error("Failed to load samples");
+      if (!res.ok) throw new Error("Could not load samples");
       const samples = await res.json();
 
       sampleGrid.innerHTML = "";
-      samples.forEach((sample) => {
-        const card = document.createElement("div");
-        card.className = "sample-card";
-        card.innerHTML = `
+      samples.slice(0, 4).forEach((sample) => {
+        const chip = document.createElement("div");
+        chip.className = "sample-chip";
+        chip.innerHTML = `
           <img src="${sample.image_path}" alt="${sample.product_name}" loading="lazy">
-          <span class="sample-card-label">${sample.category}</span>
+          <span>${sample.category}</span>
         `;
-        card.addEventListener("click", async () => {
+        chip.addEventListener("click", async () => {
           try {
             const imgRes = await fetch(sample.image_path);
             const blob = await imgRes.blob();
@@ -177,15 +168,15 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error("Error loading sample:", err);
           }
         });
-        sampleGrid.appendChild(card);
+        sampleGrid.appendChild(chip);
       });
     } catch (err) {
-      sampleGrid.innerHTML = `<div class="sample-loading">Failed to load samples: ${err.message}</div>`;
+      sampleGrid.innerHTML = `<span class="samples-loading">Samples unavailable</span>`;
     }
   }
   loadSamples();
 
-  // Search Execution
+  // Search Action
   if (btnSearch) {
     btnSearch.addEventListener("click", () => {
       executeSearch();
@@ -197,8 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnSearch.disabled = true;
     if (searchSpinner) searchSpinner.classList.remove("hidden");
-    if (btnText) btnText.textContent = "Matching...";
-    if (telemetryTag) telemetryTag.textContent = "Processing query...";
+    if (btnLabel) btnLabel.textContent = "Searching...";
+    if (telemetryTag) telemetryTag.textContent = "Retrieving...";
 
     const formData = new FormData();
     formData.append("file", currentSearchFile);
@@ -220,11 +211,11 @@ document.addEventListener("DOMContentLoaded", () => {
       renderResults(data);
     } catch (err) {
       alert(`Search error: ${err.message}`);
-      if (telemetryTag) telemetryTag.textContent = "Query failed";
+      if (telemetryTag) telemetryTag.textContent = "Error";
     } finally {
       btnSearch.disabled = false;
       if (searchSpinner) searchSpinner.classList.add("hidden");
-      if (btnText) btnText.textContent = "Search Catalogue";
+      if (btnLabel) btnLabel.textContent = "Find Matching Jewellery";
     }
   }
 
@@ -234,7 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     candidatesList.classList.remove("hidden");
 
     if (telemetryTag) {
-      telemetryTag.textContent = `Completed in ${data.query_time_ms} ms (${data.top_k} results)`;
+      telemetryTag.textContent = `${data.query_time_ms} ms (${data.top_k} results)`;
     }
 
     const isMatch = data.decision === "MATCH";
@@ -245,37 +236,35 @@ document.addEventListener("DOMContentLoaded", () => {
       decisionBanner.classList.add("unknown");
     }
 
-    metricBestSim.textContent = data.best_similarity.toFixed(4);
-    metricThreshold.textContent = data.threshold.toFixed(2);
+    metricBestSim.textContent = `${(data.best_similarity * 100).toFixed(1)}%`;
     metricLatency.textContent = `${data.query_time_ms} ms`;
 
     candidatesList.innerHTML = "";
     data.results.forEach((item) => {
-      const card = document.createElement("div");
-      card.className = `candidate-card ${item.rank === 1 ? "top1" : ""}`;
-      
+      const row = document.createElement("div");
+      row.className = `match-item ${item.rank === 1 ? "top1" : ""}`;
+
       const simPercent = Math.max(0, Math.min(100, item.similarity * 100)).toFixed(1);
       const imgUrl = item.image_url || `/${item.image_path}`;
 
-      card.innerHTML = `
-        <div class="rank-badge">#${item.rank}</div>
-        <img class="candidate-thumb" src="${imgUrl}" alt="${item.product_name}" loading="lazy">
-        <div class="candidate-info">
-          <div class="candidate-name">${item.product_name}</div>
-          <div class="candidate-meta">
-            <span class="badge-category">${item.category}</span>
-            <span class="candidate-id">${item.product_id}</span>
-            ${item.width ? `<span class="candidate-dimensions">${item.width}×${item.height}px</span>` : ""}
+      row.innerHTML = `
+        <span class="rank-num">#${item.rank}</span>
+        <img class="match-thumb" src="${imgUrl}" alt="${item.product_name}" loading="lazy">
+        <div class="match-details">
+          <span class="match-title">${item.product_name}</span>
+          <div class="match-sub">
+            <span class="tag-cat">${item.category}</span>
+            <span class="tag-id">${item.product_id}</span>
           </div>
         </div>
-        <div class="candidate-sim-box">
-          <div class="sim-score-label">${item.similarity.toFixed(4)}</div>
-          <div class="sim-bar-bg">
-            <div class="sim-bar-fill" style="width: ${simPercent}%;"></div>
+        <div class="match-score">
+          <span class="score-text">${simPercent}%</span>
+          <div class="score-track">
+            <div class="score-bar" style="width: ${simPercent}%;"></div>
           </div>
         </div>
       `;
-      candidatesList.appendChild(card);
+      candidatesList.appendChild(row);
     });
   }
 
@@ -286,10 +275,10 @@ document.addEventListener("DOMContentLoaded", () => {
       candidatesList.classList.add("hidden");
       candidatesList.innerHTML = "";
     }
-    if (telemetryTag) telemetryTag.textContent = "Ready for query";
+    if (telemetryTag) telemetryTag.textContent = "Ready";
   }
 
-  // ── Tab 2: Add New Catalogue Item Elements & Logic ───────────────────────
+  // ── Tab 2: Add New Catalogue Item ────────────────────────────────────────
   const addDropzone = document.getElementById("add-dropzone");
   const addFileInput = document.getElementById("add-file-input");
   const addDropzonePrompt = document.getElementById("add-dropzone-prompt");
@@ -299,7 +288,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const addCategory = document.getElementById("add-category");
   const addName = document.getElementById("add-name");
-  const addSubcategory = document.getElementById("add-subcategory");
   const btnAddSubmit = document.getElementById("btn-add-submit");
   const addSpinner = document.getElementById("add-spinner");
   const addTelemetryTag = document.getElementById("add-telemetry-tag");
@@ -310,7 +298,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const addedTitle = document.getElementById("added-title");
   const addedCategory = document.getElementById("added-category");
   const addedId = document.getElementById("added-id");
-  const addedDimensions = document.getElementById("added-dimensions");
   const btnTestInSearch = document.getElementById("btn-test-in-search");
 
   const recentAddedContainer = document.getElementById("recent-added-container");
@@ -320,15 +307,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastAddedItem = null;
 
   if (addDropzone && addFileInput) {
-    ["dragenter", "dragover"].forEach((eventName) => {
-      addDropzone.addEventListener(eventName, (e) => {
+    ["dragenter", "dragover"].forEach((evt) => {
+      addDropzone.addEventListener(evt, (e) => {
         e.preventDefault();
         addDropzone.classList.add("dragover");
       });
     });
 
-    ["dragleave", "drop"].forEach((eventName) => {
-      addDropzone.addEventListener(eventName, (e) => {
+    ["dragleave", "drop"].forEach((evt) => {
+      addDropzone.addEventListener(evt, (e) => {
         e.preventDefault();
         addDropzone.classList.remove("dragover");
       });
@@ -336,21 +323,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     addDropzone.addEventListener("drop", (e) => {
       const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        handleAddFile(files[0]);
-      }
+      if (files && files.length > 0) handleAddFile(files[0]);
     });
 
     addFileInput.addEventListener("change", (e) => {
-      if (e.target.files && e.target.files.length > 0) {
-        handleAddFile(e.target.files[0]);
-      }
+      if (e.target.files && e.target.files.length > 0) handleAddFile(e.target.files[0]);
     });
   }
 
   function handleAddFile(file) {
     if (!file.type.startsWith("image/")) {
-      alert("Please upload a valid image file (JPEG, PNG, WebP).");
+      alert("Please upload a valid image (JPEG, PNG, WebP).");
       return;
     }
     currentAddFile = file;
@@ -376,25 +359,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Handle Add to Catalogue Submission
   if (btnAddSubmit) {
     btnAddSubmit.addEventListener("click", async () => {
       if (!currentAddFile) return;
 
       btnAddSubmit.disabled = true;
-      addSpinner.classList.remove("hidden");
-      const btnTextEl = btnAddSubmit.querySelector(".btn-text");
-      if (btnTextEl) btnTextEl.textContent = "Processing & Indexing...";
-      if (addTelemetryTag) addTelemetryTag.textContent = "Extracting CLIP vector & indexing in FAISS...";
+      if (addSpinner) addSpinner.classList.remove("hidden");
+      const btnLabelEl = btnAddSubmit.querySelector(".btn-label");
+      if (btnLabelEl) btnLabelEl.textContent = "Indexing...";
+      if (addTelemetryTag) addTelemetryTag.textContent = "Indexing vector...";
 
       const formData = new FormData();
       formData.append("file", currentAddFile);
       formData.append("category", addCategory.value);
-      if (addName.value.trim()) {
+      if (addName && addName.value.trim()) {
         formData.append("product_name", addName.value.trim());
-      }
-      if (addSubcategory.value.trim()) {
-        formData.append("subcategory", addSubcategory.value.trim());
       }
 
       try {
@@ -405,17 +384,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!response.ok) {
           const errData = await response.json().catch(() => ({ detail: response.statusText }));
-          throw new Error(errData.detail || "Failed to add item to catalogue.");
+          throw new Error(errData.detail || "Failed to add item.");
         }
 
         const data = await response.json();
         lastAddedItem = { ...data, fileBlob: currentAddFile };
 
-        // Update stats
         refreshStats();
         loadSamples();
 
-        // Render success card
         addEmptyState.classList.add("hidden");
         addSuccessCard.classList.remove("hidden");
 
@@ -423,69 +400,57 @@ document.addEventListener("DOMContentLoaded", () => {
         addedTitle.textContent = data.product_name;
         addedCategory.textContent = data.category;
         addedId.textContent = data.product_id;
-        addedDimensions.textContent = `${data.width}×${data.height}px`;
 
         if (addTelemetryTag) {
-          addTelemetryTag.textContent = `Indexed ${data.product_id} (Catalogue: ${data.catalogue_size} items)`;
+          addTelemetryTag.textContent = `Indexed ${data.product_id}`;
         }
 
-        // Add to session feed
-        renderRecentItem(data);
+        renderRecentRow(data);
 
-        // Reset add form input
+        // Reset Add inputs
         currentAddFile = null;
         addFileInput.value = "";
         addImagePreview.src = "";
         addPreviewContainer.classList.add("hidden");
         addDropzonePrompt.classList.remove("hidden");
-        addName.value = "";
-        addSubcategory.value = "";
+        if (addName) addName.value = "";
 
       } catch (err) {
         alert(`Error adding to catalogue: ${err.message}`);
-        if (addTelemetryTag) addTelemetryTag.textContent = "Ingestion failed";
+        if (addTelemetryTag) addTelemetryTag.textContent = "Failed";
       } finally {
         btnAddSubmit.disabled = false;
-        addSpinner.classList.add("hidden");
-        if (btnTextEl) btnTextEl.textContent = "Add to Catalogue & Index Vector";
+        if (addSpinner) addSpinner.classList.add("hidden");
+        if (btnLabelEl) btnLabelEl.textContent = "Add to Catalogue & Index";
       }
     });
   }
 
-  function renderRecentItem(item) {
+  function renderRecentRow(item) {
     if (!recentAddedContainer || !recentList) return;
     recentAddedContainer.classList.remove("hidden");
 
     const row = document.createElement("div");
-    row.className = "recent-item";
+    row.className = "recent-row";
     row.innerHTML = `
       <img src="${item.image_url}" alt="${item.product_name}">
-      <div class="recent-meta">
-        <span class="recent-name">${item.product_name}</span>
-        <div class="recent-badges">
-          <span class="badge-category">${item.category}</span>
-          <span class="candidate-id">${item.product_id}</span>
-        </div>
-      </div>
+      <span>${item.product_name} (${item.category} • ${item.product_id})</span>
     `;
     recentList.prepend(row);
   }
 
-  // Wire "Test Search with this Item" button
+  // "Search for this Item" Button
   if (btnTestInSearch) {
     btnTestInSearch.addEventListener("click", () => {
       if (!lastAddedItem) return;
 
-      // 1. Switch tab to Search
       const searchTabBtn = document.getElementById("tab-search");
       if (searchTabBtn) searchTabBtn.click();
 
-      // 2. Preload into search
       if (lastAddedItem.fileBlob) {
         handleSearchFile(lastAddedItem.fileBlob);
         executeSearch();
       }
     });
   }
-
 });

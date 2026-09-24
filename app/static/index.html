@@ -3,185 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thuli — Jewellery Retrieval Engine</title>
-  <meta name="description" content="Test jewellery visual search, image retrieval, and FAISS benchmarks for PS2 Stump the Model.">
+  <title>Thuli — Jewellery Visual Search</title>
+  <meta name="description" content="Visual search and retrieval engine for jewellery catalogue.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <div class="app-container">
+  <div class="app-layout">
     
-    <!-- Top Header & Stats Bar -->
-    <header class="header">
+    <!-- Clean Minimalist Header -->
+    <header class="top-nav">
       <div class="brand">
-        <div class="brand-icon">💎</div>
-        <div>
-          <h1 class="brand-title">THULI</h1>
-          <p class="brand-subtitle">Jewellery Image Retrieval & Visual Search Engine</p>
+        <span class="brand-logo">💎</span>
+        <div class="brand-text">
+          <span class="brand-name">THULI</span>
+          <span class="brand-tag" id="stat-catalogue">6,157 Items</span>
         </div>
       </div>
-      <div class="stats-pills">
-        <div class="pill">
-          <span class="pill-label">Catalogue</span>
-          <span class="pill-value" id="stat-catalogue">6,157 Items</span>
-        </div>
-        <div class="pill">
-          <span class="pill-label">Vision Model</span>
-          <span class="pill-value">CLIP ViT-B/32</span>
-        </div>
-        <div class="pill">
-          <span class="pill-label">Vector Index</span>
-          <span class="pill-value">FAISS IndexFlatIP</span>
-        </div>
-        <div class="pill highlight">
-          <span class="pill-label">FAISS Latency</span>
-          <span class="pill-value" id="stat-latency">0.52 ms</span>
-        </div>
+
+      <!-- Navigation Tabs -->
+      <div class="nav-switch">
+        <button type="button" class="tab-btn active" id="tab-search" data-target="view-search">
+          <span>🔍 Visual Search</span>
+        </button>
+        <button type="button" class="tab-btn" id="tab-add" data-target="view-add">
+          <span>➕ Add to Catalogue</span>
+        </button>
       </div>
     </header>
 
-    <!-- Navigation Tabs -->
-    <nav class="nav-tabs">
-      <button class="nav-tab active" id="tab-search" data-target="view-search">
-        <span class="tab-icon">🔍</span> Visual Search Matcher
-      </button>
-      <button class="nav-tab" id="tab-add" data-target="view-add">
-        <span class="tab-icon">➕</span> Add New Item to Catalogue
-      </button>
-    </nav>
+    <!-- Main Workspace -->
+    <main class="content-area">
 
-    <!-- Tab View 1: Visual Search Matcher -->
-    <div id="view-search" class="tab-view active">
-      <main class="main-grid">
-        
-        <!-- Left Panel: Input & Controls -->
-        <section class="panel control-panel">
-          <h2 class="section-title">Query Image</h2>
+      <!-- View 1: Visual Search Matcher -->
+      <div id="view-search" class="view-pane active">
+        <div class="two-col-grid">
           
-          <!-- Drag and Drop Dropzone -->
-          <div class="dropzone" id="dropzone">
-            <input type="file" id="file-input" accept="image/*" class="file-input">
-            <div class="dropzone-content" id="dropzone-prompt">
-              <div class="upload-icon">📸</div>
-              <p class="upload-text"><strong>Click to upload</strong> or drag & drop</p>
-              <p class="upload-subtext">JPEG, PNG, WebP supported</p>
-            </div>
-            <div class="preview-container hidden" id="preview-container">
-              <img id="image-preview" class="image-preview" alt="Query Preview">
-              <button type="button" class="btn-clear" id="btn-clear-image" title="Remove image">&times;</button>
-            </div>
-          </div>
-
-          <!-- Controls Form -->
-          <div class="controls-form">
-            <div class="form-group">
-              <div class="label-row">
-                <label for="slider-topk">Top-K Candidates</label>
-                <span class="value-display" id="val-topk">5</span>
+          <!-- Query & Options Column -->
+          <div class="card query-card">
+            <h2 class="card-heading">Query Photograph</h2>
+            
+            <!-- Upload Dropzone -->
+            <div class="dropzone" id="dropzone">
+              <input type="file" id="file-input" accept="image/*" class="file-input">
+              <div class="drop-prompt" id="dropzone-prompt">
+                <span class="drop-icon">📷</span>
+                <span class="drop-text"><strong>Choose photo</strong> or drag & drop</span>
+                <span class="drop-sub">JPG, PNG, WebP</span>
               </div>
-              <input type="range" id="slider-topk" min="1" max="10" value="5" class="slider">
-            </div>
-
-            <div class="form-group">
-              <div class="label-row">
-                <label for="slider-threshold">Match Threshold (τ)</label>
-                <span class="value-display" id="val-threshold">0.75</span>
-              </div>
-              <input type="range" id="slider-threshold" min="0.50" max="0.95" step="0.01" value="0.75" class="slider">
-              <div class="slider-ticks">
-                <span>0.50 (Permissive)</span>
-                <span>0.75 (Default)</span>
-                <span>0.95 (Strict)</span>
+              <div class="preview-wrap hidden" id="preview-container">
+                <img id="image-preview" alt="Query Preview">
+                <button type="button" class="clear-btn" id="btn-clear-image" title="Clear photo">&times;</button>
               </div>
             </div>
 
-            <button type="button" class="btn-primary" id="btn-search" disabled>
-              <span class="btn-text">Search Catalogue</span>
+            <!-- Action Button -->
+            <button type="button" class="action-btn" id="btn-search" disabled>
+              <span class="btn-label">Find Matching Jewellery</span>
               <span class="spinner hidden" id="search-spinner"></span>
             </button>
-          </div>
 
-          <!-- Sample Catalogue Images -->
-          <div class="sample-section">
-            <h3 class="subsection-title">Or Test with Catalogue Samples:</h3>
-            <div class="sample-grid" id="sample-grid">
-              <div class="sample-loading">Loading sample catalogue items...</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Right Panel: Results & Match Breakdown -->
-        <section class="panel results-panel">
-          <div class="results-header">
-            <h2 class="section-title">Search Results</h2>
-            <div class="telemetry-tag" id="telemetry-tag">Ready for query</div>
-          </div>
-
-          <!-- Decision Banner -->
-          <div class="decision-banner hidden" id="decision-banner">
-            <div class="decision-badge" id="decision-badge">MATCH</div>
-            <div class="decision-details">
-              <div class="decision-metric">
-                <span class="metric-label">Best Similarity:</span>
-                <span class="metric-val" id="metric-best-sim">0.0000</span>
-              </div>
-              <div class="decision-metric">
-                <span class="metric-label">Threshold:</span>
-                <span class="metric-val" id="metric-threshold">0.75</span>
-              </div>
-              <div class="decision-metric">
-                <span class="metric-label">Total Time:</span>
-                <span class="metric-val" id="metric-latency">0 ms</span>
+            <!-- Quick Samples -->
+            <div class="samples-wrap">
+              <span class="samples-title">Try Catalogue Examples:</span>
+              <div class="samples-row" id="sample-grid">
+                <span class="samples-loading">Loading samples...</span>
               </div>
             </div>
+
+            <!-- Collapsible Advanced Settings -->
+            <details class="settings-accordion">
+              <summary>Retrieval Settings</summary>
+              <div class="settings-content">
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <span>Candidates (Top-K)</span>
+                    <strong id="val-topk">5</strong>
+                  </div>
+                  <input type="range" id="slider-topk" min="1" max="10" value="5" class="range-slider">
+                </div>
+
+                <div class="setting-item">
+                  <div class="setting-header">
+                    <span>Match Threshold (τ)</span>
+                    <strong id="val-threshold">0.75</strong>
+                  </div>
+                  <input type="range" id="slider-threshold" min="0.50" max="0.95" step="0.01" value="0.75" class="range-slider">
+                </div>
+              </div>
+            </details>
           </div>
 
-          <!-- Initial Placeholder State -->
-          <div class="empty-state" id="empty-state">
-            <div class="empty-icon">🔍</div>
-            <h3>No Search Executed Yet</h3>
-            <p>Upload a jewellery photo on the left or select a sample image to test vector matching.</p>
-          </div>
-
-          <!-- Results Candidate List -->
-          <div class="candidates-list hidden" id="candidates-list">
-            <!-- Populated by JS -->
-          </div>
-        </section>
-
-      </main>
-    </div>
-
-    <!-- Tab View 2: Add New Item to Catalogue -->
-    <div id="view-add" class="tab-view hidden">
-      <main class="main-grid">
-        
-        <!-- Left Panel: Upload & Category Selection -->
-        <section class="panel control-panel">
-          <h2 class="section-title">Upload New Catalogue Item</h2>
-          <p class="section-desc">Add a jewellery photo to the catalogue. The image will be processed, embedded with CLIP ViT-B/32, and indexed into FAISS immediately.</p>
-
-          <!-- Upload Dropzone for Ingestion -->
-          <div class="dropzone" id="add-dropzone">
-            <input type="file" id="add-file-input" accept="image/*" class="file-input">
-            <div class="dropzone-content" id="add-dropzone-prompt">
-              <div class="upload-icon">💎</div>
-              <p class="upload-text"><strong>Click to select photo</strong> or drag & drop</p>
-              <p class="upload-subtext">JPEG, PNG, WebP supported</p>
+          <!-- Results Column -->
+          <div class="card results-card">
+            <div class="results-top">
+              <h2 class="card-heading">Matches</h2>
+              <span class="status-chip" id="telemetry-tag">Ready</span>
             </div>
-            <div class="preview-container hidden" id="add-preview-container">
-              <img id="add-image-preview" class="image-preview" alt="New Item Preview">
-              <button type="button" class="btn-clear" id="btn-clear-add-image" title="Remove image">&times;</button>
+
+            <!-- Summary Decision Banner -->
+            <div class="decision-box hidden" id="decision-banner">
+              <div class="badge-status" id="decision-badge">MATCH</div>
+              <div class="decision-stats">
+                <div class="stat-col">
+                  <span class="stat-caption">Top Similarity</span>
+                  <span class="stat-number" id="metric-best-sim">0.0%</span>
+                </div>
+                <div class="stat-col">
+                  <span class="stat-caption">Latency</span>
+                  <span class="stat-number" id="metric-latency">0 ms</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Empty Placeholder -->
+            <div class="empty-placeholder" id="empty-state">
+              <span class="empty-glyph">🔎</span>
+              <h3>No Query Run Yet</h3>
+              <p>Upload a photograph on the left or select an example to view ranked matches.</p>
+            </div>
+
+            <!-- Candidate Items List -->
+            <div class="candidates-stack hidden" id="candidates-list">
+              <!-- Dynamically populated -->
             </div>
           </div>
 
-          <!-- Metadata Form -->
-          <div class="controls-form">
-            <div class="form-group">
-              <label for="add-category">Category <span class="required">*</span></label>
-              <select id="add-category" class="select-input">
+        </div>
+      </div>
+
+      <!-- View 2: Add New Item to Catalogue -->
+      <div id="view-add" class="view-pane hidden">
+        <div class="two-col-grid">
+          
+          <!-- Ingestion Form Column -->
+          <div class="card query-card">
+            <h2 class="card-heading">Add New Jewellery Item</h2>
+            <p class="card-sub">Upload a new photograph to index it permanently into the vector catalogue.</p>
+
+            <!-- Upload Dropzone -->
+            <div class="dropzone" id="add-dropzone">
+              <input type="file" id="add-file-input" accept="image/*" class="file-input">
+              <div class="drop-prompt" id="add-dropzone-prompt">
+                <span class="drop-icon">✨</span>
+                <span class="drop-text"><strong>Choose photo</strong> or drag & drop</span>
+                <span class="drop-sub">JPG, PNG, WebP</span>
+              </div>
+              <div class="preview-wrap hidden" id="add-preview-container">
+                <img id="add-image-preview" alt="New Item Preview">
+                <button type="button" class="clear-btn" id="btn-clear-add-image" title="Clear photo">&times;</button>
+              </div>
+            </div>
+
+            <!-- Category & Details -->
+            <div class="field-group">
+              <label for="add-category">Category *</label>
+              <select id="add-category" class="form-control">
                 <option value="ring">Ring</option>
                 <option value="necklace">Necklace</option>
                 <option value="earring">Earring</option>
@@ -192,102 +171,72 @@
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="field-group">
               <label for="add-name">Product Name (Optional)</label>
-              <input type="text" id="add-name" class="text-input" placeholder="e.g. Diamond Bull Head Pendant">
+              <input type="text" id="add-name" class="form-control" placeholder="e.g. Diamond Bull Head Pendant">
             </div>
 
-            <div class="form-group">
-              <label for="add-subcategory">Subcategory (Optional)</label>
-              <input type="text" id="add-subcategory" class="text-input" placeholder="e.g. Solitaire, Filigree, Choker">
-            </div>
-
-            <button type="button" class="btn-primary" id="btn-add-submit" disabled>
-              <span class="btn-text">Add to Catalogue & Index Vector</span>
+            <button type="button" class="action-btn" id="btn-add-submit" disabled>
+              <span class="btn-label">Add to Catalogue & Index</span>
               <span class="spinner hidden" id="add-spinner"></span>
             </button>
           </div>
-        </section>
 
-        <!-- Right Panel: Ingestion Feedback -->
-        <section class="panel results-panel">
-          <div class="results-header">
-            <h2 class="section-title">Catalogue Ingestion Status</h2>
-            <div class="telemetry-tag" id="add-telemetry-tag">Ready to ingest</div>
-          </div>
-
-          <!-- Success Card (Hidden initially) -->
-          <div class="success-card hidden" id="add-success-card">
-            <div class="success-banner">
-              <div class="success-icon">✓</div>
-              <div>
-                <h3 class="success-title">Item Successfully Added & Indexed!</h3>
-                <p class="success-desc">Assigned unique ID and synchronized with FAISS vector index.</p>
-              </div>
+          <!-- Ingestion Status Column -->
+          <div class="card results-card">
+            <div class="results-top">
+              <h2 class="card-heading">Ingestion Status</h2>
+              <span class="status-chip" id="add-telemetry-tag">Ready</span>
             </div>
 
-            <div class="added-item-details">
-              <img id="added-thumb" class="added-thumb" src="" alt="Added item">
-              <div class="added-info">
-                <div class="added-title" id="added-title">Product Name</div>
-                <div class="candidate-meta">
-                  <span class="badge-category" id="added-category">ring</span>
-                  <span class="candidate-id" id="added-id">JW_006158</span>
-                  <span class="candidate-dimensions" id="added-dimensions">682×1024px</span>
-                </div>
-                <div class="steps-checklist">
-                  <div class="step-check">✓ Image saved in catalogue directory</div>
-                  <div class="step-check">✓ 512-d CLIP ViT-B/32 embedding extracted</div>
-                  <div class="step-check">✓ Vector indexed into FAISS IndexFlatIP</div>
-                  <div class="step-check">✓ Record appended to catalogue.csv</div>
+            <!-- Success Card -->
+            <div class="success-box hidden" id="add-success-card">
+              <div class="success-header">
+                <span class="check-glyph">✓</span>
+                <div>
+                  <h3 class="success-headline">Successfully Indexed!</h3>
+                  <span class="success-subline">Vector added to FAISS and catalogue updated.</span>
                 </div>
               </div>
+
+              <div class="new-item-row">
+                <img id="added-thumb" class="item-thumb" src="" alt="Added item">
+                <div class="item-meta">
+                  <span class="item-name" id="added-title">Product Name</span>
+                  <div class="item-tags">
+                    <span class="tag-cat" id="added-category">ring</span>
+                    <span class="tag-id" id="added-id">JW_006158</span>
+                  </div>
+                </div>
+              </div>
+
+              <button type="button" class="secondary-btn" id="btn-test-in-search">
+                <span>🚀 Search for this Item</span>
+              </button>
             </div>
 
-            <button type="button" class="btn-secondary" id="btn-test-in-search">
-              <span>🚀 Test Search with this Item</span>
-            </button>
+            <!-- Empty State for Add View -->
+            <div class="empty-placeholder" id="add-empty-state">
+              <span class="empty-glyph">📦</span>
+              <h3>No Item Uploaded Yet</h3>
+              <p>Upload a photo and pick a category on the left to add a product to the catalogue.</p>
+            </div>
+
+            <!-- Session History -->
+            <div class="recent-wrap hidden" id="recent-added-container">
+              <span class="samples-title">Recently Added in this Session:</span>
+              <div class="recent-list" id="recent-list"></div>
+            </div>
           </div>
 
-          <!-- Empty placeholder for Add view -->
-          <div class="empty-state" id="add-empty-state">
-            <div class="empty-icon">📦</div>
-            <h3>No Item Added Yet</h3>
-            <p>Select or drag an image on the left, pick a category, and click <strong>Add to Catalogue</strong> to index a new jewellery piece.</p>
-          </div>
+        </div>
+      </div>
 
-          <!-- Session Added History -->
-          <div class="recent-added-container hidden" id="recent-added-container">
-            <h3 class="subsection-title">Items Added This Session:</h3>
-            <div class="recent-list" id="recent-list"></div>
-          </div>
-        </section>
+    </main>
 
-      </main>
-    </div>
-
-    <!-- Bottom System & Benchmark Summary Bar -->
-    <footer class="footer-card">
-      <div class="bench-item">
-        <span class="bench-title">FAISS Median Latency</span>
-        <span class="bench-val">0.5187 ms</span>
-      </div>
-      <div class="bench-item">
-        <span class="bench-title">FAISS p95 Latency</span>
-        <span class="bench-val">0.7350 ms</span>
-      </div>
-      <div class="bench-item">
-        <span class="bench-title">FAISS Throughput</span>
-        <span class="bench-val">1,849.9 QPS</span>
-      </div>
-      <div class="bench-item">
-        <span class="bench-title">Vectors Indexed</span>
-        <span class="bench-val" id="footer-vectors">6,157 items (512-d)</span>
-      </div>
-      <div class="bench-item">
-        <span class="bench-title">Test Suite Status</span>
-        <span class="bench-val status-green">65 / 65 Passing (100%)</span>
-      </div>
+    <!-- Clean Footer -->
+    <footer class="bottom-bar">
+      <span>Thuli Engine • CLIP ViT-B/32 + FAISS IndexFlatIP</span>
     </footer>
 
   </div>
