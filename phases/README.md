@@ -9,8 +9,8 @@ This directory contains the detailed specifications and step-by-step guides for 
 | Phase | Title | Status | Documentation |
 |---|---|---|---|
 | **Phase 1** | Catalogue Setup (5,000+ images) | Completed | [`logs/session_01.md`](file:///d:/PL/thuli/logs/session_01.md) |
-| **Phase 2** | Image Embedding (Vision Encoder) | Ready to Execute | [`phases/phase_02_embedding.md`](file:///d:/PL/thuli/phases/phase_02_embedding.md) |
-| **Phase 3** | FAISS Retrieval & Indexing | Planned | `phases/phase_03_faiss.md` |
+| **Phase 2** | Image Embedding (Vision Encoder) | Completed | [`phases/phase_02_embedding.md`](file:///d:/PL/thuli/phases/phase_02_embedding.md) |
+| **Phase 3** | FAISS Retrieval & Indexing | Ready to Execute | `phases/phase_03_faiss.md` |
 | **Phase 4** | Baseline Matcher Pipeline | Planned | `phases/phase_04_baseline_matcher.md` |
 | **Phase 5** | FastAPI Backend (`/match`) | Planned | `phases/phase_05_api.md` |
 | **Phase 6** | Clean Evaluation (Top-1, Top-5, Latency) | Planned | `phases/phase_06_clean_evaluation.md` |

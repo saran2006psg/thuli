@@ -101,8 +101,54 @@ Reassign sequential IDs in format `JW_000001` … `JW_NNNNNN` during the cleanin
 
 ---
 
+---
+
+## Phase 2 — Image Embedding
+
+### D-005 · Vision Encoder: CLIP `openai/clip-vit-base-patch32`
+
+**Date:** 2026-09-24
+**Status:** Active
+
+**Context:**
+Need a vision backbone to extract dense visual representations from 6,157 jewellery images.
+Candidates:
+1. CLIP (`openai/clip-vit-base-patch32`) — 512-dim multimodal representation.
+2. DINOv2 (`facebook/dinov2-base`) — 768-dim self-supervised representation.
+3. ResNet50 (ImageNet-1k) — 2048-dim supervised classification features.
+
+**Decision:**
+Adopt CLIP ViT-B/32 as the baseline vision encoder.
+
+**Reason:**
+- Zero-shot visual semantic capability captures fine-grained attributes (metal finish, gemstone color, silhouette, gemstone cuts).
+- Compact 512-dimensional output keeps memory usage low (~12 MB for 6,157 items) and enables ultra-fast retrieval (<2ms).
+- Standard across visual retrieval benchmarks.
+
+**Alternatives rejected:**
+- ResNet50 ImageNet: overfits to 1,000 ImageNet categories, lacks fine-grained jewellery material perception.
+- DINOv2-Large: higher latency and memory overhead on CPU for initial baseline.
+
+---
+
+### D-006 · Vector Normalization: Unit L2 Norm for Inner Product Cosine Equivalence
+
+**Date:** 2026-09-24
+**Status:** Active
+
+**Context:**
+Cosine similarity measures angular distance between embeddings independent of scale.
+
+**Decision:**
+Apply unit L2 normalization ($\|v\|_2 = 1.0$) immediately upon extraction.
+
+**Reason:**
+- For normalized vectors, cosine similarity $\cos(\theta) = u \cdot v$ equals inner product.
+- Allows using `faiss.IndexFlatIP` (fastest exact inner-product search) without computing norms at query time.
+
+---
+
 ## Open Items
 
-- [ ] **D-005** — Vision encoder selection (Phase 2). CLIP vs ResNet50 vs DINOv2. Will be decided after baseline embedding quality is measured.
-- [ ] **D-006** — FAISS index type (Phase 3). Start with `IndexFlatIP` (exact cosine), upgrade to `IndexIVFFlat` only if latency is unacceptable.
-- [ ] **D-007** — Similarity threshold τ (Phase 4). Will be determined experimentally using validation data, not guessed.
+- [ ] **D-007** — FAISS index type (Phase 3). Start with `IndexFlatIP` (exact cosine), upgrade to `IndexIVFFlat` only if latency is unacceptable.
+- [ ] **D-008** — Similarity threshold τ (Phase 4). Will be determined experimentally using validation data, not guessed.

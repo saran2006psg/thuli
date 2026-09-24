@@ -80,9 +80,9 @@ Create unit & integrity tests:
 ## 5. Phase 2 Gate / Verification Checklist
 
 Before moving to Phase 3 (FAISS Retrieval Indexing):
-- [ ] Dependencies installed (`torch`, `transformers`, etc.)
-- [ ] `scripts/generate_embeddings.py` completes without errors
-- [ ] `artifacts/embeddings/catalogue_embeddings.npy` created (size ~11.8 MB for 512-dim)
-- [ ] `artifacts/embeddings/product_ids.json` created
-- [ ] `pytest tests/test_embeddings.py -v` passes 100%
-- [ ] `logs/session_02.md` and `DECISIONS.md` updated with encoder choices
+- [x] Dependencies installed (`torch`, `transformers`, etc.)
+- [x] `scripts/generate_embeddings.py` completes without errors
+- [x] `artifacts/embeddings/catalogue_embeddings.npy` created (size ~12.6 MB for 6,157 x 512-dim)
+- [x] `artifacts/embeddings/product_ids.json` created
+- [x] `pytest tests/test_embeddings.py -v` passes 100%
+- [x] `logs/session_02.md` and `DECISIONS.md` updated with encoder choices
