@@ -1,12 +1,40 @@
-image_id,type,failure_condition,notes,image_path
-id01,bracelet,clutter,its covered by lock,D:\PL\thuli\evaluation\images\id01.jpeg
-id02,bracelet,hand,its covered by lock,D:\PL\thuli\evaluation\images\id02.jpeg
-id03,bracelet,motionblur,its bured,D:\PL\thuli\evaluation\images\id03.jpeg
-id04,ring,clutter,its covered by lock,D:\PL\thuli\evaluation\images\id04.jpeg 
-id05,necklace,noise,its filled with noice,D:\PL\thuli\evaluation\images\id05.jpeg
-id06,ring,clutter,its filled with background,D:\PL\thuli\evaluation\images\id06.jpeg
-id07,ring,motionblur,its filled with background,D:\PL\thuli\evaluation\images\id07.jpeg
-id08,ring,motionblur,its filled with blur,D:\PL\thuli\evaluation\images\id08.jpeg
-id09,ring,lowlight,its filled with blur,D:\PL\thuli\evaluation\images\id09.jpeg
-id10,ring,lowlight,its filled with blur,D:\PL\thuli\evaluation\images\id10.jpeg
-id11,rinf,lowlight,its filled with blur,D:\PL\thuli\evaluation\images\id11.jpeg
+image_id,product_id,failure_condition,notes,image_path
+id01,bracelet,clutter,its covered by lock,d:\PL\thuli\evaluation\images\id01.jpeg
+id02,bracelet,hand,its covered by lock,d:\PL\thuli\evaluation\images\id02.jpeg
+id03,bracelet,motionblur,its blurred,d:\PL\thuli\evaluation\images\id03.jpeg
+id04,ring,clutter,its covered by lock,d:\PL\thuli\evaluation\images\id04.jpeg
+id05,necklace,noise,its filled with noise,d:\PL\thuli\evaluation\images\id05.jpeg
+id06,ring,clutter,its filled with background,d:\PL\thuli\evaluation\images\id06.jpeg
+id07,ring,motionblur,its filled with background,d:\PL\thuli\evaluation\images\id07.jpeg
+id08,ring,motionblur,its filled with blur,d:\PL\thuli\evaluation\images\id08.jpeg
+id09,ring,bad_lighting,its filled with blur,d:\PL\thuli\evaluation\images\id09.jpeg
+id10,ring,bad_lighting,its filled with blur,d:\PL\thuli\evaluation\images\id10.jpeg
+id11,ring,bad_lighting,,d:\PL\thuli\evaluation\images\id11.jpg
+id12,ring,bright_lighting,35669675-16eb-407b-9a7a-b646eabbcdde,d:\PL\thuli\evaluation\images\id12.jpeg
+id13,ring,clutter,7c97de59-8640-44b0-b67f-4d4d794e3956,d:\PL\thuli\evaluation\images\id13.jpeg
+id14,ring,distance,cd192de7-a097-4e11-8ca9-1be2a1a9389e,d:\PL\thuli\evaluation\images\id14.jpeg
+id15,ring,hand_wrist,8b263036-1ec6-4f71-9adb-82f6acd046d6,d:\PL\thuli\evaluation\images\id15.jpeg
+id16,ring,motion_blur,221773e2-a017-42c3-939a-f0c0c3b6b50f,d:\PL\thuli\evaluation\images\id16.jpeg
+id17,ring,normal,9b65a9ce-3268-45c9-a774-9e777969b4af,d:\PL\thuli\evaluation\images\id17.jpeg
+id18,ring,occlusion,982ee979-730b-41b2-b7e4-0c202b6ac4f5,d:\PL\thuli\evaluation\images\id18.jpeg
+id19,ring,odd_angle,727da112-c78e-4ef4-a848-d1a9af913ae8,d:\PL\thuli\evaluation\images\id19.jpeg
+id20,ring,reflection,42dbf3ad-3af3-473f-9f17-49e0ed5bc48b,d:\PL\thuli\evaluation\images\id20.jpeg
+id21,bracelet,bad_lighting,e8e35c06-12d5-4074-bad0-300eb9f4077a,d:\PL\thuli\evaluation\images\id21.jpeg
+id22,bracelet,bright_lighting,7bb44b72-537a-467b-bbc1-ae719749a314,d:\PL\thuli\evaluation\images\id22.jpeg
+id23,bracelet,clutter,700479d3-ad07-40c8-b057-3999785b28e6,d:\PL\thuli\evaluation\images\id23.jpeg
+id24,bracelet,distance,2098c1ed-4cf3-41c6-b192-069535efb17f,d:\PL\thuli\evaluation\images\id24.jpeg
+id25,bracelet,hand_wrist,bf9996a1-ab5a-48f3-acfc-0866e1bf3cfe,d:\PL\thuli\evaluation\images\id25.jpeg
+id26,bracelet,motion_blur,2c25d119-40ad-434b-85cf-147380cda356,d:\PL\thuli\evaluation\images\id26.jpeg
+id27,bracelet,normal,728b1268-b2cc-493b-9121-ba8c06e9e843,d:\PL\thuli\evaluation\images\id27.jpeg
+id28,bracelet,normal,7b64c8ab-b1b2-47f0-aeb7-f98804ab3857,d:\PL\thuli\evaluation\images\id28.jpeg
+id29,bracelet,occlusion,9eabb195-6dbb-4dc7-81b6-8da32fc4aaca,d:\PL\thuli\evaluation\images\id29.jpeg
+id30,bracelet,odd_angle,00fa809a-d3b1-469b-9114-fd4b0f271377,d:\PL\thuli\evaluation\images\id30.jpeg
+id31,necklace,bad_lighting,9946b3cb-959b-49f1-ae3a-7f8294781d09,d:\PL\thuli\evaluation\images\id31.jpeg
+id32,necklace,bright_lighting,19c228dc-d374-409e-81e7-09ef60e7403c,d:\PL\thuli\evaluation\images\id32.jpeg
+id33,necklace,clutter,24dfcd98-7129-4a18-8a68-a2e7a295a248,d:\PL\thuli\evaluation\images\id33.jpeg
+id34,necklace,distance,9bb79310-11db-4d9d-b893-0024d7b254f1,d:\PL\thuli\evaluation\images\id34.jpeg
+id35,necklace,hand_wrist,2585f5fb-5c38-4cf6-b0c0-8b20602e271b,d:\PL\thuli\evaluation\images\id35.jpeg
+id36,necklace,motion_blur,85deb24c-fcd0-4817-99d8-4ee53aee6d5f,d:\PL\thuli\evaluation\images\id36.jpeg
+id37,necklace,normal,9f24d64b-9e83-4b27-9804-d09e4fbdae35,d:\PL\thuli\evaluation\images\id37.jpeg
+id38,necklace,occlusion,f21fd990-bf59-42e0-9a3c-efa4e43167ae,d:\PL\thuli\evaluation\images\id38.jpeg
+id39,necklace,odd_angle,aaaedafe-1bd4-4df8-a955-44b2ab838969,d:\PL\thuli\evaluation\images\id39.jpeg
