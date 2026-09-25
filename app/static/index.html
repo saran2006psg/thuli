@@ -7,13 +7,13 @@
   <meta name="description" content="Visual search and retrieval engine for jewellery catalogue.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <div class="app-layout">
     
-    <!-- Clean Minimalist Header -->
+    <!-- Header -->
     <header class="top-nav">
       <div class="brand">
         <span class="brand-logo">💎</span>
@@ -28,8 +28,11 @@
         <button type="button" class="tab-btn active" id="tab-search" data-target="view-search">
           <span>🔍 Visual Search</span>
         </button>
+        <button type="button" class="tab-btn" id="tab-eval" data-target="view-eval">
+          <span>⚔️ Evaluation</span>
+        </button>
         <button type="button" class="tab-btn" id="tab-add" data-target="view-add">
-          <span>➕ Add to Catalogue</span>
+          <span>➕ Add Item</span>
         </button>
       </div>
     </header>
@@ -37,20 +40,18 @@
     <!-- Main Workspace -->
     <main class="content-area">
 
-      <!-- View 1: Visual Search Matcher -->
+      <!-- View 1: Visual Search -->
       <div id="view-search" class="view-pane active">
         <div class="two-col-grid">
           
-          <!-- Query & Options Column -->
           <div class="card query-card">
             <h2 class="card-heading">Query Photograph</h2>
             
-            <!-- Upload Dropzone -->
             <div class="dropzone" id="dropzone">
               <input type="file" id="file-input" accept="image/*" class="file-input">
               <div class="drop-prompt" id="dropzone-prompt">
                 <span class="drop-icon">📷</span>
-                <span class="drop-text"><strong>Choose photo</strong> or drag & drop</span>
+                <span class="drop-text"><strong>Choose photo</strong> or drag &amp; drop</span>
                 <span class="drop-sub">JPG, PNG, WebP</span>
               </div>
               <div class="preview-wrap hidden" id="preview-container">
@@ -59,13 +60,11 @@
               </div>
             </div>
 
-            <!-- Action Button -->
             <button type="button" class="action-btn" id="btn-search" disabled>
               <span class="btn-label">Find Matching Jewellery</span>
               <span class="spinner hidden" id="search-spinner"></span>
             </button>
 
-            <!-- Quick Samples -->
             <div class="samples-wrap">
               <span class="samples-title">Try Catalogue Examples:</span>
               <div class="samples-row" id="sample-grid">
@@ -73,7 +72,6 @@
               </div>
             </div>
 
-            <!-- Collapsible Advanced Settings -->
             <details class="settings-accordion">
               <summary>Retrieval Settings</summary>
               <div class="settings-content">
@@ -84,7 +82,6 @@
                   </div>
                   <input type="range" id="slider-topk" min="1" max="10" value="5" class="range-slider">
                 </div>
-
                 <div class="setting-item">
                   <div class="setting-header">
                     <span>Match Threshold (τ)</span>
@@ -96,14 +93,12 @@
             </details>
           </div>
 
-          <!-- Results Column -->
           <div class="card results-card">
             <div class="results-top">
               <h2 class="card-heading">Matches</h2>
               <span class="status-chip" id="telemetry-tag">Ready</span>
             </div>
 
-            <!-- Summary Decision Banner -->
             <div class="decision-box hidden" id="decision-banner">
               <div class="badge-status" id="decision-badge">MATCH</div>
               <div class="decision-stats">
@@ -118,37 +113,176 @@
               </div>
             </div>
 
-            <!-- Empty Placeholder -->
             <div class="empty-placeholder" id="empty-state">
               <span class="empty-glyph">🔎</span>
               <h3>No Query Run Yet</h3>
               <p>Upload a photograph on the left or select an example to view ranked matches.</p>
             </div>
 
-            <!-- Candidate Items List -->
-            <div class="candidates-stack hidden" id="candidates-list">
-              <!-- Dynamically populated -->
-            </div>
+            <div class="candidates-stack hidden" id="candidates-list"></div>
           </div>
 
         </div>
       </div>
 
-      <!-- View 2: Add New Item to Catalogue -->
+      <!-- View 2: Evaluation Dashboard -->
+      <div id="view-eval" class="view-pane hidden">
+
+        <!-- Fighter-style arena header -->
+        <div class="arena-banner">
+          <div class="arena-title-wrap">
+            <span class="arena-icon">⚔️</span>
+            <div>
+              <h1 class="arena-title">BASELINE EVALUATION</h1>
+              <p class="arena-sub">CLIP ViT-B/32 vs Real-World Stumper Dataset</p>
+            </div>
+          </div>
+          <div class="arena-controls">
+            <button type="button" class="eval-btn eval-btn-primary" id="btn-run-eval">
+              <span id="run-eval-label">▶ Run Evaluation</span>
+              <span class="spinner hidden" id="eval-spinner"></span>
+            </button>
+            <button type="button" class="eval-btn eval-btn-ghost" id="btn-refresh-eval">↻ Refresh</button>
+            <a href="/api/evaluation/download" class="eval-btn eval-btn-ghost" id="btn-download-csv" target="_blank">⬇ Download CSV</a>
+          </div>
+        </div>
+
+        <!-- No results state -->
+        <div class="eval-empty" id="eval-empty">
+          <span class="eval-empty-icon">🏟️</span>
+          <h3>Arena is Empty</h3>
+          <p>Click <strong>Run Evaluation</strong> to battle the model against all stumper images.</p>
+        </div>
+
+        <!-- Results content (hidden until first run) -->
+        <div class="eval-content hidden" id="eval-content">
+
+          <!-- KPI scoreboard -->
+          <div class="scoreboard" id="scoreboard">
+            <div class="score-card score-card--gold">
+              <div class="score-label">TOP-1 ACC</div>
+              <div class="score-value" id="kpi-top1">—</div>
+              <div class="score-sublabel">Category Match</div>
+            </div>
+            <div class="score-card score-card--blue">
+              <div class="score-label">TOP-5 ACC</div>
+              <div class="score-value" id="kpi-top5">—</div>
+              <div class="score-sublabel">Any in Top-5</div>
+            </div>
+            <div class="score-card score-card--green">
+              <div class="score-label">MATCHED</div>
+              <div class="score-value" id="kpi-match">—</div>
+              <div class="score-sublabel">Above Threshold</div>
+            </div>
+            <div class="score-card score-card--red">
+              <div class="score-label">UNKNOWN</div>
+              <div class="score-value" id="kpi-unknown">—</div>
+              <div class="score-sublabel">Below Threshold</div>
+            </div>
+            <div class="score-card score-card--purple">
+              <div class="score-label">MEDIAN LAT</div>
+              <div class="score-value" id="kpi-lat-med">—</div>
+              <div class="score-sublabel">ms per query</div>
+            </div>
+            <div class="score-card score-card--orange">
+              <div class="score-label">P95 LAT</div>
+              <div class="score-value" id="kpi-lat-p95">—</div>
+              <div class="score-sublabel">ms worst-case</div>
+            </div>
+          </div>
+
+          <!-- Per-condition chart + dataset progress -->
+          <div class="eval-mid-grid">
+
+            <!-- Per-condition accuracy chart -->
+            <div class="card eval-card">
+              <h3 class="card-heading">⚡ Accuracy by Condition</h3>
+              <div class="condition-chart" id="condition-chart">
+                <!-- bars injected by JS -->
+              </div>
+            </div>
+
+            <!-- Dataset progress -->
+            <div class="card eval-card">
+              <h3 class="card-heading">📈 Dataset Progress</h3>
+              <div class="progress-arena">
+                <div class="progress-numbers">
+                  <span class="prog-current" id="prog-current">0</span>
+                  <span class="prog-sep">/</span>
+                  <span class="prog-target">100</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+                </div>
+                <div class="progress-pct" id="progress-pct">0%</div>
+                <p class="progress-hint">Images needed to reach 100-image evaluation set.</p>
+
+                <!-- Match/Unknown breakdown bar -->
+                <div class="verdict-split">
+                  <div class="verdict-label">
+                    <span class="dot dot--green"></span>MATCH
+                    <span class="verdict-count" id="vs-match">0</span>
+                  </div>
+                  <div class="verdict-track">
+                    <div class="verdict-match-bar" id="verdict-match-bar" style="width:50%"></div>
+                    <div class="verdict-unknown-bar" id="verdict-unknown-bar" style="width:50%"></div>
+                  </div>
+                  <div class="verdict-label">
+                    UNKNOWN <span class="verdict-count" id="vs-unknown">0</span>
+                    <span class="dot dot--red"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Worst failures table -->
+          <div class="card eval-card">
+            <h3 class="card-heading">💀 Worst Failures — Where the Model Choked</h3>
+            <div class="failures-table-wrap">
+              <table class="failures-table" id="failures-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>ID</th>
+                    <th>Ground Truth</th>
+                    <th>Predicted</th>
+                    <th>Similarity</th>
+                    <th>GT Rank</th>
+                    <th>Condition</th>
+                    <th>Decision</th>
+                  </tr>
+                </thead>
+                <tbody id="failures-tbody">
+                  <tr><td colspan="8" class="table-empty">No failures yet — run the evaluation first.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Run metadata -->
+          <div class="eval-meta" id="eval-meta">
+            Last run: <span id="eval-run-at">—</span> &nbsp;|&nbsp;
+            Total images evaluated: <span id="eval-total">—</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- View 3: Add New Item to Catalogue -->
       <div id="view-add" class="view-pane hidden">
         <div class="two-col-grid">
           
-          <!-- Ingestion Form Column -->
           <div class="card query-card">
             <h2 class="card-heading">Add New Jewellery Item</h2>
             <p class="card-sub">Upload a new photograph to index it permanently into the vector catalogue.</p>
 
-            <!-- Upload Dropzone -->
             <div class="dropzone" id="add-dropzone">
               <input type="file" id="add-file-input" accept="image/*" class="file-input">
               <div class="drop-prompt" id="add-dropzone-prompt">
                 <span class="drop-icon">✨</span>
-                <span class="drop-text"><strong>Choose photo</strong> or drag & drop</span>
+                <span class="drop-text"><strong>Choose photo</strong> or drag &amp; drop</span>
                 <span class="drop-sub">JPG, PNG, WebP</span>
               </div>
               <div class="preview-wrap hidden" id="add-preview-container">
@@ -157,7 +291,6 @@
               </div>
             </div>
 
-            <!-- Category & Details -->
             <div class="field-group">
               <label for="add-category">Category *</label>
               <select id="add-category" class="form-control">
@@ -177,19 +310,17 @@
             </div>
 
             <button type="button" class="action-btn" id="btn-add-submit" disabled>
-              <span class="btn-label">Add to Catalogue & Index</span>
+              <span class="btn-label">Add to Catalogue &amp; Index</span>
               <span class="spinner hidden" id="add-spinner"></span>
             </button>
           </div>
 
-          <!-- Ingestion Status Column -->
           <div class="card results-card">
             <div class="results-top">
               <h2 class="card-heading">Ingestion Status</h2>
               <span class="status-chip" id="add-telemetry-tag">Ready</span>
             </div>
 
-            <!-- Success Card -->
             <div class="success-box hidden" id="add-success-card">
               <div class="success-header">
                 <span class="check-glyph">✓</span>
@@ -198,7 +329,6 @@
                   <span class="success-subline">Vector added to FAISS and catalogue updated.</span>
                 </div>
               </div>
-
               <div class="new-item-row">
                 <img id="added-thumb" class="item-thumb" src="" alt="Added item">
                 <div class="item-meta">
@@ -209,20 +339,17 @@
                   </div>
                 </div>
               </div>
-
               <button type="button" class="secondary-btn" id="btn-test-in-search">
                 <span>🚀 Search for this Item</span>
               </button>
             </div>
 
-            <!-- Empty State for Add View -->
             <div class="empty-placeholder" id="add-empty-state">
               <span class="empty-glyph">📦</span>
               <h3>No Item Uploaded Yet</h3>
               <p>Upload a photo and pick a category on the left to add a product to the catalogue.</p>
             </div>
 
-            <!-- Session History -->
             <div class="recent-wrap hidden" id="recent-added-container">
               <span class="samples-title">Recently Added in this Session:</span>
               <div class="recent-list" id="recent-list"></div>
@@ -234,7 +361,6 @@
 
     </main>
 
-    <!-- Clean Footer -->
     <footer class="bottom-bar">
       <span>Thuli Engine • CLIP ViT-B/32 + FAISS IndexFlatIP</span>
     </footer>

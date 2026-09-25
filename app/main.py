@@ -38,6 +38,11 @@ data_dir = PROJECT_ROOT / "data"
 if data_dir.exists():
     app.mount("/data", StaticFiles(directory=str(data_dir)), name="data")
 
+# Mount evaluation images so the dashboard can display thumbnails
+eval_images_dir = PROJECT_ROOT / "evaluation" / "images"
+eval_images_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/evaluation/images", StaticFiles(directory=str(eval_images_dir)), name="eval_images")
+
 # Mount static folder for frontend HTML/CSS/JS
 static_dir = PROJECT_ROOT / "app" / "static"
 static_dir.mkdir(parents=True, exist_ok=True)

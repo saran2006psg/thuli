@@ -453,4 +453,196 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+
+  // ── Phase 7: Evaluation Dashboard ───────────────────────────────────────────
+
+  const btnRunEval     = document.getElementById("btn-run-eval");
+  const btnRefreshEval = document.getElementById("btn-refresh-eval");
+  const evalSpinner    = document.getElementById("eval-spinner");
+  const runEvalLabel   = document.getElementById("run-eval-label");
+  const evalEmpty      = document.getElementById("eval-empty");
+  const evalContent    = document.getElementById("eval-content");
+
+  // Auto-load existing results when user clicks Evaluation tab
+  const tabEval = document.getElementById("tab-eval");
+  if (tabEval) {
+    tabEval.addEventListener("click", () => {
+      loadEvalResults(false);
+    });
+  }
+
+  if (btnRefreshEval) {
+    btnRefreshEval.addEventListener("click", () => loadEvalResults(false));
+  }
+
+  if (btnRunEval) {
+    btnRunEval.addEventListener("click", () => triggerEvaluation());
+  }
+
+  async function triggerEvaluation() {
+    if (!btnRunEval) return;
+    btnRunEval.disabled = true;
+    if (runEvalLabel) runEvalLabel.textContent = "Running…";
+    if (evalSpinner)  evalSpinner.classList.remove("hidden");
+
+    try {
+      const res = await fetch("/api/evaluation/run", { method: "POST" });
+      if (!res.ok) {
+        const err = await res.json();
+        alert("Evaluation failed: " + (err.detail || "Unknown error"));
+        return;
+      }
+      const data = await res.json();
+      renderEvalDashboard(data.metrics);
+    } catch (e) {
+      alert("Network error during evaluation: " + e.message);
+    } finally {
+      btnRunEval.disabled = false;
+      if (runEvalLabel) runEvalLabel.textContent = "▶ Run Evaluation";
+      if (evalSpinner)  evalSpinner.classList.add("hidden");
+    }
+  }
+
+  async function loadEvalResults(silent = true) {
+    try {
+      const res = await fetch("/api/evaluation/results");
+      if (res.status === 404) {
+        // No results yet — show empty state
+        if (evalEmpty)   evalEmpty.classList.remove("hidden");
+        if (evalContent) evalContent.classList.add("hidden");
+        return;
+      }
+      if (!res.ok) return;
+      const data = await res.json();
+      renderEvalDashboard(data.metrics);
+    } catch (e) {
+      if (!silent) console.warn("Could not load eval results:", e);
+    }
+  }
+
+  function renderEvalDashboard(metrics) {
+    if (!metrics) return;
+    if (evalEmpty)   evalEmpty.classList.add("hidden");
+    if (evalContent) evalContent.classList.remove("hidden");
+
+    // KPI Scoreboard
+    setText("kpi-top1",      pct(metrics.top1_accuracy));
+    setText("kpi-top5",      pct(metrics.top5_accuracy));
+    setText("kpi-match",     metrics.match_count);
+    setText("kpi-unknown",   metrics.unknown_count);
+    setText("kpi-lat-med",   metrics.median_latency_ms + "ms");
+    setText("kpi-lat-p95",   metrics.p95_latency_ms   + "ms");
+
+    // Per-condition chart
+    renderConditionChart(metrics.per_condition || {});
+
+    // Dataset progress
+    const prog = metrics.dataset_progress || {};
+    setText("prog-current",  prog.current || 0);
+    setText("progress-pct",  (prog.pct || 0) + "%");
+    const fill = document.getElementById("progress-fill");
+    if (fill) fill.style.width = Math.min(prog.pct || 0, 100) + "%";
+
+    // Match / Unknown split bar
+    const total = (metrics.match_count || 0) + (metrics.unknown_count || 0);
+    const matchPct   = total > 0 ? (metrics.match_count / total * 100).toFixed(1) : 50;
+    const unknownPct = total > 0 ? (metrics.unknown_count / total * 100).toFixed(1) : 50;
+    setStyle("verdict-match-bar",   "width", matchPct + "%");
+    setStyle("verdict-unknown-bar", "width", unknownPct + "%");
+    setText("vs-match",   metrics.match_count   || 0);
+    setText("vs-unknown", metrics.unknown_count || 0);
+
+    // Failures table
+    renderFailures(metrics.worst_failures || []);
+
+    // Meta
+    setText("eval-run-at", metrics.run_at ? new Date(metrics.run_at).toLocaleString() : "—");
+    setText("eval-total",  metrics.total_images ?? "—");
+  }
+
+  function renderConditionChart(perCondition) {
+    const container = document.getElementById("condition-chart");
+    if (!container) return;
+
+    const entries = Object.entries(perCondition).sort((a, b) =>
+      b[1].top1_accuracy - a[1].top1_accuracy
+    );
+
+    container.innerHTML = `
+      <div class="chart-legend">
+        <div class="legend-item">
+          <span class="legend-dot" style="background:var(--accent-gold)"></span> Top-1
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:var(--accent-blue);opacity:0.7"></span> Top-5
+        </div>
+      </div>
+    ` + entries.map(([cond, v]) => {
+      const t1 = (v.top1_accuracy * 100).toFixed(0);
+      const t5 = (v.top5_accuracy * 100).toFixed(0);
+      return `
+        <div class="cond-row">
+          <span class="cond-name">${cond.replace(/_/g, " ")}</span>
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <div class="cond-bar-track">
+              <div class="cond-bar-fill cond-bar-fill--top1" style="width:${t1}%"></div>
+            </div>
+            <div class="cond-bar-track">
+              <div class="cond-bar-fill cond-bar-fill--top5" style="width:${t5}%"></div>
+            </div>
+          </div>
+          <span class="cond-pct cond-pct--top1">${t1}%</span>
+          <span class="cond-pct cond-pct--top5">${t5}%</span>
+        </div>`;
+    }).join("");
+  }
+
+  function renderFailures(failures) {
+    const tbody = document.getElementById("failures-tbody");
+    if (!tbody) return;
+
+    if (!failures || failures.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="table-empty">🎉 No failures — the model nailed everything!</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = failures.map(r => {
+      const simClass = r.top1_similarity < 0.5 ? "sim-low" : r.top1_similarity < 0.7 ? "sim-mid" : "sim-high";
+      const decBadge = r.decision === "MATCH"
+        ? `<span class="badge-match">MATCH</span>`
+        : `<span class="badge-unknown">UNKNOWN</span>`;
+      const gtRank = r.gt_rank > 0 ? `#${r.gt_rank}` : "Not in Top-5";
+      const imgSrc = `/evaluation/images/${r.image_id}.jpeg`;
+
+      return `<tr>
+        <td><img src="${imgSrc}" class="failure-thumb" alt="${r.image_id}" onerror="this.style.display='none'"></td>
+        <td style="font-family:monospace;color:var(--text-muted)">${r.image_id}</td>
+        <td><span class="tag-cat">${r.ground_truth}</span></td>
+        <td><span class="tag-cat" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);color:var(--accent-red)">${r.top1_category || "—"}</span></td>
+        <td class="${simClass}">${r.top1_similarity.toFixed(4)}</td>
+        <td style="color:var(--text-muted)">${gtRank}</td>
+        <td><span class="tag-condition">${r.failure_condition.replace(/_/g, " ")}</span></td>
+        <td>${decBadge}</td>
+      </tr>`;
+    }).join("");
+  }
+
+  // Helpers
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  function setStyle(id, prop, val) {
+    const el = document.getElementById(id);
+    if (el) el.style[prop] = val;
+  }
+
+  function pct(val) {
+    return (val * 100).toFixed(1) + "%";
+  }
+
+  // Mount evaluation images for serving
+  // Images are at /evaluation/images/* — handled via static mount below in main.py
 });
+

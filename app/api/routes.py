@@ -6,13 +6,17 @@ FastAPI API endpoints for jewellery retrieval and matching:
   - GET  /health: System health and index status
   - GET  /stats: Catalogue statistics and benchmark summary
   - GET  /samples: Sample catalogue products for quick UI testing
+  - POST /evaluation/run: Trigger Phase 7 evaluation
+  - GET  /evaluation/results: Retrieve latest evaluation metrics
 """
 
 import io
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from PIL import Image
 
 from app.config import (
@@ -216,4 +220,55 @@ async def add_catalogue_item(
             status_code=500,
             detail=f"Failed to add item to catalogue: {e}",
         )
+
+
+# ── Phase 7: Evaluation Endpoints ────────────────────────────────────────────
+
+from app.evaluation.runner import (
+    METRICS_JSON, RESULTS_CSV, run_evaluation, write_results,
+)
+
+
+@router.post("/evaluation/run")
+def run_evaluation_endpoint() -> Dict[str, Any]:
+    """
+    Trigger Phase 7 evaluation: run all stumper images through the matcher,
+    compute metrics, and persist results.csv + metrics.json + analysis.md.
+    """
+    try:
+        matcher = get_matcher()
+        report  = run_evaluation(matcher)
+        write_results(report["metrics"], report["rows"])
+        return {
+            "status": "success",
+            "metrics": report["metrics"],
+            "rows_evaluated": len(report["rows"]),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Evaluation failed: {e}")
+
+
+@router.get("/evaluation/results")
+def get_evaluation_results() -> Dict[str, Any]:
+    """Return the latest persisted evaluation metrics."""
+    if not METRICS_JSON.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="No evaluation results found. Run /api/evaluation/run first.",
+        )
+    with open(METRICS_JSON, encoding="utf-8") as f:
+        metrics = json.load(f)
+    return {"status": "ok", "metrics": metrics}
+
+
+@router.get("/evaluation/download")
+def download_results_csv():
+    """Download evaluation results as CSV."""
+    if not RESULTS_CSV.exists():
+        raise HTTPException(status_code=404, detail="No results CSV found.")
+    return FileResponse(
+        path=str(RESULTS_CSV),
+        media_type="text/csv",
+        filename="evaluation_results.csv",
+    )
 

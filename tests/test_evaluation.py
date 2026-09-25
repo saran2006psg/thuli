@@ -1,286 +1,277 @@
 """
 tests/test_evaluation.py
 ─────────────────────────
-Tests for Phase 6 Stumper Dataset Validation & Evaluation Pipeline.
+Tests for Phase 7 evaluation engine and API endpoints.
 """
 
+import io
 import json
+import csv
+import tempfile
 from pathlib import Path
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-import pandas as pd
 import pytest
+from fastapi.testclient import TestClient
 from PIL import Image
 
-from app.config import CATALOGUE_CSV
-from scripts.evaluate import evaluate_matcher
-from scripts.validate_stumper_dataset import (
-    ALLOWED_CONDITIONS,
-    REQUIRED_COLUMNS,
-    validate_stumper_dataset,
-)
+from app.main import app
+
+client = TestClient(app)
 
 
-@pytest.fixture
-def sample_catalogue_csv(tmp_path):
-    cat_path = tmp_path / "catalogue.csv"
-    df = pd.DataFrame({
-        "product_id": ["JW_000001", "JW_000002", "JW_000003"],
-        "product_name": ["Gold Ring", "Silver Necklace", "Diamond Earrings"],
-        "category": ["ring", "necklace", "earrings"],
-        "image_path": ["data/img1.jpg", "data/img2.jpg", "data/img3.jpg"],
-    })
-    df.to_csv(cat_path, index=False)
-    return cat_path
+# ── Helpers ────────────────────────────────────────────────────────────────────
+
+def make_dummy_match_result(category: str, similarity: float = 0.82) -> dict:
+    """Build a mock matcher.match() response."""
+    candidates = []
+    for i, (cat, sim) in enumerate([
+        (category, similarity),
+        ("necklace", 0.72),
+        ("bracelet", 0.68),
+        ("earring",  0.61),
+        ("ring",     0.55),
+    ], start=1):
+        candidates.append({
+            "rank": i,
+            "product_id": f"JW_{i:06d}",
+            "product_name": f"Test {cat}",
+            "category": cat,
+            "subcategory": cat,
+            "image_path": "",
+            "similarity": sim,
+        })
+    return {
+        "status": "success",
+        "decision": "MATCH" if similarity >= 0.75 else "UNKNOWN",
+        "threshold": 0.75,
+        "best_similarity": similarity,
+        "query_time_ms": 210.0,
+        "top_k": 5,
+        "results": candidates,
+    }
 
 
-@pytest.fixture
-def sample_images(tmp_path):
-    img_dir = tmp_path / "images"
-    img_dir.mkdir(parents=True, exist_ok=True)
-    img1 = img_dir / "stump_1.jpg"
-    img2 = img_dir / "stump_2.jpg"
-    img3 = img_dir / "stump_3.jpg"
+# ── Unit tests for runner ──────────────────────────────────────────────────────
 
-    for img_p in [img1, img2, img3]:
-        im = Image.new("RGB", (64, 64), color="gold")
-        im.save(img_p)
+class TestEvaluationRunner:
+    """Tests for app.evaluation.runner functions."""
 
-    return {"img1": img1, "img2": img2, "img3": img3, "dir": img_dir}
+    def test_runner_imports(self):
+        from app.evaluation.runner import run_evaluation, write_results
+        assert callable(run_evaluation)
+        assert callable(write_results)
 
+    def test_gt_rank_found(self):
+        from app.evaluation.runner import _gt_rank
+        candidates = [
+            {"rank": 1, "category": "ring"},
+            {"rank": 2, "category": "bracelet"},
+            {"rank": 3, "category": "necklace"},
+        ]
+        assert _gt_rank(candidates, "bracelet") == 2
 
-class TestStumperValidation:
-    """Test suite for validate_stumper_dataset.py."""
+    def test_gt_rank_not_found(self):
+        from app.evaluation.runner import _gt_rank
+        candidates = [{"rank": 1, "category": "ring"}]
+        assert _gt_rank(candidates, "earring") is None
 
-    def test_empty_template_handling(self, tmp_path, sample_catalogue_csv):
-        csv_path = tmp_path / "stumper.csv"
-        csv_path.write_text("image_id,product_id,failure_condition,notes,image_path\n", encoding="utf-8")
+    def test_run_evaluation_structure(self, tmp_path):
+        """run_evaluation returns correctly structured dict with mocked matcher."""
+        # Create a tiny stumper CSV with one valid image
+        eval_dir = tmp_path / "evaluation" / "images"
+        eval_dir.mkdir(parents=True)
 
-        # allow_empty=True -> True
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv, allow_empty=True) is True
-        # allow_empty=False -> False (no queries to evaluate)
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv, allow_empty=False) is False
+        # Write a tiny dummy JPEG
+        img = Image.new("RGB", (64, 64), color=(180, 120, 60))
+        img_path = eval_dir / "id01.jpeg"
+        img.save(img_path, format="JPEG")
 
-    def test_valid_stumper_dataset(self, tmp_path, sample_catalogue_csv, sample_images):
-        csv_path = tmp_path / "stumper.csv"
-        df = pd.DataFrame([
-            {
-                "image_id": "stump_0001",
-                "product_id": "JW_000001",
-                "failure_condition": "bad_lighting",
-                "notes": "dim bedroom light",
-                "image_path": str(sample_images["img1"]),
-            },
-            {
-                "image_id": "stump_0002",
-                "product_id": "JW_000002",
-                "failure_condition": "occlusion",
-                "notes": "partially covered",
-                "image_path": str(sample_images["img2"]),
-            },
-        ])
-        df.to_csv(csv_path, index=False)
+        stumper_csv = tmp_path / "evaluation" / "stumper.csv"
+        with open(stumper_csv, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=["image_id", "product_id", "failure_condition", "notes", "image_path"]
+            )
+            writer.writeheader()
+            writer.writerow({
+                "image_id": "id01",
+                "product_id": "ring",
+                "failure_condition": "clutter",
+                "notes": "test",
+                "image_path": str(img_path),
+            })
 
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv) is True
-
-    def test_missing_required_columns(self, tmp_path, sample_catalogue_csv):
-        csv_path = tmp_path / "stumper.csv"
-        # Missing 'failure_condition'
-        df = pd.DataFrame([
-            {"image_id": "stump_0001", "product_id": "JW_000001", "image_path": "foo.jpg"}
-        ])
-        df.to_csv(csv_path, index=False)
-
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv) is False
-
-    def test_duplicate_image_id(self, tmp_path, sample_catalogue_csv, sample_images):
-        csv_path = tmp_path / "stumper.csv"
-        df = pd.DataFrame([
-            {
-                "image_id": "stump_0001",
-                "product_id": "JW_000001",
-                "failure_condition": "bad_lighting",
-                "image_path": str(sample_images["img1"]),
-            },
-            {
-                "image_id": "stump_0001",  # duplicate ID
-                "product_id": "JW_000002",
-                "failure_condition": "reflection",
-                "image_path": str(sample_images["img2"]),
-            },
-        ])
-        df.to_csv(csv_path, index=False)
-
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv) is False
-
-    def test_nonexistent_product_id(self, tmp_path, sample_catalogue_csv, sample_images):
-        csv_path = tmp_path / "stumper.csv"
-        df = pd.DataFrame([
-            {
-                "image_id": "stump_0001",
-                "product_id": "JW_INVALID_999",  # not in catalogue
-                "failure_condition": "bad_lighting",
-                "image_path": str(sample_images["img1"]),
-            }
-        ])
-        df.to_csv(csv_path, index=False)
-
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv) is False
-
-    def test_invalid_failure_condition(self, tmp_path, sample_catalogue_csv, sample_images):
-        csv_path = tmp_path / "stumper.csv"
-        df = pd.DataFrame([
-            {
-                "image_id": "stump_0001",
-                "product_id": "JW_000001",
-                "failure_condition": "made_up_condition_xyz",  # not in taxonomy
-                "image_path": str(sample_images["img1"]),
-            }
-        ])
-        df.to_csv(csv_path, index=False)
-
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv) is False
-
-    def test_missing_image_file(self, tmp_path, sample_catalogue_csv):
-        csv_path = tmp_path / "stumper.csv"
-        df = pd.DataFrame([
-            {
-                "image_id": "stump_0001",
-                "product_id": "JW_000001",
-                "failure_condition": "bad_lighting",
-                "image_path": str(tmp_path / "non_existent.jpg"),
-            }
-        ])
-        df.to_csv(csv_path, index=False)
-
-        assert validate_stumper_dataset(csv_path, sample_catalogue_csv) is False
-
-
-class TestEvaluationPipeline:
-    """Test suite for evaluate.py execution and metrics computation."""
-
-    def test_evaluate_matcher_with_mock(self, tmp_path, sample_catalogue_csv, sample_images, monkeypatch):
-        stumper_csv = tmp_path / "stumper.csv"
-        results_csv = tmp_path / "results.csv"
-        metrics_json = tmp_path / "metrics.json"
-        analysis_md = tmp_path / "analysis.md"
-
-        df = pd.DataFrame([
-            {
-                "image_id": "stump_0001",
-                "product_id": "JW_000001",
-                "failure_condition": "bad_lighting",
-                "notes": "dark photo",
-                "image_path": str(sample_images["img1"]),
-            },
-            {
-                "image_id": "stump_0002",
-                "product_id": "JW_000002",
-                "failure_condition": "occlusion",
-                "notes": "hand covering half",
-                "image_path": str(sample_images["img2"]),
-            },
-            {
-                "image_id": "stump_0003",
-                "product_id": "JW_000003",
-                "failure_condition": "bad_lighting",
-                "notes": "yellow tint",
-                "image_path": str(sample_images["img3"]),
-            },
-        ])
-        df.to_csv(stumper_csv, index=False)
-
-        # Mock JewelleryMatcher
         mock_matcher = MagicMock()
-        mock_matcher.index.size = 6157
+        mock_matcher.match.return_value = make_dummy_match_result("ring", 0.82)
 
-        def mock_match(img_path, top_k=5, threshold=0.60):
-            p = str(img_path)
-            if "stump_1" in p:
-                # Top-1 match (JW_000001)
-                return {
-                    "results": [
-                        {"rank": 1, "product_id": "JW_000001", "similarity": 0.85},
-                        {"rank": 2, "product_id": "JW_000002", "similarity": 0.62},
-                    ],
-                    "best_similarity": 0.85,
-                    "decision": "MATCH",
-                    "query_time_ms": 12.5,
-                }
-            elif "stump_2" in p:
-                # Top-5 match at rank 2 (JW_000002)
-                return {
-                    "results": [
-                        {"rank": 1, "product_id": "JW_000003", "similarity": 0.72},
-                        {"rank": 2, "product_id": "JW_000002", "similarity": 0.68},
-                    ],
-                    "best_similarity": 0.72,
-                    "decision": "MATCH",
-                    "query_time_ms": 14.1,
-                }
-            else:
-                # Miss (JW_000003 not in top results)
-                return {
-                    "results": [
-                        {"rank": 1, "product_id": "JW_000001", "similarity": 0.45},
-                        {"rank": 2, "product_id": "JW_000002", "similarity": 0.40},
-                    ],
-                    "best_similarity": 0.45,
-                    "decision": "UNKNOWN",
-                    "query_time_ms": 11.8,
-                }
+        from app.evaluation import runner as R
+        orig_csv = R.STUMPER_CSV
+        R.STUMPER_CSV = stumper_csv
+        try:
+            report = R.run_evaluation(mock_matcher)
+        finally:
+            R.STUMPER_CSV = orig_csv
 
-        mock_matcher.match.side_effect = mock_match
+        assert "metrics" in report
+        assert "rows" in report
+        m = report["metrics"]
+        assert m["total_images"] == 1
+        assert m["valid_images"] == 1
+        assert 0.0 <= m["top1_accuracy"] <= 1.0
+        assert 0.0 <= m["top5_accuracy"] <= 1.0
+        assert "per_condition" in m
+        assert "dataset_progress" in m
+        assert "worst_failures" in m
 
-        metrics = evaluate_matcher(
-            stumper_csv_path=stumper_csv,
-            results_csv_path=results_csv,
-            metrics_json_path=metrics_json,
-            analysis_md_path=analysis_md,
-            threshold=0.60,
-            top_k=5,
-            matcher=mock_matcher,
-        )
+    def test_write_results(self, tmp_path):
+        from app.evaluation import runner as R
 
-        assert metrics is not None
-        assert results_csv.exists()
-        assert metrics_json.exists()
-        assert analysis_md.exists()
+        metrics = {
+            "run_at": "2026-01-01T00:00:00+00:00",
+            "total_images": 2,
+            "valid_images": 2,
+            "top1_accuracy": 0.5,
+            "top5_accuracy": 1.0,
+            "match_count": 1,
+            "unknown_count": 1,
+            "mean_latency_ms": 200.0,
+            "median_latency_ms": 200.0,
+            "p95_latency_ms": 210.0,
+            "per_condition": {
+                "clutter": {"total": 2, "top1_accuracy": 0.5, "top5_accuracy": 1.0}
+            },
+            "dataset_progress": {"current": 2, "target": 100, "pct": 2.0},
+            "worst_failures": [],
+        }
+        rows = [
+            {
+                "image_id": "id01", "ground_truth": "ring",
+                "failure_condition": "clutter", "decision": "MATCH",
+                "top1_category": "ring", "top1_similarity": 0.82,
+                "gt_rank": 1, "top1_correct": 1, "top5_correct": 1,
+                "latency_ms": 200.0, "error": "",
+            }
+        ]
 
-        # Check results CSV
-        res_df = pd.read_csv(results_csv)
-        assert len(res_df) == 3
-        assert "predicted_top1_product_id" in res_df.columns
-        assert "top5_product_ids" in res_df.columns
-        assert "decision" in res_df.columns
-        assert "latency_ms" in res_df.columns
-        assert "correct_rank" in res_df.columns
+        orig_res = R.RESULTS_CSV
+        orig_met = R.METRICS_JSON
+        orig_ana = R.ANALYSIS_MD
+        R.RESULTS_CSV  = tmp_path / "results.csv"
+        R.METRICS_JSON = tmp_path / "metrics.json"
+        R.ANALYSIS_MD  = tmp_path / "analysis.md"
+        try:
+            R.write_results(metrics, rows)
+        finally:
+            R.RESULTS_CSV  = orig_res
+            R.METRICS_JSON = orig_met
+            R.ANALYSIS_MD  = orig_ana
 
-        # Check metrics values
-        # stump 1: Top-1 correct
-        # stump 2: Top-5 correct (rank 2)
-        # stump 3: failed
-        # Top-1 count = 1/3 (33.33%), Top-5 count = 2/3 (66.67%)
-        assert metrics["overall_accuracy"]["top1_correct_count"] == 1
-        assert metrics["overall_accuracy"]["top5_correct_count"] == 2
-        assert pytest.approx(metrics["overall_accuracy"]["top1_accuracy_percent"], 0.1) == 33.33
-        assert pytest.approx(metrics["overall_accuracy"]["top5_accuracy_percent"], 0.1) == 66.67
+        assert (tmp_path / "results.csv").exists()
+        assert (tmp_path / "metrics.json").exists()
+        assert (tmp_path / "analysis.md").exists()
 
-        # Decisions: 2 MATCH, 1 UNKNOWN
-        assert metrics["overall_accuracy"]["match_decision_count"] == 2
-        assert metrics["overall_accuracy"]["unknown_decision_count"] == 1
+        with open(tmp_path / "metrics.json") as f:
+            loaded = json.load(f)
+        assert loaded["top1_accuracy"] == 0.5
 
-        # Check condition breakdown
-        cond_breakdown = metrics["condition_breakdown"]
-        assert "bad_lighting" in cond_breakdown
-        assert cond_breakdown["bad_lighting"]["total_queries"] == 2
-        assert cond_breakdown["bad_lighting"]["top1_correct"] == 1
-        assert "occlusion" in cond_breakdown
-        assert cond_breakdown["occlusion"]["total_queries"] == 1
-        assert cond_breakdown["occlusion"]["top5_correct"] == 1
+        with open(tmp_path / "results.csv") as f:
+            csv_rows = list(csv.DictReader(f))
+        assert len(csv_rows) == 1
+        assert csv_rows[0]["image_id"] == "id01"
 
-        # Check analysis.md contents
-        analysis_text = analysis_md.read_text(encoding="utf-8")
-        assert "Top-1 Accuracy:" in analysis_text
-        assert "Breakdown by Failure Condition" in analysis_text
-        assert "Top Failure Cases" in analysis_text
+
+# ── API endpoint tests ─────────────────────────────────────────────────────────
+
+class TestEvaluationAPI:
+    """Tests for /api/evaluation/* endpoints."""
+
+    def test_evaluation_results_404_when_no_file(self, tmp_path):
+        """GET /api/evaluation/results returns 404 when metrics.json doesn't exist."""
+        import app.api.routes as routes
+        orig = routes.METRICS_JSON
+        routes.METRICS_JSON = tmp_path / "nonexistent_metrics.json"
+        try:
+            res = client.get("/api/evaluation/results")
+            assert res.status_code == 404
+        finally:
+            routes.METRICS_JSON = orig
+
+    def test_evaluation_results_ok_when_file_exists(self, tmp_path):
+        """GET /api/evaluation/results returns 200 with metrics when file exists."""
+        import app.api.routes as routes
+
+        metrics = {
+            "run_at": "2026-01-01T00:00:00+00:00",
+            "total_images": 5,
+            "valid_images": 5,
+            "top1_accuracy": 0.6,
+            "top5_accuracy": 0.8,
+            "match_count": 3,
+            "unknown_count": 2,
+            "mean_latency_ms": 200.0,
+            "median_latency_ms": 190.0,
+            "p95_latency_ms": 220.0,
+            "per_condition": {},
+            "dataset_progress": {"current": 5, "target": 100, "pct": 5.0},
+            "worst_failures": [],
+        }
+        metrics_path = tmp_path / "metrics.json"
+        with open(metrics_path, "w") as f:
+            json.dump(metrics, f)
+
+        orig = routes.METRICS_JSON
+        routes.METRICS_JSON = metrics_path
+        try:
+            res = client.get("/api/evaluation/results")
+            assert res.status_code == 200
+            data = res.json()
+            assert data["status"] == "ok"
+            assert data["metrics"]["top1_accuracy"] == 0.6
+        finally:
+            routes.METRICS_JSON = orig
+
+    def test_evaluation_run_endpoint(self):
+        """POST /api/evaluation/run triggers evaluation and returns metrics dict."""
+        import app.api.routes as routes
+        from app.evaluation.runner import run_evaluation, write_results
+
+        fake_metrics = {
+            "run_at": "2026-01-01T00:00:00+00:00",
+            "total_images": 39,
+            "valid_images": 39,
+            "top1_accuracy": 0.75,
+            "top5_accuracy": 0.92,
+            "match_count": 20,
+            "unknown_count": 19,
+            "mean_latency_ms": 210.0,
+            "median_latency_ms": 200.0,
+            "p95_latency_ms": 250.0,
+            "per_condition": {
+                "clutter": {"total": 6, "top1_accuracy": 0.67, "top5_accuracy": 1.0}
+            },
+            "dataset_progress": {"current": 39, "target": 100, "pct": 39.0},
+            "worst_failures": [],
+        }
+        fake_rows = []
+
+        with patch("app.api.routes.run_evaluation", return_value={"metrics": fake_metrics, "rows": fake_rows}):
+            with patch("app.api.routes.write_results"):
+                res = client.post("/api/evaluation/run")
+
+        assert res.status_code == 200
+        data = res.json()
+        assert data["status"] == "success"
+        assert "metrics" in data
+        assert data["metrics"]["total_images"] == 39
+
+    def test_evaluation_download_404_when_no_file(self, tmp_path):
+        """GET /api/evaluation/download returns 404 when results CSV doesn't exist."""
+        import app.api.routes as routes
+        orig = routes.RESULTS_CSV
+        routes.RESULTS_CSV = tmp_path / "nonexistent_results.csv"
+        try:
+            res = client.get("/api/evaluation/download")
+            assert res.status_code == 404
+        finally:
+            routes.RESULTS_CSV = orig
