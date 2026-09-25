@@ -1,0 +1,279 @@
+{
+  "timestamp": "2026-09-25T17:31:29.914175+00:00",
+  "primary_stumper_39": {
+    "baseline": {
+      "total_images": 39,
+      "top1_accuracy": 0.641,
+      "top5_accuracy": 0.7692,
+      "match_count": 34,
+      "unknown_count": 5,
+      "median_latency_ms": 70.6,
+      "p95_latency_ms": 98.71,
+      "mean_latency_ms": 76.55,
+      "per_condition": {
+        "bad_lighting": {
+          "total": 5,
+          "top1_accuracy": 0.4,
+          "top5_accuracy": 0.6
+        },
+        "bright_lighting": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "clutter": {
+          "total": 6,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 0.5
+        },
+        "distance": {
+          "total": 3,
+          "top1_accuracy": 0.3333,
+          "top5_accuracy": 0.6667
+        },
+        "hand_wrist": {
+          "total": 4,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "motion_blur": {
+          "total": 6,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 0.8333
+        },
+        "noise": {
+          "total": 1,
+          "top1_accuracy": 0.0,
+          "top5_accuracy": 0.0
+        },
+        "normal": {
+          "total": 4,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "occlusion": {
+          "total": 3,
+          "top1_accuracy": 0.3333,
+          "top5_accuracy": 0.6667
+        },
+        "odd_angle": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "reflection": {
+          "total": 1,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        }
+      }
+    },
+    "improved": {
+      "total_images": 39,
+      "top1_accuracy": 0.4103,
+      "top5_accuracy": 0.6923,
+      "match_count": 33,
+      "unknown_count": 6,
+      "median_latency_ms": 72.31,
+      "p95_latency_ms": 99.57,
+      "mean_latency_ms": 77.47,
+      "per_condition": {
+        "bad_lighting": {
+          "total": 5,
+          "top1_accuracy": 0.4,
+          "top5_accuracy": 0.8
+        },
+        "bright_lighting": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "clutter": {
+          "total": 6,
+          "top1_accuracy": 0.1667,
+          "top5_accuracy": 0.6667
+        },
+        "distance": {
+          "total": 3,
+          "top1_accuracy": 0.3333,
+          "top5_accuracy": 0.6667
+        },
+        "hand_wrist": {
+          "total": 4,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 1.0
+        },
+        "motion_blur": {
+          "total": 6,
+          "top1_accuracy": 0.3333,
+          "top5_accuracy": 0.3333
+        },
+        "noise": {
+          "total": 1,
+          "top1_accuracy": 0.0,
+          "top5_accuracy": 0.0
+        },
+        "normal": {
+          "total": 4,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "occlusion": {
+          "total": 3,
+          "top1_accuracy": 0.0,
+          "top5_accuracy": 0.3333
+        },
+        "odd_angle": {
+          "total": 3,
+          "top1_accuracy": 0.3333,
+          "top5_accuracy": 1.0
+        },
+        "reflection": {
+          "total": 1,
+          "top1_accuracy": 0.0,
+          "top5_accuracy": 0.0
+        }
+      }
+    },
+    "diff": {
+      "top1_delta": -0.2307,
+      "top5_delta": -0.0769,
+      "median_lat_delta_ms": 1.71,
+      "p95_lat_delta_ms": 0.86
+    }
+  },
+  "unseen_holdout_24": {
+    "baseline": {
+      "total_images": 24,
+      "top1_accuracy": 0.9583,
+      "top5_accuracy": 0.9583,
+      "match_count": 24,
+      "unknown_count": 0,
+      "median_latency_ms": 77.07,
+      "p95_latency_ms": 82.53,
+      "mean_latency_ms": 76.97,
+      "per_condition": {
+        "bad_lighting": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "bright_lighting": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "clutter": {
+          "total": 2,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 0.5
+        },
+        "distance": {
+          "total": 2,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "hand_wrist": {
+          "total": 2,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "motion_blur": {
+          "total": 2,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "normal": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "occlusion": {
+          "total": 2,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "odd_angle": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "reflection": {
+          "total": 2,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        }
+      }
+    },
+    "improved": {
+      "total_images": 24,
+      "top1_accuracy": 0.75,
+      "top5_accuracy": 0.7917,
+      "match_count": 24,
+      "unknown_count": 0,
+      "median_latency_ms": 69.7,
+      "p95_latency_ms": 78.3,
+      "mean_latency_ms": 70.77,
+      "per_condition": {
+        "bad_lighting": {
+          "total": 3,
+          "top1_accuracy": 0.6667,
+          "top5_accuracy": 0.6667
+        },
+        "bright_lighting": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "clutter": {
+          "total": 2,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 1.0
+        },
+        "distance": {
+          "total": 2,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "hand_wrist": {
+          "total": 2,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "motion_blur": {
+          "total": 2,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 0.5
+        },
+        "normal": {
+          "total": 3,
+          "top1_accuracy": 0.6667,
+          "top5_accuracy": 0.6667
+        },
+        "occlusion": {
+          "total": 2,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 0.5
+        },
+        "odd_angle": {
+          "total": 3,
+          "top1_accuracy": 1.0,
+          "top5_accuracy": 1.0
+        },
+        "reflection": {
+          "total": 2,
+          "top1_accuracy": 0.5,
+          "top5_accuracy": 0.5
+        }
+      }
+    },
+    "diff": {
+      "top1_delta": -0.2083,
+      "top5_delta": -0.1666,
+      "median_lat_delta_ms": -7.37,
+      "p95_lat_delta_ms": -4.23
+    }
+  },
+  "decision": "REJECT",
+  "final_system": "Baseline JewelleryMatcher (Unmodified)"
+}

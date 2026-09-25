@@ -275,3 +275,30 @@ class TestEvaluationAPI:
             assert res.status_code == 404
         finally:
             routes.RESULTS_CSV = orig
+
+    def test_final_comparison_csv_structure(self):
+        """Verify evaluation/final_comparison.csv exists and has correct columns."""
+        from app.config import PROJECT_ROOT
+        import csv
+        csv_path = PROJECT_ROOT / "evaluation" / "final_comparison.csv"
+        assert csv_path.exists(), "final_comparison.csv should exist"
+        with open(csv_path, encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        assert len(rows) >= 39
+        required_cols = {"dataset", "image_id", "ground_truth", "condition", "base_pred", "imp_pred", "base_top1_correct", "imp_top1_correct"}
+        assert required_cols.issubset(set(reader.fieldnames))
+
+    def test_final_metrics_json_structure(self):
+        """Verify evaluation/final_metrics.json has correct structure and decision."""
+        from app.config import PROJECT_ROOT
+        import json
+        json_path = PROJECT_ROOT / "evaluation" / "final_metrics.json"
+        assert json_path.exists(), "final_metrics.json should exist"
+        with open(json_path, encoding="utf-8") as f:
+            data = json.load(f)
+        assert "primary_stumper_39" in data
+        assert "unseen_holdout_24" in data
+        assert data["decision"] == "REJECT"
+        assert "Baseline" in data["final_system"]
+
