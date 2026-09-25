@@ -1,1 +1,12 @@
-image_id,product_id,failure_condition,notes,image_path
+image_id,type,failure_condition,notes,image_path
+id01,bracelet,clutter,its covered by lock,D:\PL\thuli\evaluation\images\id01.jpeg
+id02,bracelet,hand,its covered by lock,D:\PL\thuli\evaluation\images\id02.jpeg
+id03,bracelet,motionblur,its bured,D:\PL\thuli\evaluation\images\id03.jpeg
+id04,ring,clutter,its covered by lock,D:\PL\thuli\evaluation\images\id04.jpeg 
+id05,necklace,noise,its filled with noice,D:\PL\thuli\evaluation\images\id05.jpeg
+id06,ring,clutter,its filled with background,D:\PL\thuli\evaluation\images\id06.jpeg
+id07,ring,motionblur,its filled with background,D:\PL\thuli\evaluation\images\id07.jpeg
+id08,ring,motionblur,its filled with blur,D:\PL\thuli\evaluation\images\id08.jpeg
+id09,ring,lowlight,its filled with blur,D:\PL\thuli\evaluation\images\id09.jpeg
+id10,ring,lowlight,its filled with blur,D:\PL\thuli\evaluation\images\id10.jpeg
+id11,rinf,lowlight,its filled with blur,D:\PL\thuli\evaluation\images\id11.jpeg
