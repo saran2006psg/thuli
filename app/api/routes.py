@@ -13,6 +13,7 @@ FastAPI API endpoints for jewellery retrieval and matching:
 import io
 import json
 from pathlib import Path
+import threading
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile
@@ -33,22 +34,25 @@ from app.retrieval.matcher import JewelleryMatcher
 
 router = APIRouter()
 
-# Global singleton matcher instance
+# Global singleton matcher instance & thread-safe lock
 _matcher: Optional[JewelleryMatcher] = None
+_matcher_lock = threading.Lock()
 
 
 def get_matcher() -> JewelleryMatcher:
-    """Lazy-load and cache the JewelleryMatcher instance."""
+    """Lazy-load and cache the JewelleryMatcher instance thread-safely."""
     global _matcher
     if _matcher is None:
-        _matcher = JewelleryMatcher(
-            index_path=FAISS_INDEX_PATH,
-            product_ids_path=PRODUCT_IDS_PATH,
-            catalogue_csv_path=CATALOGUE_CSV,
-            encoder_model=ENCODER_MODEL,
-            threshold=SIMILARITY_THRESHOLD,
-            top_k=TOP_K,
-        )
+        with _matcher_lock:
+            if _matcher is None:
+                _matcher = JewelleryMatcher(
+                    index_path=FAISS_INDEX_PATH,
+                    product_ids_path=PRODUCT_IDS_PATH,
+                    catalogue_csv_path=CATALOGUE_CSV,
+                    encoder_model=ENCODER_MODEL,
+                    threshold=SIMILARITY_THRESHOLD,
+                    top_k=TOP_K,
+                )
     return _matcher
 
 

@@ -1,0 +1,81 @@
+{
+  "experiment": "experiment_01_saliency_cropping",
+  "run_at": "2026-09-25T17:15:43.504009+00:00",
+  "total_images": 39,
+  "cropped_count": 34,
+  "cropped_pct": 87.2,
+  "top1_accuracy": 0.4103,
+  "top5_accuracy": 0.6923,
+  "match_count": 33,
+  "unknown_count": 6,
+  "mean_latency_ms": 128.18,
+  "median_latency_ms": 111.53,
+  "p95_latency_ms": 193.62,
+  "per_condition": {
+    "clutter": {
+      "total": 6,
+      "top1_accuracy": 0.1667,
+      "top5_accuracy": 0.6667
+    },
+    "hand": {
+      "total": 1,
+      "top1_accuracy": 1.0,
+      "top5_accuracy": 1.0
+    },
+    "motionblur": {
+      "total": 3,
+      "top1_accuracy": 0.0,
+      "top5_accuracy": 0.0
+    },
+    "noise": {
+      "total": 1,
+      "top1_accuracy": 0.0,
+      "top5_accuracy": 0.0
+    },
+    "bad_lighting": {
+      "total": 5,
+      "top1_accuracy": 0.4,
+      "top5_accuracy": 0.8
+    },
+    "bright_lighting": {
+      "total": 3,
+      "top1_accuracy": 1.0,
+      "top5_accuracy": 1.0
+    },
+    "distance": {
+      "total": 3,
+      "top1_accuracy": 0.3333,
+      "top5_accuracy": 0.6667
+    },
+    "hand_wrist": {
+      "total": 3,
+      "top1_accuracy": 0.3333,
+      "top5_accuracy": 1.0
+    },
+    "motion_blur": {
+      "total": 3,
+      "top1_accuracy": 0.6667,
+      "top5_accuracy": 0.6667
+    },
+    "normal": {
+      "total": 4,
+      "top1_accuracy": 1.0,
+      "top5_accuracy": 1.0
+    },
+    "occlusion": {
+      "total": 3,
+      "top1_accuracy": 0.0,
+      "top5_accuracy": 0.3333
+    },
+    "odd_angle": {
+      "total": 3,
+      "top1_accuracy": 0.3333,
+      "top5_accuracy": 1.0
+    },
+    "reflection": {
+      "total": 1,
+      "top1_accuracy": 0.0,
+      "top5_accuracy": 0.0
+    }
+  }
+}

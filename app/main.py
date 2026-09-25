@@ -5,6 +5,7 @@ FastAPI application entry point for Jewellery Image Retrieval System.
 Mounts API routes, static assets, and catalogue image directories.
 """
 
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -12,13 +13,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routes import router
+from app.api.routes import router, get_matcher
 from app.config import PROJECT_ROOT
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Pre-warm JewelleryMatcher and FAISS index at startup to avoid cold-start race conditions."""
+    try:
+        get_matcher()
+    except Exception as e:
+        print(f"[WARN] Failed to pre-warm matcher during startup: {e}")
+    yield
+
 
 app = FastAPI(
     title="Thuli — Jewellery Retrieval Engine",
     description="Vector search & vision matcher for 6,157 jewellery catalogue items (PS2 - Stump the Model).",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Enable CORS for local testing and external frontends
