@@ -82,10 +82,11 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
         top1_cat = top1.get("category", "").lower()
         top1_sim = top1.get("similarity", 0.0)
 
-        top1_correct = int(top1_cat == ground_truth)
+        is_match = match_result["decision"] == "MATCH"
+        top1_correct = int(top1_cat == ground_truth and is_match)
         top5_correct = int(any(
             c.get("category", "").lower() == ground_truth for c in candidates
-        ))
+        ) and is_match)
         gt_rank = _gt_rank(candidates, ground_truth)
 
         result_rows.append({
@@ -157,6 +158,10 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
         "worst_failures": [
             {k: v for k, v in r.items() if k != "error"}
             for r in failures
+        ],
+        "all_results": [
+            {k: v for k, v in r.items() if k != "error"}
+            for r in valid
         ],
     }
 

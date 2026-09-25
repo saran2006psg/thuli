@@ -48,6 +48,11 @@ static_dir = PROJECT_ROOT / "app" / "static"
 static_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/static", StaticFiles(directory=str(static_dir)), name="static")
 
+assets_dir = static_dir / "assets"
+assets_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+
 
 @app.get("/", include_in_schema=False)
 def serve_frontend():

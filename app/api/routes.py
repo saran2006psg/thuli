@@ -258,6 +258,25 @@ def get_evaluation_results() -> Dict[str, Any]:
         )
     with open(METRICS_JSON, encoding="utf-8") as f:
         metrics = json.load(f)
+    if "all_results" not in metrics and RESULTS_CSV.exists():
+        import csv
+        with open(RESULTS_CSV, encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            rows = []
+            for row in reader:
+                rows.append({
+                    "image_id": row.get("image_id", ""),
+                    "ground_truth": row.get("ground_truth", ""),
+                    "failure_condition": row.get("failure_condition", ""),
+                    "decision": row.get("decision", ""),
+                    "top1_category": row.get("top1_category", ""),
+                    "top1_similarity": float(row.get("top1_similarity", 0.0) or 0.0),
+                    "gt_rank": int(row.get("gt_rank", -1) or -1),
+                    "top1_correct": int(row.get("top1_correct", 0) or 0),
+                    "top5_correct": int(row.get("top5_correct", 0) or 0),
+                    "latency_ms": float(row.get("latency_ms", 0.0) or 0.0),
+                })
+            metrics["all_results"] = rows
     return {"status": "ok", "metrics": metrics}
 
 
