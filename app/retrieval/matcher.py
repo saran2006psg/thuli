@@ -183,12 +183,30 @@ class JewelleryMatcher:
             "results": candidate_results,
         }
 
+    def get_next_product_id(self) -> str:
+        """Return the next recommended unique sequential product ID."""
+        all_known_pids = set(self.product_ids) | set(self.catalogue_lookup.keys())
+        max_num = 0
+        for pid in all_known_pids:
+            if pid.startswith("JW_"):
+                try:
+                    num = int(pid[3:])
+                    if num > max_num:
+                        max_num = num
+                except ValueError:
+                    pass
+        next_num = max_num + 1 if max_num > 0 else len(self.product_ids) + 1
+        while f"JW_{next_num:06d}" in all_known_pids:
+            next_num += 1
+        return f"JW_{next_num:06d}"
+
     def add_catalogue_item(
         self,
         image_input: Union[str, Path, Image.Image],
         category: str,
         product_name: Optional[str] = None,
         subcategory: Optional[str] = None,
+        product_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Dynamically add a new jewellery item to the catalogue, extract its CLIP
@@ -199,6 +217,7 @@ class JewelleryMatcher:
             category: Category name (e.g. 'ring', 'necklace', 'earring', 'bracelet', 'pendant').
             product_name: Optional product name/title.
             subcategory: Optional subcategory descriptor.
+            product_id: Optional custom Product ID (auto-generated if omitted).
 
         Returns:
             Dictionary containing the created item metadata and updated catalogue size.
@@ -206,18 +225,14 @@ class JewelleryMatcher:
         # 1. Preprocess and validate image
         pil_img = load_and_preprocess_image(image_input)
 
-        # 2. Determine next sequential unique product_id (e.g. JW_006158)
-        max_num = 0
-        for pid in self.product_ids:
-            if pid.startswith("JW_"):
-                try:
-                    num = int(pid[3:])
-                    if num > max_num:
-                        max_num = num
-                except ValueError:
-                    pass
-        next_num = max_num + 1 if max_num > 0 else len(self.product_ids) + 1
-        product_id = f"JW_{next_num:06d}"
+        # 2. Determine unique product_id (custom or next sequential unique e.g. JW_006158)
+        if product_id and product_id.strip():
+            clean_pid = product_id.strip()
+            if clean_pid in self.catalogue_lookup or clean_pid in self.product_ids:
+                raise ValueError(f"Product ID '{clean_pid}' already exists in catalogue.")
+            product_id = clean_pid
+        else:
+            product_id = self.get_next_product_id()
 
         # 3. Save image into category folder
         norm_cat = category.strip().lower() if category else "jewellery"

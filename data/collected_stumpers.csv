@@ -1,0 +1,10 @@
+image_id,product_id,jewellery_type,failure_condition,notes,image_path,created_at
+id40,JW_0061766,bracelet,normal,,evaluation/images/id40.jpeg,2026-09-26T08:42:06.070607+00:00
+id41,JW_0061766,bracelet,bad_lighting,,evaluation/images/id41.jpeg,2026-09-26T08:42:32.220612+00:00
+id42,JW_0061766,bracelet,bright_lighting,,evaluation/images/id42.jpeg,2026-09-26T08:42:41.492740+00:00
+id43,JW_0061766,bracelet,odd_angle,,evaluation/images/id43.jpeg,2026-09-26T08:42:51.417431+00:00
+id44,JW_0061766,bracelet,occlusion,,evaluation/images/id44.jpeg,2026-09-26T08:43:04.104803+00:00
+id45,JW_0061766,bracelet,motion_blur,,evaluation/images/id45.jpeg,2026-09-26T08:43:13.024894+00:00
+id46,JW_0061766,bracelet,distance,,evaluation/images/id46.jpeg,2026-09-26T08:43:19.477994+00:00
+id47,JW_061767,ring,normal,Handheld reference photo in ambient light,evaluation/images/id47.jpeg,2026-09-26T08:55:27.780251+00:00
+id48,JW_061767,ring,bad_lighting,Dim hallway with harsh shadow,evaluation/images/id48.jpeg,2026-09-26T08:55:27.804906+00:00

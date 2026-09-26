@@ -16,10 +16,11 @@ from pathlib import Path
 import threading
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse
 from PIL import Image
 
+from app.collector import STUMPER_CONDITIONS, get_collector, normalize_condition
 from app.config import (
     CATALOGUE_CSV,
     EMBEDDING_DIM,
@@ -178,17 +179,166 @@ async def match_image(
         )
 
 
+@router.get("/catalogue/next-id")
+def get_next_product_id() -> Dict[str, str]:
+    """Return the next recommended sequential product ID."""
+    matcher = get_matcher()
+    return {"next_product_id": matcher.get_next_product_id()}
+
+
+@router.get("/catalogue/products")
+def list_catalogue_products(
+    q: Optional[str] = Query(None, description="Search query by Product ID or name"),
+    category: Optional[str] = Query(None, description="Jewellery category filter"),
+    status: Optional[str] = Query("all", description="Collection status: all, in_progress, completed, uncollected"),
+    limit: int = Query(50, ge=1, le=500),
+    offset: int = Query(0, ge=0),
+) -> Dict[str, Any]:
+    """
+    List catalogue products with search, category filtering, pagination,
+    and stumper collection progress (e.g. 7/10 conditions).
+    """
+    matcher = get_matcher()
+    collector = get_collector()
+    stumper_counts = collector.get_all_product_counts()
+
+    # Normalize category filter
+    norm_cat_filter = category.strip().lower() if category and category.strip() and category.strip().lower() != "all" else None
+    query_str = q.strip().lower() if q and q.strip() else None
+
+    # Collect matching products
+    matched = []
+    # Reverse order so newly added items show first
+    all_pids = list(reversed(matcher.product_ids))
+
+    for pid in all_pids:
+        meta = matcher.catalogue_lookup.get(pid, {})
+        cat = meta.get("category", "").lower()
+        subcat = meta.get("subcategory", "").lower()
+        pname = meta.get("product_name", "").lower()
+
+        # Category filter
+        if norm_cat_filter:
+            # Handle plural/singular matching (e.g. earrings vs earring)
+            is_match = (
+                norm_cat_filter in cat
+                or cat in norm_cat_filter
+                or norm_cat_filter in subcat
+                or subcat in norm_cat_filter
+            )
+            if not is_match:
+                continue
+
+        # Search filter
+        if query_str:
+            if query_str not in pid.lower() and query_str not in pname:
+                continue
+
+        # Stumper stats
+        s_info = stumper_counts.get(pid, {"count": 0, "conditions": []})
+        s_count = s_info["count"]
+        s_conditions = s_info["conditions"]
+        is_completed = s_count >= len(STUMPER_CONDITIONS)
+        is_in_progress = 1 <= s_count < len(STUMPER_CONDITIONS)
+        is_uncollected = s_count == 0
+
+        # Status filter
+        if status == "completed" and not is_completed:
+            continue
+        elif status == "in_progress" and not is_in_progress:
+            continue
+        elif status == "uncollected" and not is_uncollected:
+            continue
+
+        img_path = meta.get("image_path", "")
+        img_url = "/" + img_path.replace("\\", "/") if img_path else ""
+
+        matched.append({
+            "product_id": pid,
+            "product_name": meta.get("product_name", pid),
+            "category": meta.get("category", "jewellery"),
+            "subcategory": meta.get("subcategory", "jewellery"),
+            "image_path": img_path,
+            "image_url": img_url,
+            "stumper_count": s_count,
+            "stumper_total": len(STUMPER_CONDITIONS),
+            "progress_percent": round((s_count / len(STUMPER_CONDITIONS)) * 100),
+            "is_complete": is_completed,
+            "conditions_completed": s_conditions,
+        })
+
+    # Sort: products with stumpers first, then by product ID
+    if status == "all" and not query_str:
+        matched.sort(key=lambda x: (x["stumper_count"] > 0, x["stumper_count"]), reverse=True)
+
+    total_count = len(matched)
+    paginated = matched[offset : offset + limit]
+
+    return {
+        "total": total_count,
+        "offset": offset,
+        "limit": limit,
+        "products": paginated,
+    }
+
+
+@router.get("/catalogue/products/{product_id}")
+def get_catalogue_product(product_id: str) -> Dict[str, Any]:
+    """Retrieve full product metadata and its 10-condition stumper collection details."""
+    matcher = get_matcher()
+    clean_pid = product_id.strip()
+    if clean_pid not in matcher.catalogue_lookup:
+        raise HTTPException(status_code=404, detail=f"Product ID '{clean_pid}' not found in catalogue.")
+
+    meta = matcher.catalogue_lookup[clean_pid]
+    collector = get_collector()
+    stumpers = collector.get_product_stumpers(clean_pid)
+
+    img_path = meta.get("image_path", "")
+    img_url = "/" + img_path.replace("\\", "/") if img_path else ""
+
+    return {
+        "product": {
+            "product_id": clean_pid,
+            "product_name": meta.get("product_name", clean_pid),
+            "category": meta.get("category", "jewellery"),
+            "subcategory": meta.get("subcategory", "jewellery"),
+            "image_path": img_path,
+            "image_url": img_url,
+            "width": meta.get("width"),
+            "height": meta.get("height"),
+        },
+        "collection": stumpers,
+    }
+
+
+@router.post("/catalogue/create")
 @router.post("/catalogue/add")
-async def add_catalogue_item(
-    file: UploadFile = File(..., description="Jewellery image file to add to catalogue"),
-    category: str = Form(..., description="Product category (e.g. ring, necklace, earring, bracelet, pendant)"),
-    product_name: Optional[str] = Form(None, description="Optional product name/title"),
+async def create_catalogue_item(
+    file: UploadFile = File(..., description="Original/clean jewellery photo"),
+    category: Optional[str] = Form(None, description="Jewellery category/type"),
+    jewellery_type: Optional[str] = Form(None, description="Jewellery type alias"),
+    product_name: Optional[str] = Form(None, description="Product title/name"),
+    product_id: Optional[str] = Form(None, description="Optional custom Product ID"),
     subcategory: Optional[str] = Form(None, description="Optional subcategory"),
 ) -> Dict[str, Any]:
     """
-    Upload an image, add it to the catalogue, compute its CLIP embedding,
-    and index it immediately into FAISS.
+    Create a new product with an original photo, compute CLIP embedding,
+    add to FAISS index, update catalogue.csv, and immediately make it searchable.
     """
+    cat = (jewellery_type or category or "other").strip().lower()
+    # Normalize category names to match dataset
+    cat_aliases = {
+        "earrings": "earring",
+        "rings": "ring",
+        "necklaces": "necklace",
+        "bracelets": "bracelet",
+        "pendants": "pendant",
+        "chains": "chain",
+        "anklets": "anklet",
+    }
+    cat = cat_aliases.get(cat, cat)
+
     if not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=400,
@@ -205,25 +355,105 @@ async def add_catalogue_item(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Failed to decode uploaded image: {e}",
-        )
+        raise HTTPException(status_code=400, detail=f"Failed to decode uploaded image: {e}")
 
     try:
         matcher = get_matcher()
         item = matcher.add_catalogue_item(
             image_input=pil_image,
-            category=category,
+            category=cat,
             product_name=product_name,
             subcategory=subcategory,
+            product_id=product_id,
         )
         return item
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to create catalogue item: {e}")
+
+
+# ── Stumper Collection Endpoints ─────────────────────────────────────────────
+
+@router.get("/stumper/conditions")
+def get_stumper_conditions() -> List[Dict[str, Any]]:
+    """Return all 10 stumper conditions with names, icons, and guidelines."""
+    return STUMPER_CONDITIONS
+
+
+@router.post("/stumper/upload")
+async def upload_stumper_photo(
+    file: UploadFile = File(..., description="Real phone photo for stumper condition"),
+    product_id: str = Form(..., description="Target Product ID (e.g. JW_006158)"),
+    failure_condition: str = Form(..., description="One of the 10 failure conditions"),
+    notes: Optional[str] = Form(None, description="Optional photographer notes"),
+    jewellery_type: Optional[str] = Form(None, description="Optional category/type"),
+) -> Dict[str, Any]:
+    """
+    Save real stumper condition photo captured by phone camera or uploaded from device.
+    Keeps photo strictly tied to product_id and updates dataset progress.
+    """
+    clean_pid = product_id.strip()
+    if not clean_pid:
+        raise HTTPException(status_code=400, detail="Product ID cannot be empty.")
+
+    if not file.content_type.startswith("image/"):
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to add item to catalogue: {e}",
+            status_code=400,
+            detail=f"Invalid file type '{file.content_type}'. Must be an image (JPEG, PNG, WebP).",
         )
+
+    try:
+        contents = await file.read()
+        if len(contents) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded photo is empty.")
+
+        pil_image = Image.open(io.BytesIO(contents))
+        pil_image.load()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to process image: {e}")
+
+    try:
+        collector = get_collector()
+        result = collector.save_stumper(
+            product_id=clean_pid,
+            failure_condition=failure_condition,
+            image=pil_image,
+            jewellery_type=jewellery_type,
+            notes=notes,
+        )
+        return result
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save stumper photo: {e}")
+
+
+@router.get("/stumper/product/{product_id}")
+def get_product_stumper_details(product_id: str) -> Dict[str, Any]:
+    """Get all 10 condition photos and completion status for a given product."""
+    collector = get_collector()
+    return collector.get_product_stumpers(product_id)
+
+
+@router.get("/stumper/dataset")
+def get_dataset_statistics() -> Dict[str, Any]:
+    """
+    Return dataset-level statistics: total products, total stumper photos,
+    breakdown by condition, breakdown by jewellery type, and recent uploads.
+    """
+    matcher = get_matcher()
+    collector = get_collector()
+    return collector.get_dataset_stats(matcher.catalogue_lookup)
+
+
+@router.delete("/stumper/{product_id}/{failure_condition}")
+def delete_stumper_condition(product_id: str, failure_condition: str) -> Dict[str, Any]:
+    """Delete a stumper photo so the user can retake it."""
+    collector = get_collector()
+    return collector.delete_stumper(product_id, failure_condition)
 
 
 # ── Phase 7: Evaluation Endpoints ────────────────────────────────────────────

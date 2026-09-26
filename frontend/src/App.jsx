@@ -20,8 +20,13 @@ import {
   Sliders,
   ShieldCheck,
   Check,
-  AlertCircle
+  AlertCircle,
+  Camera
 } from 'lucide-react';
+
+import CollectDataTab from './components/CollectDataTab';
+import CollectionsTab from './components/CollectionsTab';
+import DatasetTab from './components/DatasetTab';
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -29,6 +34,7 @@ export default function App() {
   });
   const [activeTab, setActiveTab] = useState('search');
   const [stats, setStats] = useState({ total_items: 6157, categories: {} });
+  const [collectProduct, setCollectProduct] = useState(null);
 
   // ── Sync Theme ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -256,6 +262,23 @@ export default function App() {
     }
   };
 
+  const handleTestProductInSearch = async (prod) => {
+    if (!prod?.image_url) return;
+    try {
+      const res = await fetch(prod.image_url);
+      const blob = await res.blob();
+      const file = new File([blob], `${prod.product_id}.jpg`, { type: 'image/jpeg' });
+      setSearchFile(file);
+      setSearchImage(prod.image_url);
+      setActiveTab('search');
+      executeSearch(file);
+    } catch (err) {
+      console.error('Error initiating visual search:', err);
+      setActiveTab('search');
+      setSearchImage(prod.image_url);
+    }
+  };
+
   const testAddedInSearch = (item) => {
     if (!item?.fileBlob) return;
     setSearchFile(item.fileBlob);
@@ -290,6 +313,27 @@ export default function App() {
               <span>Visual Search</span>
             </button>
             <button
+              className={`nav-tab-btn ${activeTab === 'collect' || activeTab === 'add' ? 'active' : ''}`}
+              onClick={() => setActiveTab('collect')}
+            >
+              <Camera size={16} />
+              <span>Collect Data</span>
+            </button>
+            <button
+              className={`nav-tab-btn ${activeTab === 'collections' ? 'active' : ''}`}
+              onClick={() => setActiveTab('collections')}
+            >
+              <Layers size={16} />
+              <span>Collections</span>
+            </button>
+            <button
+              className={`nav-tab-btn ${activeTab === 'dataset' ? 'active' : ''}`}
+              onClick={() => setActiveTab('dataset')}
+            >
+              <Database size={16} />
+              <span>Dataset</span>
+            </button>
+            <button
               className={`nav-tab-btn ${activeTab === 'eval' ? 'active' : ''}`}
               onClick={() => setActiveTab('eval')}
             >
@@ -307,13 +351,6 @@ export default function App() {
                   {(evalMetrics.top1_accuracy * 100).toFixed(0)}%
                 </span>
               )}
-            </button>
-            <button
-              className={`nav-tab-btn ${activeTab === 'add' ? 'active' : ''}`}
-              onClick={() => setActiveTab('add')}
-            >
-              <PlusCircle size={16} />
-              <span>Add Item</span>
             </button>
           </nav>
 
@@ -1046,222 +1083,35 @@ export default function App() {
           </div>
         )}
 
-        {/* VIEW 3: ADD ITEM */}
-        {activeTab === 'add' && (
-          <div className="two-col-grid">
-            {/* Form */}
-            <div className="ui-card">
-              <div className="card-title-row">
-                <h2 className="card-title">
-                  <PlusCircle size={18} style={{ color: 'var(--primary)' }} />
-                  Add Catalogue Item
-                </h2>
-              </div>
+        {/* VIEW 2: COLLECT DATA */}
+        {(activeTab === 'collect' || activeTab === 'add') && (
+          <CollectDataTab
+            selectedProduct={collectProduct}
+            onProductSelected={setCollectProduct}
+            onTestInSearch={handleTestProductInSearch}
+            onStatsRefresh={fetchStats}
+          />
+        )}
 
-              <form onSubmit={handleAddItem}>
-                {/* Dropzone */}
-                {!addImagePreview ? (
-                  <div
-                    className="dropzone-container"
-                    onClick={() => addFileInputRef.current?.click()}
-                  >
-                    <input
-                      type="file"
-                      ref={addFileInputRef}
-                      accept="image/*"
-                      style={{ display: 'none' }}
-                      onChange={(e) => {
-                        if (e.target.files?.length > 0) {
-                          handleSelectAddFile(e.target.files[0]);
-                        }
-                      }}
-                    />
-                    <div className="drop-icon-box">
-                      <Upload size={24} />
-                    </div>
-                    <div className="drop-text-main">Upload jewellery photograph</div>
-                    <div className="drop-text-sub">JPEG, PNG, WebP</div>
-                  </div>
-                ) : (
-                  <div className="preview-container">
-                    <img src={addImagePreview} alt="Upload preview" className="preview-image" />
-                    <button
-                      type="button"
-                      className="btn-clear-preview"
-                      onClick={handleClearAddImage}
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                )}
+        {/* VIEW 3: COLLECTIONS */}
+        {activeTab === 'collections' && (
+          <CollectionsTab
+            onSelectProduct={(prod) => {
+              setCollectProduct(prod);
+              setActiveTab('collect');
+            }}
+            onTestInSearch={handleTestProductInSearch}
+          />
+        )}
 
-                <div style={{ marginTop: '1.25rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.4rem' }}>
-                    Category
-                  </label>
-                  <select
-                    value={addCategory}
-                    onChange={(e) => setAddCategory(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.65rem 0.85rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'var(--bg-surface)',
-                      color: 'var(--text-main)',
-                      fontSize: '0.9rem'
-                    }}
-                  >
-                    <option value="ring">Ring</option>
-                    <option value="necklace">Necklace</option>
-                    <option value="earrings">Earrings</option>
-                    <option value="bracelet">Bracelet</option>
-                    <option value="bangle">Bangle</option>
-                    <option value="pendant">Pendant</option>
-                  </select>
-                </div>
-
-                <div style={{ marginTop: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '0.4rem' }}>
-                    Product Name (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={addName}
-                    onChange={(e) => setAddName(e.target.value)}
-                    placeholder="e.g. 18K Diamond Solitaire Ring"
-                    style={{
-                      width: '100%',
-                      padding: '0.65rem 0.85rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border)',
-                      background: 'var(--bg-surface)',
-                      color: 'var(--text-main)',
-                      fontSize: '0.9rem'
-                    }}
-                  />
-                </div>
-
-                <div style={{ marginTop: '1.5rem' }}>
-                  <button
-                    type="submit"
-                    className="btn-primary"
-                    disabled={!addFile || isAdding}
-                  >
-                    {isAdding ? (
-                      <>
-                        <RotateCw size={18} className="spin-anim" />
-                        Encoding Vector & Adding to FAISS...
-                      </>
-                    ) : (
-                      <>
-                        <PlusCircle size={18} />
-                        Add to Catalogue & Index
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {/* Right: Last Added Item & Quick Test */}
-            <div className="ui-card">
-              <div className="card-title-row">
-                <h2 className="card-title">
-                  <CheckCircle2 size={18} style={{ color: 'var(--success)' }} />
-                  Indexing Status
-                </h2>
-              </div>
-
-              {lastAdded ? (
-                <div>
-                  <div style={{
-                    padding: '1.25rem',
-                    background: 'var(--success-bg)',
-                    border: '1px solid var(--success-border)',
-                    borderRadius: '12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    marginBottom: '1.5rem'
-                  }}>
-                    <img
-                      src={lastAdded.image_url}
-                      alt={lastAdded.product_name}
-                      style={{ width: '60px', height: '60px', borderRadius: '8px', objectFit: 'cover' }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 700, color: 'var(--text-main)' }}>
-                        {lastAdded.product_name}
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        Category: {lastAdded.category} • ID: {lastAdded.product_id}
-                      </div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--success)', fontWeight: 600, marginTop: '2px' }}>
-                        ✓ 512-d CLIP vector indexed into FAISS
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    className="btn-secondary"
-                    style={{ width: '100%', marginBottom: '1.5rem' }}
-                    onClick={() => testAddedInSearch(lastAdded)}
-                  >
-                    <Search size={16} />
-                    Test this Item in Visual Search
-                  </button>
-
-                  {recentItems.length > 1 && (
-                    <div>
-                      <h4 style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
-                        RECENTLY ADDED
-                      </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                        {recentItems.slice(1).map((item) => (
-                          <div
-                            key={item.product_id}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.75rem',
-                              padding: '0.5rem',
-                              borderRadius: '8px',
-                              border: '1px solid var(--border)'
-                            }}
-                          >
-                            <img
-                              src={item.image_url}
-                              alt={item.product_name}
-                              style={{ width: '36px', height: '36px', borderRadius: '6px', objectFit: 'cover' }}
-                            />
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                              <div style={{ fontSize: '0.85rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {item.product_name}
-                              </div>
-                              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                                {item.category} • {item.product_id}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="empty-placeholder">
-                  <div className="empty-icon-box">
-                    <Database size={32} />
-                  </div>
-                  <div className="empty-title">Ready to Index</div>
-                  <div className="empty-desc">
-                    Upload a photograph to instantly extract its CLIP ViT-B/32 embedding and insert it into the FAISS vector index.
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+        {/* VIEW 4: DATASET STATS */}
+        {activeTab === 'dataset' && (
+          <DatasetTab
+            onSelectProductFromPhoto={(prod) => {
+              setCollectProduct(prod);
+              setActiveTab('collect');
+            }}
+          />
         )}
       </main>
     </div>
