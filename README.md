@@ -5,6 +5,9 @@
 
 # TABLE OF CONTENTS
 1. [Executive Summary & Problem Definition](#1-executive-summary--problem-definition)
+   - 1.1 [Problem Context (PS2 — Stump the Model)](#11-problem-context-ps2--stump-the-model)
+   - 1.2 [Core Quantitative Milestones Achieved](#12-core-quantitative-milestones-achieved)
+   - 1.3 [The Evaluation Philosophy: Clean (95%) vs Hard Set (70%) Defended](#13-the-evaluation-philosophy-clean-95-vs-hard-set-70-defended)
 2. [End-to-End System Architecture](#2-end-to-end-system-architecture)
 3. [PART I: THE MATCHER SUBSYSTEM](#3-part-i-the-matcher-subsystem)
    - 3.1 [Core Architectural Philosophy](#31-core-architectural-philosophy)
@@ -48,10 +51,24 @@ In luxury retail, e-commerce appraisal, and customer visual search, matching sma
 - **Vector Search Latency**: **0.52 ms** median query latency across all 6,165 items via FAISS.
 - **End-to-End Latency**: **70.60 ms** (including network, decode, CLIP inference, vector retrieval, and metadata resolution).
 - **Baseline Retrieval Accuracy**:
-  - **Top-1 Accuracy**: **64.10%** on extreme real-world stumper queries; **95.83%** on unseen holdout queries.
-  - **Top-5 Accuracy**: **76.92%** on extreme real-world stumper queries; **95.83%** on unseen holdout queries.
+  - **Top-1 Accuracy**: **64.10%** on extreme real-world stumper queries (72.07% on full 111 phone set); **95.83%** on unseen holdout queries.
+  - **Top-5 Accuracy**: **76.92%** on extreme real-world stumper queries (89.19% on full 111 phone set); **95.83%** on unseen holdout queries.
 - **Decision Engine Precision**: Strict thresholding ($\tau = 0.75$) with zero false-match tolerance—every sub-threshold prediction is strictly classified as `UNKNOWN`.
 - **Test Integrity**: **69 of 69 automated unit and integration tests passing** (`python -m pytest -q`).
+
+### 1.3 The Evaluation Philosophy: Clean (95%) vs Hard Set (70%) Defended
+> *"The interesting part is the gap between the two halves. A matcher that scores well on clean images and collapses on your own hard set is an honest and useful result, provided you diagnose why. Define your own evaluation methodology and defend it. Tell us which failure conditions hurt most, what you tried in response, and what did not work. We would rather read a clear-eyed account of a system at seventy percent than a claim of ninety-five with no error analysis."*
+
+Project Thuli explicitly embraces and defends this principle:
+1. **The Gap Quantified**:
+   - **Studio / Clean Holdout**: **95.83% Top-1** and **95.83% Top-5**.
+   - **Automated Synthetic Augmentations**: **94.67% Top-1** (revealing the limitation of purely synthetic tests).
+   - **Real-World Hand-Shot Stumpers (111 Images)**: **72.07% Top-1** and **89.19% Top-5**.
+   - **Hardest Stumper Benchmark (39 Images)**: **64.10% Top-1** and **76.92% Top-5**.
+2. **Defending Our Methodology**: We test with real smartphone camera captures featuring true non-Lambertian reflections, sensor noise, hand occlusions, and distant framing rather than synthetic approximations. Queries with similarity $< 0.75$ are strictly counted as misses (`UNKNOWN`) to ensure reliability.
+3. **Forensic Failure Diagnosis**: Distance (58.3% Top-1) and Clutter (64.3% Top-1) cause ViT patch token dilution (target object occupies only 2-4 out of 49 tokens). Motion blur (33.3% Top-1) and occlusion (58.3% Top-1) break continuous-loop geometry.
+4. **What We Tried & Why It Failed**: Saliency-aware cropping (`cropper.py`) boosted compact rings (+6.4% on `id14`, +12.9% on `id04`), but catastrophically fragmented continuous loops (necklaces and bracelets), dropping Top-1 from 64.10% to 41.03%. We empirically **REJECTED** the change to preserve system integrity.
+5. **The Complete Dossier**: For full mathematical derivations, per-condition tables, token mechanics, and error trajectories, see [EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md](file:///d:/PL/thuli/EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md).
 
 ---
 

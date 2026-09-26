@@ -1,30 +1,30 @@
 # Phase 7 — Baseline Evaluation Report
 
-> Generated: 2026-09-26T14:45:59.415512+00:00
+> Generated: 2026-09-26T18:41:43.051839+00:00
 > Model: CLIP ViT-B/32 | Index: FAISS IndexFlatIP | Threshold: 0.75
 
 ## Summary
 
 | Metric | Value |
 |---|---|
-| Total Images | 111 |
-| Valid Images | 111 |
-| **Top-1 Accuracy** | **72.1%** |
-| **Top-5 Accuracy** | **89.2%** |
-| MATCH decisions | 103 |
+| Total Images | 113 |
+| Valid Images | 113 |
+| **Top-1 Accuracy** | **72.6%** |
+| **Top-5 Accuracy** | **89.4%** |
+| MATCH decisions | 105 |
 | UNKNOWN decisions | 8 |
 | Wrong Matches | 23 |
-| **False Acceptance Rate (FAR)** | **20.72%** |
-| **False Rejection Rate (FRR)** | **7.21%** |
-| Mean Latency | 109.73 ms |
-| Median Latency | 106.6 ms |
-| P95 Latency | 136.73 ms |
+| **False Acceptance Rate (FAR)** | **20.35%** |
+| **False Rejection Rate (FRR)** | **7.08%** |
+| Mean Latency | 218.99 ms |
+| Median Latency | 207.95 ms |
+| P95 Latency | 341.39 ms |
 
 ## Per-Condition Accuracy
 
 | Condition | N | Top-1 | Top-5 |
 |---|---|---|---|
-| `bad_lighting` | 7 | 100.0% | 100.0% |
+| `bad_lighting` | 8 | 100.0% | 100.0% |
 | `bright_lighting` | 12 | 83.3% | 100.0% |
 | `clutter` | 14 | 64.3% | 78.6% |
 | `distance` | 12 | 58.3% | 75.0% |
@@ -33,7 +33,7 @@
 | `motion_blur` | 12 | 75.0% | 100.0% |
 | `motionblur` | 3 | 33.3% | 66.7% |
 | `noise` | 1 | 0.0% | 0.0% |
-| `normal` | 13 | 92.3% | 100.0% |
+| `normal` | 14 | 92.9% | 100.0% |
 | `occlusion` | 12 | 58.3% | 75.0% |
 | `odd_angle` | 12 | 66.7% | 91.7% |
 | `reflection` | 1 | 100.0% | 100.0% |
@@ -55,5 +55,5 @@
 
 ## Dataset Progress
 
-- Current: 111 / 100 images
-- Progress: 111.0%
+- Current: 113 / 100 images
+- Progress: 113.0%

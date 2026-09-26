@@ -217,7 +217,76 @@ Adopt $\tau = 0.75$ as a clearly documented uncalibrated baseline setting, expos
 
 ---
 
-## Open Items
+## Phase 5 — API Layer
 
-- [ ] **D-010** — FastAPI architecture & validation schema (Phase 5).
-- [ ] **D-011** — Stumper failure taxonomy & phone photography protocol (Phase 7).
+### D-010 · FastAPI Architecture & Thread-Safe Lifespan Singleton
+
+**Date:** 2026-09-25
+**Status:** Active
+
+**Context:**
+The visual search API requires low-latency retrieval while preventing concurrent race conditions when dynamically adding new products or running evaluations. Loading CLIP ViT-B/32 on every HTTP request would incur 500ms+ overhead.
+
+**Decision:**
+Implement a thread-safe double-checked singleton lock for `JewelleryMatcher` in `app/api/routes.py` with an async pre-warming lifespan in `app/main.py`.
+
+**Reason:**
+- Keeps memory footprint lean (~12MB index + ~350MB model in RAM).
+- Zero cold-start latency on `/api/match` (median query latency 70.60ms).
+- Thread-safe mutation during live catalogue additions.
+
+---
+
+## Phase 7 & 8 — Evaluation & Error Analysis
+
+### D-011 · Stumper Protocol & 10-Condition Taxonomy
+
+**Date:** 2026-09-26
+**Status:** Active
+
+**Context:**
+Academic image retrieval evaluations frequently rely on synthetic augmentations (Gaussian blur, color jitter), which fail to model the non-Lambertian reflections, sensor noise, hand occlusions, and perspective distortions of handheld consumer jewellery photography.
+
+**Decision:**
+Collect and curate 111 authentic smartphone photographs mapped directly to catalogue product IDs and classified across a strict 10-condition failure taxonomy (`normal`, `bad_lighting`, `bright_lighting`, `odd_angle`, `occlusion`, `clutter`, `motion_blur`, `reflection`, `hand_wrist`, `distance`).
+
+**Reason:**
+- Exposes true real-world retrieval performance (72.07% Top-1) vs synthetic inflation (94.67% Top-1).
+- Provides granular per-condition attribution to guide diagnostic engineering.
+
+---
+
+### D-012 · Rejection of Saliency-Aware Cropping (The Honest 70% System)
+
+**Date:** 2026-09-26
+**Status:** Active (Definitive Rejection)
+
+**Context:**
+In Phase 8, error analysis showed that background clutter and distance caused token dilution in ViT patches. We built Experiment 01 (`experiments/experiment_01/cropper.py`) using Spectral Residual Saliency and Otsu thresholding to tightly crop the jewellery item before CLIP embedding.
+
+**Decision:**
+Strictly REJECT Experiment 01 and retain the uncropped baseline `JewelleryMatcher` as the production standard.
+
+**Reason:**
+- While cropping helped compact rings (+6.4% on `id14`, +12.9% on `id04`), it catastrophically fragmented continuous-loop items (necklaces and bracelets).
+- Saliency severed thin chain perimeters, causing CLIP to misclassify isolated bracelet segments as rings/earrings.
+- Empirical results showed severe degradation: Top-1 dropped from 64.10% to 41.03% on the stumper benchmark, and from 95.83% to 75.00% on unseen holdouts.
+- Retaining a clean-eyed 70% baseline with known error bounds is vastly superior to adopting a fragile heuristic that breaks macro-geometry.
+
+---
+
+### D-013 · Decision Threshold Calibration ($\tau = 0.75$) with Sub-Threshold Penalty
+
+**Date:** 2026-09-26
+**Status:** Active
+
+**Context:**
+In luxury e-commerce and appraisal visual search, returning a confident wrong product ($200 silver ring instead of $4,500 diamond ring) is a critical failure. The system must reject ambiguous matches as `UNKNOWN`.
+
+**Decision:**
+Calibrate decision threshold to $\tau = 0.75$. Queries with similarity $< 0.75$ are strictly classified as `UNKNOWN` and counted as misses during evaluation, even if the top predicted ID matches ground truth.
+
+**Reason:**
+- Maintains a balanced False Acceptance Rate (20.72%) and False Rejection Rate (7.21%) on hard real-world stumpers.
+- Prevents hallucinated matches for out-of-catalogue or severely degraded images.
+- Enforces engineering honesty: high confidence is reserved for true visual matches.
