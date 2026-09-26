@@ -27,6 +27,7 @@ import {
 import CollectDataTab from './components/CollectDataTab';
 import CollectionsTab from './components/CollectionsTab';
 import DatasetTab from './components/DatasetTab';
+import AutomatedStumperTab from './components/AutomatedStumperTab';
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -308,7 +309,6 @@ export default function App() {
       <header className="app-header">
         <div className="header-inner">
           <div className="brand-section">
-            <div className="brand-logo-icon">💎</div>
             <div>
               <div className="brand-title">
                 THULI
@@ -366,6 +366,24 @@ export default function App() {
                   {(evalMetrics.top1_accuracy * 100).toFixed(0)}%
                 </span>
               )}
+            </button>
+            <button
+              className={`nav-tab-btn ${activeTab === 'automated-stumper' ? 'active' : ''}`}
+              onClick={() => setActiveTab('automated-stumper')}
+            >
+              <Sparkles size={16} />
+              <span>Automated Stumper</span>
+              <span style={{
+                fontSize: '0.65rem',
+                background: '#7c3aed20',
+                color: '#7c3aed',
+                padding: '1px 6px',
+                borderRadius: '999px',
+                fontFamily: 'var(--font-mono)',
+                fontWeight: 700
+              }}>
+                900
+              </span>
             </button>
           </nav>
 
@@ -1479,6 +1497,11 @@ export default function App() {
               setActiveTab('collect');
             }}
           />
+        )}
+
+        {/* VIEW 5: AUTOMATED STUMPER */}
+        {activeTab === 'automated-stumper' && (
+          <AutomatedStumperTab />
         )}
       </main>
     </div>

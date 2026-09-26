@@ -1,0 +1,36 @@
+{
+  "handshot": {
+    "name": "Hand-Shot Stumper (Real Phone Photos)",
+    "total_images": 111,
+    "top1_accuracy": 0.7207,
+    "top5_accuracy": 0.8919,
+    "failure_rate": 0.2793,
+    "unknown_count": 8,
+    "unknown_rate": 0.0721,
+    "wrong_matches_count": 23,
+    "median_latency_ms": 106.6,
+    "p95_latency_ms": 136.73
+  },
+  "automated": {
+    "name": "Automated Stumper (100 Catalogue Items \u00d7 9 Realistic Variations)",
+    "total_images": 900,
+    "source_images_count": 100,
+    "top1_accuracy": 0.9467,
+    "top5_accuracy": 0.9733,
+    "top1_product_accuracy": 0.68,
+    "top5_product_accuracy": 0.8033,
+    "failure_rate": 0.0533,
+    "unknown_count": 3,
+    "unknown_rate": 0.0033,
+    "wrong_matches_count": 45,
+    "median_latency_ms": 108.08,
+    "p95_latency_ms": 137.58
+  },
+  "delta": {
+    "top1_pct": 22.6,
+    "top5_pct": 8.14,
+    "failure_rate_pct": -22.6,
+    "defeated_higher": false
+  },
+  "summary": "Automated stumper DID NOT DEFEAT the matcher at a higher rate. Failure Rate: Automated 5.3% vs Hand-Shot 27.9% (-22.6% difference). Top-1 Accuracy: Automated 94.7% vs Hand-Shot 72.1%."
+}

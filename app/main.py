@@ -56,6 +56,11 @@ eval_images_dir = PROJECT_ROOT / "evaluation" / "images"
 eval_images_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/evaluation/images", StaticFiles(directory=str(eval_images_dir)), name="eval_images")
 
+# Mount automated stumper images
+auto_images_dir = PROJECT_ROOT / "evaluation" / "automated_images"
+auto_images_dir.mkdir(parents=True, exist_ok=True)
+app.mount("/evaluation/automated_images", StaticFiles(directory=str(auto_images_dir)), name="auto_images")
+
 # Mount static folder for frontend HTML/CSS/JS
 static_dir = PROJECT_ROOT / "app" / "static"
 static_dir.mkdir(parents=True, exist_ok=True)

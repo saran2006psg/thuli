@@ -594,3 +594,67 @@ def download_results_csv():
         filename="evaluation_results.csv",
     )
 
+
+# ── Automated Stumper Endpoints ──────────────────────────────────────────────
+
+from app.evaluation.automated_runner import (
+    METRICS_JSON as AUTO_METRICS_JSON,
+    COMPARISON_JSON as AUTO_COMPARISON_JSON,
+    RESULTS_CSV as AUTO_RESULTS_CSV,
+    run_automated_evaluation,
+    write_automated_results,
+)
+
+
+@router.get("/automated-stumper/results")
+def get_automated_stumper_results() -> Dict[str, Any]:
+    """Return metrics and hand-shot vs automated comparison for automated stumper."""
+    if not AUTO_METRICS_JSON.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="Automated stumper metrics not found. Run evaluation first.",
+        )
+    with open(AUTO_METRICS_JSON, "r", encoding="utf-8") as f:
+        metrics = json.load(f)
+
+    comparison = {}
+    if AUTO_COMPARISON_JSON.exists():
+        with open(AUTO_COMPARISON_JSON, "r", encoding="utf-8") as f:
+            comparison = json.load(f)
+
+    return {
+        "status": "ok",
+        "metrics": metrics,
+        "comparison": comparison,
+    }
+
+
+@router.post("/automated-stumper/run")
+def run_automated_stumper_endpoint() -> Dict[str, Any]:
+    """Execute automated stumper evaluation on all 900 generated images."""
+    try:
+        matcher = get_matcher()
+        report = run_automated_evaluation(matcher)
+        write_automated_results(report)
+        return {
+            "status": "success",
+            "metrics": report["metrics"],
+            "comparison": report["comparison"],
+            "total_evaluated": len(report["rows"]),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Automated evaluation failed: {e}")
+
+
+@router.get("/automated-stumper/download")
+def download_automated_results_csv():
+    """Download automated stumper results CSV."""
+    if not AUTO_RESULTS_CSV.exists():
+        raise HTTPException(status_code=404, detail="No automated results CSV found.")
+    return FileResponse(
+        path=str(AUTO_RESULTS_CSV),
+        media_type="text/csv",
+        filename="automated_stumper_results.csv",
+    )
+
+
