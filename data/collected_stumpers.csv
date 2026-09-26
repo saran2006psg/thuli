@@ -8,3 +8,20 @@ id45,JW_0061766,bracelet,motion_blur,,evaluation/images/id45.jpeg,2026-09-26T08:
 id46,JW_0061766,bracelet,distance,,evaluation/images/id46.jpeg,2026-09-26T08:43:19.477994+00:00
 id47,JW_061767,ring,normal,Handheld reference photo in ambient light,evaluation/images/id47.jpeg,2026-09-26T08:55:27.780251+00:00
 id48,JW_061767,ring,bad_lighting,Dim hallway with harsh shadow,evaluation/images/id48.jpeg,2026-09-26T08:55:27.804906+00:00
+id49,JW_061769,bracelet,normal,JW_061769,evaluation/images/id49.jpeg,2026-09-26T09:09:43.644340+00:00
+id50,JW_061769,bracelet,bad_lighting,JW_061769,evaluation/images/id50.jpeg,2026-09-26T09:09:59.153026+00:00
+id51,JW_061769,bracelet,bright_lighting,JW_061769,evaluation/images/id51.jpeg,2026-09-26T09:10:19.587900+00:00
+id52,JW_061769,bracelet,odd_angle,JW_061769,evaluation/images/id52.jpeg,2026-09-26T09:10:33.390808+00:00
+id53,JW_061769,bracelet,occlusion,JW_061769,evaluation/images/id53.jpeg,2026-09-26T09:11:01.920689+00:00
+id54,JW_061769,bracelet,clutter,JW_061769,evaluation/images/id54.jpeg,2026-09-26T09:11:36.279389+00:00
+id55,JW_061769,bracelet,motion_blur,JW_061769,evaluation/images/id55.jpeg,2026-09-26T09:12:02.241300+00:00
+id56,JW_061769,bracelet,hand_wrist,JW_061769,evaluation/images/id56.jpeg,2026-09-26T09:13:06.184285+00:00
+id57,JW_061769,bracelet,distance,JW_061769,evaluation/images/id57.jpeg,2026-09-26T09:13:09.008090+00:00
+id58,JW_061770,ring,clutter,JW_061770,evaluation/images/id58.jpeg,2026-09-26T09:17:18.934553+00:00
+id59,JW_061770,ring,motion_blur,JW_061770,evaluation/images/id59.jpeg,2026-09-26T09:17:22.484760+00:00
+id60,JW_061770,ring,hand_wrist,JW_061770,evaluation/images/id60.jpeg,2026-09-26T09:17:24.081573+00:00
+id61,JW_061770,ring,normal,JW_061770,evaluation/images/id61.jpeg,2026-09-26T09:18:02.295586+00:00
+id62,JW_061770,ring,bright_lighting,JW_061770,evaluation/images/id62.jpeg,2026-09-26T09:19:49.503402+00:00
+id63,JW_061770,ring,odd_angle,JW_061770,evaluation/images/id63.jpeg,2026-09-26T09:19:53.445823+00:00
+id64,JW_061770,ring,distance,JW_061770,evaluation/images/id64.jpeg,2026-09-26T09:19:56.150750+00:00
+id65,JW_061770,ring,occlusion,JW_061770,evaluation/images/id65.jpeg,2026-09-26T09:20:32.761677+00:00
