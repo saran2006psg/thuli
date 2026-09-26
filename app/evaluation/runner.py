@@ -106,10 +106,22 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
     valid = [r for r in result_rows if r["decision"] != "ERROR"]
     n = len(valid)
 
-    top1_acc = round(sum(r["top1_correct"] for r in valid) / n, 4) if n else 0.0
-    top5_acc = round(sum(r["top5_correct"] for r in valid) / n, 4) if n else 0.0
+    top1_correct_count = sum(r["top1_correct"] for r in valid)
+    top5_correct_count = sum(r["top5_correct"] for r in valid)
+    top1_acc = round(top1_correct_count / n, 4) if n else 0.0
+    top5_acc = round(top5_correct_count / n, 4) if n else 0.0
     match_count   = sum(1 for r in valid if r["decision"] == "MATCH")
     unknown_count = sum(1 for r in valid if r["decision"] == "UNKNOWN")
+    wrong_matches_count = sum(1 for r in valid if r["decision"] == "MATCH" and r["top1_correct"] == 0)
+
+    # Verification Metrics:
+    # False Acceptance Rate (FAR): proportion of queries falsely accepted as MATCH (wrong match)
+    false_acceptance_rate = round(wrong_matches_count / n, 4) if n else 0.0
+    far_pct = round(false_acceptance_rate * 100.0, 2)
+
+    # False Rejection Rate (FRR): proportion of queries rejected as UNKNOWN
+    false_rejection_rate = round(unknown_count / n, 4) if n else 0.0
+    frr_pct = round(false_rejection_rate * 100.0, 2)
 
     lat_median = round(statistics.median(latencies), 2) if latencies else 0.0
     lat_mean   = round(statistics.mean(latencies), 2)   if latencies else 0.0
@@ -144,8 +156,15 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
         "valid_images": n,
         "top1_accuracy": top1_acc,
         "top5_accuracy": top5_acc,
+        "top1_correct_count": top1_correct_count,
+        "top5_correct_count": top5_correct_count,
         "match_count": match_count,
         "unknown_count": unknown_count,
+        "wrong_matches_count": wrong_matches_count,
+        "false_acceptance_rate": false_acceptance_rate,
+        "far_pct": far_pct,
+        "false_rejection_rate": false_rejection_rate,
+        "frr_pct": frr_pct,
         "mean_latency_ms": lat_mean,
         "median_latency_ms": lat_median,
         "p95_latency_ms": lat_p95,
@@ -208,6 +227,9 @@ def write_results(metrics: Dict, rows: List[Dict]) -> None:
 | **Top-5 Accuracy** | **{metrics['top5_accuracy']*100:.1f}%** |
 | MATCH decisions | {metrics['match_count']} |
 | UNKNOWN decisions | {metrics['unknown_count']} |
+| Wrong Matches | {metrics.get('wrong_matches_count', 0)} |
+| **False Acceptance Rate (FAR)** | **{metrics.get('far_pct', 0.0)}%** |
+| **False Rejection Rate (FRR)** | **{metrics.get('frr_pct', 0.0)}%** |
 | Mean Latency | {metrics['mean_latency_ms']} ms |
 | Median Latency | {metrics['median_latency_ms']} ms |
 | P95 Latency | {metrics['p95_latency_ms']} ms |

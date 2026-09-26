@@ -120,6 +120,11 @@ class TestEvaluationRunner:
         assert m["valid_images"] == 1
         assert 0.0 <= m["top1_accuracy"] <= 1.0
         assert 0.0 <= m["top5_accuracy"] <= 1.0
+        assert "false_acceptance_rate" in m
+        assert "far_pct" in m
+        assert "false_rejection_rate" in m
+        assert "frr_pct" in m
+        assert "wrong_matches_count" in m
         assert "per_condition" in m
         assert "dataset_progress" in m
         assert "worst_failures" in m

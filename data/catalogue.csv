@@ -6156,28 +6156,11 @@ JW_006154,Ring 00229,ring,ring,data/catalogue/jewelry_dataset/ring/ring_00229.jp
 JW_006155,Ring 00230,ring,ring,data/catalogue/jewelry_dataset/ring/ring_00230.jpg,https://huggingface.co/datasets/sidd707/jewelry-design-dataset,262,262
 JW_006156,Ring 00231,ring,ring,data/catalogue/jewelry_dataset/ring/ring_00231.jpg,https://huggingface.co/datasets/sidd707/jewelry-design-dataset,262,262
 JW_006157,Ring 00232,ring,ring,data/catalogue/jewelry_dataset/ring/ring_00232.jpg,https://huggingface.co/datasets/sidd707/jewelry-design-dataset,488,361
-JW_006158,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006158.jpg,user_upload,100,100
-JW_006159,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006159.jpg,user_upload,100,100
 JW_006160,Bracelet JW_006160,bracelet,bracelet,data/catalogue/jewelry_dataset/bracelet/jw_006160.jpg,user_upload,715,1600
-JW_006161,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006161.jpg,user_upload,100,100
 JW_006162,Ring JW_006162,ring,ring,data/catalogue/jewelry_dataset/ring/jw_006162.jpg,user_upload,480,640
 JW_006163,Bracelet JW_006163,bracelet,bracelet,data/catalogue/jewelry_dataset/bracelet/jw_006163.jpg,user_upload,480,640
 JW_006164,Necklace JW_006164,necklace,necklace,data/catalogue/jewelry_dataset/necklace/jw_006164.jpg,user_upload,480,640
-JW_006165,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006165.jpg,user_upload,100,100
-JW_006166,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006166.jpg,user_upload,100,100
-JW_006167,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006167.jpg,user_upload,100,100
-JW_006168,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006168.jpg,user_upload,100,100
-JW_006169,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006169.jpg,user_upload,100,100
-JW_006170,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006170.jpg,user_upload,100,100
-JW_006171,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006171.jpg,user_upload,100,100
-JW_006172,Royal Gold Ring JW_006172,ring,ring,data/catalogue/jewelry_dataset/ring/jw_006172.jpg,user_upload,150,150
-JW_006173,Royal Gold Ring JW_006173,ring,ring,data/catalogue/jewelry_dataset/ring/jw_006173.jpg,user_upload,150,150
-JW_006174,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006174.jpg,user_upload,100,100
-JW_006173,Earring JW_006173,earring,earring,data/catalogue/jewelry_dataset/earring/jw_006173.jpg,user_upload,480,640
-JW_006174,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_006174.jpg,user_upload,100,100
-JW_006175,Royal Gold Ring JW_006175,ring,ring,data/catalogue/jewelry_dataset/ring/jw_006175.jpg,user_upload,150,150
 JW_0061766,Bracelet JW_0061766,bracelet,bracelet,data/catalogue/jewelry_dataset/bracelet/jw_0061766.jpg,user_upload,720,1280
-JW_061767,Royal Gold Ring JW_061767,ring,ring,data/catalogue/jewelry_dataset/ring/jw_061767.jpg,user_upload,150,150
 JW_061769,Bracelet JW_061769,bracelet,bracelet,data/catalogue/jewelry_dataset/bracelet/jw_061769.jpg,user_upload,720,1280
 JW_061770,Leaf gold ring,ring,ring,data/catalogue/jewelry_dataset/ring/jw_061770.jpg,user_upload,720,1280
 JW_061771,Gold bracelet,bracelet,bracelet,data/catalogue/jewelry_dataset/bracelet/jw_061771.jpg,user_upload,720,1280
@@ -6186,3 +6169,9 @@ JW_061773,Butterfly design rosegold plated bracelet,bracelet,bracelet,data/catal
 JW_061774,Flower silver coated bracelet,bracelet,bracelet,data/catalogue/jewelry_dataset/bracelet/jw_061774.jpg,user_upload,720,1280
 JW_061775,Heart shaped gold ring,ring,ring,data/catalogue/jewelry_dataset/ring/jw_061775.jpg,user_upload,720,1280
 JW_061776,Flower  stoned bracelet,bracelet,bracelet,data/catalogue/jewelry_dataset/bracelet/jw_061776.jpg,user_upload,720,1280
+JW_061777,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_061777.jpg,user_upload,100,100
+JW_061778,Royal Gold Ring JW_061778,ring,ring,data/catalogue/jewelry_dataset/ring/jw_061778.jpg,user_upload,150,150
+JW_061779,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_061779.jpg,user_upload,100,100
+JW_061780,Royal Gold Ring JW_061780,ring,ring,data/catalogue/jewelry_dataset/ring/jw_061780.jpg,user_upload,150,150
+JW_061781,Test Sapphire Ring,ring,cocktail_ring,data/catalogue/jewelry_dataset/ring/jw_061781.jpg,user_upload,100,100
+JW_061782,Royal Gold Ring JW_061782,ring,ring,data/catalogue/jewelry_dataset/ring/jw_061782.jpg,user_upload,150,150

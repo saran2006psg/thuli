@@ -694,6 +694,26 @@ export default function App() {
                     <div className="kpi-sub">Found in 5 candidates</div>
                   </div>
 
+                  <div className="kpi-card red">
+                    <div className="kpi-label">False Acceptance (FAR)</div>
+                    <div className="kpi-value">
+                      {(evalMetrics.far_pct !== undefined ? evalMetrics.far_pct : ((evalMetrics.false_acceptance_rate || 0) * 100)).toFixed(1)}%
+                    </div>
+                    <div className="kpi-sub">
+                      Wrong match ({evalMetrics.wrong_matches_count ?? 0} queries)
+                    </div>
+                  </div>
+
+                  <div className="kpi-card amber">
+                    <div className="kpi-label">False Rejection (FRR)</div>
+                    <div className="kpi-value">
+                      {(evalMetrics.frr_pct !== undefined ? evalMetrics.frr_pct : ((evalMetrics.false_rejection_rate || 0) * 100)).toFixed(1)}%
+                    </div>
+                    <div className="kpi-sub">
+                      Rejected as UNKNOWN ({evalMetrics.unknown_count ?? 0})
+                    </div>
+                  </div>
+
                   <div className="kpi-card green">
                     <div className="kpi-label">Match Verdicts</div>
                     <div className="kpi-value">{evalMetrics.match_count}</div>
@@ -833,13 +853,19 @@ export default function App() {
                 {(() => {
                   const allPoints = evalMetrics.all_results || evalMetrics.worst_failures || [];
                   const checkCorrect = (p) => p.decision === 'MATCH' && (p.top1_correct === 1 || p.ground_truth === p.top1_category);
+                  const checkFA = (p) => p.decision === 'MATCH' && !checkCorrect(p);
+                  const checkFR = (p) => p.decision === 'UNKNOWN';
                   const correctPoints = allPoints.filter(checkCorrect);
+                  const faPoints = allPoints.filter(checkFA);
+                  const frPoints = allPoints.filter(checkFR);
                   const wrongPoints = allPoints.filter(p => !checkCorrect(p));
                   const conditions = Array.from(new Set(allPoints.map(p => p.failure_condition))).filter(Boolean).sort();
 
                   let displayedPoints = allPoints;
                   if (evalFilter === 'correct') displayedPoints = correctPoints;
                   if (evalFilter === 'wrong') displayedPoints = wrongPoints;
+                  if (evalFilter === 'fa') displayedPoints = faPoints;
+                  if (evalFilter === 'fr') displayedPoints = frPoints;
 
                   if (evalConditionFilter !== 'all') {
                     displayedPoints = displayedPoints.filter(p => p.failure_condition === evalConditionFilter);
@@ -864,7 +890,7 @@ export default function App() {
                         </h3>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                            Hits: <strong style={{ color: 'var(--success)' }}>{correctPoints.length}</strong> | Misses: <strong style={{ color: 'var(--danger)' }}>{wrongPoints.length}</strong>
+                            Hits: <strong style={{ color: 'var(--success)' }}>{correctPoints.length}</strong> | FA: <strong style={{ color: 'var(--danger)' }}>{faPoints.length}</strong> | FR: <strong style={{ color: '#d97706' }}>{frPoints.length}</strong>
                           </span>
                         </div>
                       </div>
@@ -876,21 +902,31 @@ export default function App() {
                             className={`filter-tab-btn ${evalFilter === 'all' ? 'active' : ''}`}
                             onClick={() => setEvalFilter('all')}
                           >
-                            All Data Points ({allPoints.length})
+                            All ({allPoints.length})
                           </button>
                           <button
                             className={`filter-tab-btn filter-correct ${evalFilter === 'correct' ? 'active' : ''}`}
                             onClick={() => setEvalFilter('correct')}
                           >
                             <CheckCircle2 size={14} style={{ color: 'var(--success)' }} />
-                            Correct Hits ({correctPoints.length})
+                            Correct ({correctPoints.length})
                           </button>
                           <button
-                            className={`filter-tab-btn filter-wrong ${evalFilter === 'wrong' ? 'active' : ''}`}
-                            onClick={() => setEvalFilter('wrong')}
+                            className={`filter-tab-btn filter-wrong ${evalFilter === 'fa' ? 'active' : ''}`}
+                            onClick={() => setEvalFilter('fa')}
+                            title="False Acceptance: system accepted match with wrong product"
                           >
                             <X size={14} style={{ color: 'var(--danger)' }} />
-                            Wrong Misses ({wrongPoints.length})
+                            False Acc ({faPoints.length})
+                          </button>
+                          <button
+                            className={`filter-tab-btn ${evalFilter === 'fr' ? 'active' : ''}`}
+                            onClick={() => setEvalFilter('fr')}
+                            style={evalFilter === 'fr' ? { borderColor: '#d97706', color: '#d97706' } : {}}
+                            title="False Rejection: genuine catalogue item rejected as UNKNOWN"
+                          >
+                            <AlertCircle size={14} style={{ color: '#d97706' }} />
+                            False Rej ({frPoints.length})
                           </button>
                         </div>
 
@@ -949,6 +985,7 @@ export default function App() {
                             {displayedPoints.length > 0 ? (
                               displayedPoints.map((row) => {
                                 const isCorrect = checkCorrect(row);
+                                const isFA = checkFA(row);
                                 const rankDisplay = row.gt_rank === 1
                                   ? <span className="rank-badge-top1">#1 (Top-1)</span>
                                   : row.gt_rank > 1
@@ -956,7 +993,7 @@ export default function App() {
                                   : <span className="rank-badge-miss">Not in Top-5</span>;
 
                                 return (
-                                  <tr key={row.image_id} className={isCorrect ? 'row-correct' : 'row-wrong'}>
+                                  <tr key={row.image_id} className={isCorrect ? 'row-correct' : isFA ? 'row-wrong' : 'row-unknown'}>
                                     <td>
                                       <img
                                         src={`/evaluation/images/${row.image_id}.jpeg`}
@@ -976,10 +1013,15 @@ export default function App() {
                                           <Check size={12} />
                                           CORRECT
                                         </span>
-                                      ) : (
-                                        <span className="badge-wrong">
+                                      ) : isFA ? (
+                                        <span className="badge-wrong" title="False Acceptance: Accepted wrong product">
                                           <X size={12} />
-                                          WRONG
+                                          FALSE ACC.
+                                        </span>
+                                      ) : (
+                                        <span className="badge-warning" style={{ background: 'rgba(217, 119, 6, 0.1)', color: '#d97706', border: '1px solid rgba(217, 119, 6, 0.25)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '4px' }} title="False Rejection: Rejected as UNKNOWN">
+                                          <AlertCircle size={12} />
+                                          FALSE REJ.
                                         </span>
                                       )}
                                     </td>

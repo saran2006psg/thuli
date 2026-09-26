@@ -1,14 +1,21 @@
 {
-  "run_at": "2026-09-26T10:01:26.948519+00:00",
-  "total_images": 111,
-  "valid_images": 111,
-  "top1_accuracy": 0.7297,
-  "top5_accuracy": 0.8919,
-  "match_count": 103,
+  "run_at": "2026-09-26T13:12:33.841982+00:00",
+  "total_images": 117,
+  "valid_images": 117,
+  "top1_accuracy": 0.735,
+  "top5_accuracy": 0.8974,
+  "top1_correct_count": 86,
+  "top5_correct_count": 105,
+  "match_count": 109,
   "unknown_count": 8,
-  "mean_latency_ms": 76.26,
-  "median_latency_ms": 74.8,
-  "p95_latency_ms": 93.11,
+  "wrong_matches_count": 23,
+  "false_acceptance_rate": 0.1966,
+  "far_pct": 19.66,
+  "false_rejection_rate": 0.0684,
+  "frr_pct": 6.84,
+  "mean_latency_ms": 139.83,
+  "median_latency_ms": 131.12,
+  "p95_latency_ms": 231.71,
   "per_condition": {
     "clutter": {
       "total": 14,
@@ -31,13 +38,13 @@
       "top5_accuracy": 0.0
     },
     "bad_lighting": {
-      "total": 7,
-      "top1_accuracy": 0.8571,
+      "total": 10,
+      "top1_accuracy": 1.0,
       "top5_accuracy": 1.0
     },
     "bright_lighting": {
       "total": 12,
-      "top1_accuracy": 0.9167,
+      "top1_accuracy": 0.8333,
       "top5_accuracy": 1.0
     },
     "distance": {
@@ -47,7 +54,7 @@
     },
     "hand_wrist": {
       "total": 11,
-      "top1_accuracy": 0.8182,
+      "top1_accuracy": 0.7273,
       "top5_accuracy": 1.0
     },
     "motion_blur": {
@@ -56,8 +63,8 @@
       "top5_accuracy": 1.0
     },
     "normal": {
-      "total": 13,
-      "top1_accuracy": 0.9231,
+      "total": 16,
+      "top1_accuracy": 0.9375,
       "top5_accuracy": 1.0
     },
     "occlusion": {
@@ -77,9 +84,9 @@
     }
   },
   "dataset_progress": {
-    "current": 111,
+    "current": 117,
     "target": 100,
-    "pct": 111.0
+    "pct": 117.0
   },
   "worst_failures": [
     {
@@ -88,11 +95,11 @@
       "failure_condition": "distance",
       "decision": "UNKNOWN",
       "top1_category": "bracelet",
-      "top1_similarity": 0.5646,
+      "top1_similarity": 0.5594,
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 70.85
+      "latency_ms": 139.31
     },
     {
       "image_id": "id04",
@@ -100,11 +107,23 @@
       "failure_condition": "clutter",
       "decision": "UNKNOWN",
       "top1_category": "earring",
-      "top1_similarity": 0.6625,
+      "top1_similarity": 0.6624,
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 108.64
+      "latency_ms": 135.9
+    },
+    {
+      "image_id": "id18",
+      "ground_truth": "ring",
+      "failure_condition": "occlusion",
+      "decision": "UNKNOWN",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.6862,
+      "gt_rank": 3,
+      "top1_correct": 0,
+      "top5_correct": 0,
+      "latency_ms": 128.03
     },
     {
       "image_id": "id05",
@@ -116,31 +135,19 @@
       "gt_rank": 4,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 116.34
+      "latency_ms": 161.71
     },
     {
-      "image_id": "id76",
-      "ground_truth": "bracelet",
-      "failure_condition": "odd_angle",
-      "decision": "UNKNOWN",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.7387,
-      "gt_rank": 1,
-      "top1_correct": 0,
-      "top5_correct": 0,
-      "latency_ms": 71.55
-    },
-    {
-      "image_id": "id113",
-      "ground_truth": "bracelet",
+      "image_id": "id14",
+      "ground_truth": "ring",
       "failure_condition": "distance",
       "decision": "UNKNOWN",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.7401,
+      "top1_category": "ring",
+      "top1_similarity": 0.727,
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 91.88
+      "latency_ms": 147.94
     },
     {
       "image_id": "id58",
@@ -152,31 +159,31 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 71.26
+      "latency_ms": 298.2
     },
     {
-      "image_id": "id18",
-      "ground_truth": "ring",
-      "failure_condition": "occlusion",
-      "decision": "UNKNOWN",
-      "top1_category": "earring",
-      "top1_similarity": 0.7421,
-      "gt_rank": 2,
-      "top1_correct": 0,
-      "top5_correct": 0,
-      "latency_ms": 65.15
-    },
-    {
-      "image_id": "id14",
-      "ground_truth": "ring",
+      "image_id": "id113",
+      "ground_truth": "bracelet",
       "failure_condition": "distance",
       "decision": "UNKNOWN",
-      "top1_category": "ring",
-      "top1_similarity": 0.7432,
+      "top1_category": "bracelet",
+      "top1_similarity": 0.741,
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 68.05
+      "latency_ms": 96.31
+    },
+    {
+      "image_id": "id76",
+      "ground_truth": "bracelet",
+      "failure_condition": "odd_angle",
+      "decision": "UNKNOWN",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.7411,
+      "gt_rank": 1,
+      "top1_correct": 0,
+      "top5_correct": 0,
+      "latency_ms": 239.14
     },
     {
       "image_id": "id08",
@@ -184,11 +191,11 @@
       "failure_condition": "motionblur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7587,
+      "top1_similarity": 0.7578,
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 84.73
+      "latency_ms": 158.5
     },
     {
       "image_id": "id03",
@@ -196,11 +203,11 @@
       "failure_condition": "motionblur",
       "decision": "MATCH",
       "top1_category": "necklace",
-      "top1_similarity": 0.7667,
+      "top1_similarity": 0.7668,
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 84.93
+      "latency_ms": 123.84
     }
   ],
   "all_results": [
@@ -210,11 +217,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "necklace",
-      "top1_similarity": 0.8026,
+      "top1_similarity": 0.8023,
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 94.33
+      "latency_ms": 233.22
     },
     {
       "image_id": "id02",
@@ -222,11 +229,11 @@
       "failure_condition": "hand",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7747,
+      "top1_similarity": 0.7759,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 95.98
+      "latency_ms": 159.33
     },
     {
       "image_id": "id03",
@@ -234,11 +241,11 @@
       "failure_condition": "motionblur",
       "decision": "MATCH",
       "top1_category": "necklace",
-      "top1_similarity": 0.7667,
+      "top1_similarity": 0.7668,
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 84.93
+      "latency_ms": 123.84
     },
     {
       "image_id": "id04",
@@ -246,11 +253,11 @@
       "failure_condition": "clutter",
       "decision": "UNKNOWN",
       "top1_category": "earring",
-      "top1_similarity": 0.6625,
+      "top1_similarity": 0.6624,
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 108.64
+      "latency_ms": 135.9
     },
     {
       "image_id": "id05",
@@ -262,7 +269,7 @@
       "gt_rank": 4,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 116.34
+      "latency_ms": 161.71
     },
     {
       "image_id": "id06",
@@ -270,11 +277,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8041,
+      "top1_similarity": 0.8082,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 91.64
+      "latency_ms": 128.34
     },
     {
       "image_id": "id07",
@@ -282,11 +289,11 @@
       "failure_condition": "motionblur",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8453,
+      "top1_similarity": 0.848,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 91.42
+      "latency_ms": 137.27
     },
     {
       "image_id": "id08",
@@ -294,11 +301,11 @@
       "failure_condition": "motionblur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7587,
+      "top1_similarity": 0.7578,
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 84.73
+      "latency_ms": 158.5
     },
     {
       "image_id": "id09",
@@ -306,11 +313,11 @@
       "failure_condition": "bad_lighting",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.7829,
+      "top1_similarity": 0.784,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 79.52
+      "latency_ms": 184.01
     },
     {
       "image_id": "id10",
@@ -318,23 +325,23 @@
       "failure_condition": "bad_lighting",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.7877,
+      "top1_similarity": 0.7894,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 71.81
+      "latency_ms": 169.72
     },
     {
       "image_id": "id11",
       "ground_truth": "ring",
       "failure_condition": "bad_lighting",
       "decision": "MATCH",
-      "top1_category": "bracelet",
+      "top1_category": "ring",
       "top1_similarity": 0.8354,
-      "gt_rank": 2,
-      "top1_correct": 0,
+      "gt_rank": 1,
+      "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 62.02
+      "latency_ms": 132.19
     },
     {
       "image_id": "id12",
@@ -342,11 +349,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8457,
+      "top1_similarity": 0.8346,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 66.67
+      "latency_ms": 134.1
     },
     {
       "image_id": "id13",
@@ -354,11 +361,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.838,
+      "top1_similarity": 0.8284,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 73.73
+      "latency_ms": 139.51
     },
     {
       "image_id": "id14",
@@ -366,11 +373,11 @@
       "failure_condition": "distance",
       "decision": "UNKNOWN",
       "top1_category": "ring",
-      "top1_similarity": 0.7432,
+      "top1_similarity": 0.727,
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 68.05
+      "latency_ms": 147.94
     },
     {
       "image_id": "id15",
@@ -378,11 +385,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8281,
+      "top1_similarity": 0.8235,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 73.8
+      "latency_ms": 124.5
     },
     {
       "image_id": "id16",
@@ -390,11 +397,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8677,
+      "top1_similarity": 0.8525,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 71.39
+      "latency_ms": 123.43
     },
     {
       "image_id": "id17",
@@ -402,23 +409,23 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9236,
+      "top1_similarity": 0.9102,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 65.81
+      "latency_ms": 122.43
     },
     {
       "image_id": "id18",
       "ground_truth": "ring",
       "failure_condition": "occlusion",
       "decision": "UNKNOWN",
-      "top1_category": "earring",
-      "top1_similarity": 0.7421,
-      "gt_rank": 2,
+      "top1_category": "bracelet",
+      "top1_similarity": 0.6862,
+      "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 65.15
+      "latency_ms": 128.03
     },
     {
       "image_id": "id19",
@@ -426,11 +433,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8595,
+      "top1_similarity": 0.8561,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 63.04
+      "latency_ms": 131.91
     },
     {
       "image_id": "id20",
@@ -438,11 +445,11 @@
       "failure_condition": "reflection",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8495,
+      "top1_similarity": 0.8319,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 61.8
+      "latency_ms": 118.27
     },
     {
       "image_id": "id21",
@@ -450,11 +457,11 @@
       "failure_condition": "bad_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9221,
+      "top1_similarity": 0.9168,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 66.72
+      "latency_ms": 113.43
     },
     {
       "image_id": "id22",
@@ -462,11 +469,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9316,
+      "top1_similarity": 0.9305,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 63.32
+      "latency_ms": 125.26
     },
     {
       "image_id": "id23",
@@ -474,11 +481,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7752,
+      "top1_similarity": 0.7742,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 69.6
+      "latency_ms": 112.97
     },
     {
       "image_id": "id24",
@@ -486,11 +493,11 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8421,
+      "top1_similarity": 0.8429,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 68.52
+      "latency_ms": 109.42
     },
     {
       "image_id": "id25",
@@ -498,11 +505,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8558,
+      "top1_similarity": 0.8585,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 69.81
+      "latency_ms": 104.35
     },
     {
       "image_id": "id26",
@@ -510,11 +517,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9243,
+      "top1_similarity": 0.9227,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 64.17
+      "latency_ms": 107.16
     },
     {
       "image_id": "id27",
@@ -522,11 +529,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9593,
+      "top1_similarity": 0.9603,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 77.09
+      "latency_ms": 110.85
     },
     {
       "image_id": "id28",
@@ -534,11 +541,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9593,
+      "top1_similarity": 0.9603,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 76.75
+      "latency_ms": 113.53
     },
     {
       "image_id": "id29",
@@ -546,11 +553,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8229,
+      "top1_similarity": 0.8261,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 74.32
+      "latency_ms": 106.81
     },
     {
       "image_id": "id30",
@@ -558,11 +565,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9222,
+      "top1_similarity": 0.9221,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 71.32
+      "latency_ms": 106.62
     },
     {
       "image_id": "id31",
@@ -570,23 +577,23 @@
       "failure_condition": "bad_lighting",
       "decision": "MATCH",
       "top1_category": "necklace",
-      "top1_similarity": 0.8214,
+      "top1_similarity": 0.8209,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 63.55
+      "latency_ms": 106.27
     },
     {
       "image_id": "id32",
       "ground_truth": "necklace",
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
-      "top1_category": "necklace",
-      "top1_similarity": 0.8905,
-      "gt_rank": 1,
-      "top1_correct": 1,
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8816,
+      "gt_rank": 2,
+      "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 60.58
+      "latency_ms": 107.38
     },
     {
       "image_id": "id33",
@@ -594,11 +601,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8345,
+      "top1_similarity": 0.8331,
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 65.62
+      "latency_ms": 257.56
     },
     {
       "image_id": "id34",
@@ -606,23 +613,23 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.907,
-      "gt_rank": 3,
+      "top1_similarity": 0.9073,
+      "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 67.89
+      "latency_ms": 103.31
     },
     {
       "image_id": "id35",
       "ground_truth": "necklace",
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
-      "top1_category": "necklace",
-      "top1_similarity": 0.8126,
-      "gt_rank": 1,
-      "top1_correct": 1,
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8197,
+      "gt_rank": 2,
+      "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 72.41
+      "latency_ms": 113.5
     },
     {
       "image_id": "id36",
@@ -630,11 +637,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8368,
+      "top1_similarity": 0.8362,
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 69.43
+      "latency_ms": 111.78
     },
     {
       "image_id": "id37",
@@ -642,35 +649,35 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8462,
-      "gt_rank": 3,
+      "top1_similarity": 0.8438,
+      "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 77.91
+      "latency_ms": 109.15
     },
     {
       "image_id": "id38",
       "ground_truth": "necklace",
       "failure_condition": "occlusion",
       "decision": "MATCH",
-      "top1_category": "earring",
-      "top1_similarity": 0.8255,
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8035,
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 74.48
+      "latency_ms": 114.39
     },
     {
       "image_id": "id39",
       "ground_truth": "necklace",
       "failure_condition": "odd_angle",
       "decision": "MATCH",
-      "top1_category": "earring",
-      "top1_similarity": 1.0,
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8282,
       "gt_rank": 4,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 75.25
+      "latency_ms": 136.83
     },
     {
       "image_id": "id40",
@@ -678,11 +685,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8792,
+      "top1_similarity": 0.8761,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 74.8
+      "latency_ms": 217.1
     },
     {
       "image_id": "id41",
@@ -690,11 +697,11 @@
       "failure_condition": "bad_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8296,
+      "top1_similarity": 0.8299,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 83.77
+      "latency_ms": 160.7
     },
     {
       "image_id": "id42",
@@ -702,11 +709,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8437,
+      "top1_similarity": 0.8421,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 77.52
+      "latency_ms": 176.16
     },
     {
       "image_id": "id43",
@@ -714,11 +721,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7633,
+      "top1_similarity": 0.7601,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 84.81
+      "latency_ms": 143.01
     },
     {
       "image_id": "id44",
@@ -726,11 +733,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8746,
+      "top1_similarity": 0.8737,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 70.63
+      "latency_ms": 134.81
     },
     {
       "image_id": "id45",
@@ -738,11 +745,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8449,
+      "top1_similarity": 0.8545,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 73.6
+      "latency_ms": 126.07
     },
     {
       "image_id": "id46",
@@ -750,11 +757,11 @@
       "failure_condition": "distance",
       "decision": "UNKNOWN",
       "top1_category": "bracelet",
-      "top1_similarity": 0.5646,
+      "top1_similarity": 0.5594,
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 70.85
+      "latency_ms": 139.31
     },
     {
       "image_id": "id49",
@@ -762,11 +769,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.941,
+      "top1_similarity": 0.9405,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 80.41
+      "latency_ms": 128.95
     },
     {
       "image_id": "id50",
@@ -774,11 +781,11 @@
       "failure_condition": "bad_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8806,
+      "top1_similarity": 0.8792,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 81.46
+      "latency_ms": 127.77
     },
     {
       "image_id": "id51",
@@ -786,11 +793,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9339,
+      "top1_similarity": 0.9348,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 79.0
+      "latency_ms": 130.35
     },
     {
       "image_id": "id52",
@@ -798,11 +805,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8994,
+      "top1_similarity": 0.8991,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 76.0
+      "latency_ms": 124.16
     },
     {
       "image_id": "id53",
@@ -810,11 +817,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8564,
+      "top1_similarity": 0.8571,
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 76.71
+      "latency_ms": 120.4
     },
     {
       "image_id": "id54",
@@ -822,11 +829,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.7727,
+      "top1_similarity": 0.7726,
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 71.42
+      "latency_ms": 133.03
     },
     {
       "image_id": "id55",
@@ -834,11 +841,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8736,
+      "top1_similarity": 0.8732,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 75.53
+      "latency_ms": 120.12
     },
     {
       "image_id": "id56",
@@ -846,11 +853,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8539,
+      "top1_similarity": 0.8538,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 80.03
+      "latency_ms": 118.84
     },
     {
       "image_id": "id57",
@@ -858,11 +865,11 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8908,
+      "top1_similarity": 0.8917,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 74.4
+      "latency_ms": 116.62
     },
     {
       "image_id": "id58",
@@ -874,7 +881,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 71.26
+      "latency_ms": 298.2
     },
     {
       "image_id": "id59",
@@ -882,11 +889,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9382,
+      "top1_similarity": 0.9401,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 68.56
+      "latency_ms": 117.91
     },
     {
       "image_id": "id60",
@@ -894,11 +901,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8601,
+      "top1_similarity": 0.8576,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 72.91
+      "latency_ms": 122.82
     },
     {
       "image_id": "id61",
@@ -906,11 +913,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9622,
+      "top1_similarity": 0.9621,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 67.16
+      "latency_ms": 137.25
     },
     {
       "image_id": "id62",
@@ -918,11 +925,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9316,
+      "top1_similarity": 0.9301,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 67.48
+      "latency_ms": 117.8
     },
     {
       "image_id": "id63",
@@ -930,11 +937,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9133,
+      "top1_similarity": 0.9119,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 69.59
+      "latency_ms": 121.67
     },
     {
       "image_id": "id64",
@@ -942,11 +949,11 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.797,
+      "top1_similarity": 0.7963,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 80.21
+      "latency_ms": 126.18
     },
     {
       "image_id": "id65",
@@ -954,11 +961,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7746,
+      "top1_similarity": 0.7742,
       "gt_rank": 5,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 70.56
+      "latency_ms": 136.23
     },
     {
       "image_id": "id66",
@@ -966,11 +973,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9347,
+      "top1_similarity": 0.9334,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 69.1
+      "latency_ms": 124.99
     },
     {
       "image_id": "id67",
@@ -978,11 +985,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9062,
+      "top1_similarity": 0.9046,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 70.91
+      "latency_ms": 127.9
     },
     {
       "image_id": "id68",
@@ -990,11 +997,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.902,
+      "top1_similarity": 0.9021,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 69.53
+      "latency_ms": 167.55
     },
     {
       "image_id": "id69",
@@ -1002,11 +1009,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8309,
+      "top1_similarity": 0.8324,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 79.95
+      "latency_ms": 194.35
     },
     {
       "image_id": "id70",
@@ -1014,11 +1021,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8443,
+      "top1_similarity": 0.8432,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 83.83
+      "latency_ms": 173.45
     },
     {
       "image_id": "id71",
@@ -1026,11 +1033,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8999,
+      "top1_similarity": 0.9011,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 73.43
+      "latency_ms": 180.36
     },
     {
       "image_id": "id72",
@@ -1038,11 +1045,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8333,
+      "top1_similarity": 0.8318,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 72.82
+      "latency_ms": 168.75
     },
     {
       "image_id": "id73",
@@ -1050,11 +1057,11 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8437,
+      "top1_similarity": 0.846,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 72.64
+      "latency_ms": 186.43
     },
     {
       "image_id": "id74",
@@ -1062,11 +1069,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9349,
+      "top1_similarity": 0.935,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 77.71
+      "latency_ms": 224.67
     },
     {
       "image_id": "id75",
@@ -1074,11 +1081,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7524,
+      "top1_similarity": 0.7542,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 73.71
+      "latency_ms": 231.33
     },
     {
       "image_id": "id76",
@@ -1086,11 +1093,11 @@
       "failure_condition": "odd_angle",
       "decision": "UNKNOWN",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7387,
+      "top1_similarity": 0.7411,
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 71.55
+      "latency_ms": 239.14
     },
     {
       "image_id": "id77",
@@ -1098,110 +1105,14 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7887,
+      "top1_similarity": 0.7893,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 77.34
+      "latency_ms": 178.65
     },
     {
       "image_id": "id78",
-      "ground_truth": "bracelet",
-      "failure_condition": "clutter",
-      "decision": "MATCH",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.8111,
-      "gt_rank": 1,
-      "top1_correct": 1,
-      "top5_correct": 1,
-      "latency_ms": 81.67
-    },
-    {
-      "image_id": "id79",
-      "ground_truth": "bracelet",
-      "failure_condition": "motion_blur",
-      "decision": "MATCH",
-      "top1_category": "necklace",
-      "top1_similarity": 0.7901,
-      "gt_rank": 2,
-      "top1_correct": 0,
-      "top5_correct": 1,
-      "latency_ms": 76.96
-    },
-    {
-      "image_id": "id80",
-      "ground_truth": "bracelet",
-      "failure_condition": "hand_wrist",
-      "decision": "MATCH",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.8076,
-      "gt_rank": 1,
-      "top1_correct": 1,
-      "top5_correct": 1,
-      "latency_ms": 86.56
-    },
-    {
-      "image_id": "id81",
-      "ground_truth": "bracelet",
-      "failure_condition": "distance",
-      "decision": "MATCH",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.8369,
-      "gt_rank": 1,
-      "top1_correct": 1,
-      "top5_correct": 1,
-      "latency_ms": 83.4
-    },
-    {
-      "image_id": "id82",
-      "ground_truth": "bracelet",
-      "failure_condition": "normal",
-      "decision": "MATCH",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.8939,
-      "gt_rank": 1,
-      "top1_correct": 1,
-      "top5_correct": 1,
-      "latency_ms": 87.68
-    },
-    {
-      "image_id": "id83",
-      "ground_truth": "bracelet",
-      "failure_condition": "bright_lighting",
-      "decision": "MATCH",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.8986,
-      "gt_rank": 1,
-      "top1_correct": 1,
-      "top5_correct": 1,
-      "latency_ms": 82.82
-    },
-    {
-      "image_id": "id84",
-      "ground_truth": "bracelet",
-      "failure_condition": "odd_angle",
-      "decision": "MATCH",
-      "top1_category": "earring",
-      "top1_similarity": 0.8251,
-      "gt_rank": 4,
-      "top1_correct": 0,
-      "top5_correct": 1,
-      "latency_ms": 81.61
-    },
-    {
-      "image_id": "id85",
-      "ground_truth": "bracelet",
-      "failure_condition": "occlusion",
-      "decision": "MATCH",
-      "top1_category": "bracelet",
-      "top1_similarity": 0.8062,
-      "gt_rank": 1,
-      "top1_correct": 1,
-      "top5_correct": 1,
-      "latency_ms": 77.17
-    },
-    {
-      "image_id": "id86",
       "ground_truth": "bracelet",
       "failure_condition": "clutter",
       "decision": "MATCH",
@@ -1210,7 +1121,103 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 77.06
+      "latency_ms": 158.86
+    },
+    {
+      "image_id": "id79",
+      "ground_truth": "bracelet",
+      "failure_condition": "motion_blur",
+      "decision": "MATCH",
+      "top1_category": "necklace",
+      "top1_similarity": 0.7899,
+      "gt_rank": 2,
+      "top1_correct": 0,
+      "top5_correct": 1,
+      "latency_ms": 133.36
+    },
+    {
+      "image_id": "id80",
+      "ground_truth": "bracelet",
+      "failure_condition": "hand_wrist",
+      "decision": "MATCH",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8071,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 132.47
+    },
+    {
+      "image_id": "id81",
+      "ground_truth": "bracelet",
+      "failure_condition": "distance",
+      "decision": "MATCH",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8351,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 138.7
+    },
+    {
+      "image_id": "id82",
+      "ground_truth": "bracelet",
+      "failure_condition": "normal",
+      "decision": "MATCH",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8959,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 185.18
+    },
+    {
+      "image_id": "id83",
+      "ground_truth": "bracelet",
+      "failure_condition": "bright_lighting",
+      "decision": "MATCH",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8981,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 162.68
+    },
+    {
+      "image_id": "id84",
+      "ground_truth": "bracelet",
+      "failure_condition": "odd_angle",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.8161,
+      "gt_rank": 3,
+      "top1_correct": 0,
+      "top5_correct": 1,
+      "latency_ms": 132.1
+    },
+    {
+      "image_id": "id85",
+      "ground_truth": "bracelet",
+      "failure_condition": "occlusion",
+      "decision": "MATCH",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8073,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 145.16
+    },
+    {
+      "image_id": "id86",
+      "ground_truth": "bracelet",
+      "failure_condition": "clutter",
+      "decision": "MATCH",
+      "top1_category": "bracelet",
+      "top1_similarity": 0.8124,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 140.75
     },
     {
       "image_id": "id87",
@@ -1222,7 +1229,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 76.31
+      "latency_ms": 124.49
     },
     {
       "image_id": "id88",
@@ -1230,11 +1237,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "necklace",
-      "top1_similarity": 0.7922,
+      "top1_similarity": 0.7918,
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 84.47
+      "latency_ms": 124.67
     },
     {
       "image_id": "id89",
@@ -1242,11 +1249,11 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8003,
+      "top1_similarity": 0.8018,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 81.16
+      "latency_ms": 136.2
     },
     {
       "image_id": "id90",
@@ -1254,11 +1261,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8984,
+      "top1_similarity": 0.8983,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 75.34
+      "latency_ms": 285.05
     },
     {
       "image_id": "id91",
@@ -1266,11 +1273,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.878,
+      "top1_similarity": 0.8783,
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 76.4
+      "latency_ms": 141.9
     },
     {
       "image_id": "id92",
@@ -1278,11 +1285,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8054,
+      "top1_similarity": 0.8008,
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 72.23
+      "latency_ms": 143.96
     },
     {
       "image_id": "id93",
@@ -1290,11 +1297,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7551,
+      "top1_similarity": 0.7571,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 75.93
+      "latency_ms": 136.91
     },
     {
       "image_id": "id94",
@@ -1302,11 +1309,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8826,
+      "top1_similarity": 0.8818,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 75.92
+      "latency_ms": 128.11
     },
     {
       "image_id": "id95",
@@ -1314,11 +1321,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.82,
+      "top1_similarity": 0.8178,
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 87.03
+      "latency_ms": 131.12
     },
     {
       "image_id": "id96",
@@ -1326,11 +1333,11 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.7936,
+      "top1_similarity": 0.7945,
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 79.17
+      "latency_ms": 131.96
     },
     {
       "image_id": "id97",
@@ -1338,11 +1345,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8801,
+      "top1_similarity": 0.8787,
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 75.63
+      "latency_ms": 134.7
     },
     {
       "image_id": "id98",
@@ -1350,11 +1357,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9344,
+      "top1_similarity": 0.9309,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 89.96
+      "latency_ms": 127.69
     },
     {
       "image_id": "id99",
@@ -1362,11 +1369,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9401,
+      "top1_similarity": 0.942,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 75.45
+      "latency_ms": 143.59
     },
     {
       "image_id": "id100",
@@ -1374,11 +1381,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8826,
+      "top1_similarity": 0.8817,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 76.59
+      "latency_ms": 136.92
     },
     {
       "image_id": "id101",
@@ -1386,11 +1393,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.9313,
+      "top1_similarity": 0.9305,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 68.88
+      "latency_ms": 130.64
     },
     {
       "image_id": "id102",
@@ -1398,11 +1405,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8302,
+      "top1_similarity": 0.8294,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 70.55
+      "latency_ms": 136.1
     },
     {
       "image_id": "id103",
@@ -1410,11 +1417,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8048,
+      "top1_similarity": 0.8007,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 76.78
+      "latency_ms": 130.02
     },
     {
       "image_id": "id104",
@@ -1422,11 +1429,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.8531,
+      "top1_similarity": 0.8504,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 72.7
+      "latency_ms": 128.26
     },
     {
       "image_id": "id105",
@@ -1434,11 +1441,11 @@
       "failure_condition": "distance",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.7749,
+      "top1_similarity": 0.7741,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 63.11
+      "latency_ms": 127.09
     },
     {
       "image_id": "id106",
@@ -1446,11 +1453,11 @@
       "failure_condition": "normal",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.9325,
+      "top1_similarity": 0.9324,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 68.55
+      "latency_ms": 317.62
     },
     {
       "image_id": "id107",
@@ -1458,11 +1465,11 @@
       "failure_condition": "bright_lighting",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8935,
+      "top1_similarity": 0.8939,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 71.31
+      "latency_ms": 128.44
     },
     {
       "image_id": "id108",
@@ -1470,11 +1477,11 @@
       "failure_condition": "odd_angle",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8919,
+      "top1_similarity": 0.8928,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 66.49
+      "latency_ms": 130.64
     },
     {
       "image_id": "id109",
@@ -1482,11 +1489,11 @@
       "failure_condition": "occlusion",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8082,
+      "top1_similarity": 0.8099,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 80.98
+      "latency_ms": 132.59
     },
     {
       "image_id": "id110",
@@ -1494,11 +1501,11 @@
       "failure_condition": "clutter",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7777,
+      "top1_similarity": 0.7766,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 74.78
+      "latency_ms": 136.24
     },
     {
       "image_id": "id111",
@@ -1506,11 +1513,11 @@
       "failure_condition": "motion_blur",
       "decision": "MATCH",
       "top1_category": "ring",
-      "top1_similarity": 0.7862,
+      "top1_similarity": 0.7859,
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 96.6
+      "latency_ms": 139.53
     },
     {
       "image_id": "id112",
@@ -1518,11 +1525,11 @@
       "failure_condition": "hand_wrist",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.8318,
+      "top1_similarity": 0.8323,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 115.03
+      "latency_ms": 87.85
     },
     {
       "image_id": "id113",
@@ -1530,11 +1537,83 @@
       "failure_condition": "distance",
       "decision": "UNKNOWN",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7401,
+      "top1_similarity": 0.741,
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 91.88
+      "latency_ms": 96.31
+    },
+    {
+      "image_id": "id114",
+      "ground_truth": "ring",
+      "failure_condition": "normal",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9958,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 71.39
+    },
+    {
+      "image_id": "id115",
+      "ground_truth": "ring",
+      "failure_condition": "bad_lighting",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9408,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 79.03
+    },
+    {
+      "image_id": "id116",
+      "ground_truth": "ring",
+      "failure_condition": "normal",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9958,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 68.63
+    },
+    {
+      "image_id": "id117",
+      "ground_truth": "ring",
+      "failure_condition": "bad_lighting",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9408,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 69.5
+    },
+    {
+      "image_id": "id118",
+      "ground_truth": "ring",
+      "failure_condition": "normal",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9958,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 63.79
+    },
+    {
+      "image_id": "id119",
+      "ground_truth": "ring",
+      "failure_condition": "bad_lighting",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9408,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 72.33
     }
   ]
 }
