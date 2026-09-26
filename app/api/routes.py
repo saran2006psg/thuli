@@ -179,6 +179,75 @@ async def match_image(
         )
 
 
+# ── Multi-item match endpoint ─────────────────────────────────────────────────
+
+from app.retrieval.multi_matcher import MultiItemMatcher, generate_grid_crops  # noqa: E402
+
+
+@router.post("/match/multi")
+async def match_multi_image(
+    file: UploadFile = File(..., description="Query photograph containing 2–3 jewellery items"),
+    top_k: int = Form(TOP_K, description="Per-crop top-K candidates"),
+    threshold: float = Form(SIMILARITY_THRESHOLD, description="Per-crop similarity threshold"),
+    rows: int = Form(2, description="Grid rows (default 2, used when strategy='grid')"),
+    cols: int = Form(2, description="Grid columns (default 2, used when strategy='grid')"),
+    overlap: float = Form(0.18, description="Fractional overlap between crops (0–0.5)"),
+    strategy: str = Form("sam", description="Region proposal strategy: 'sam' or 'grid'"),
+) -> Dict[str, Any]:
+    """
+    Multi-item jewellery search using SAM (Segment Anything Model).
+
+    Segments distinct jewellery items using SAM and runs the existing
+    CLIP + FAISS matcher on each. Returns one unique MATCH per product_id
+    (highest similarity wins when the same product appears in multiple segments).
+    """
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid file type '{file.content_type}'. Please upload an image file.",
+        )
+    if overlap < 0.0 or overlap >= 0.5:
+        raise HTTPException(status_code=400, detail="overlap must be in [0, 0.5)")
+    if rows < 1 or rows > 6:
+        raise HTTPException(status_code=400, detail="rows must be in [1, 6]")
+    if cols < 1 or cols > 6:
+        raise HTTPException(status_code=400, detail="cols must be in [1, 6]")
+    if strategy not in ("sam", "adaptive", "grid"):
+        raise HTTPException(status_code=400, detail="strategy must be 'sam' or 'grid'")
+
+    try:
+        contents = await file.read()
+        if len(contents) == 0:
+            raise HTTPException(status_code=400, detail="Uploaded file is empty.")
+        pil_image = Image.open(io.BytesIO(contents))
+        pil_image.load()
+        pil_image = pil_image.convert("RGB")
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Failed to decode image: {e}")
+
+    try:
+        matcher = get_matcher()
+        multi = MultiItemMatcher(
+            matcher=matcher,
+            rows=rows,
+            cols=cols,
+            overlap=overlap,
+            strategy=strategy,
+        )
+        result = multi.match_multi(
+            image_input=pil_image,
+            top_k=top_k,
+            threshold=threshold,
+            strategy=strategy,
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Multi-item matching error: {e}")
+
+
+
 @router.get("/catalogue/next-id")
 def get_next_product_id() -> Dict[str, str]:
     """Return the next recommended sequential product ID."""

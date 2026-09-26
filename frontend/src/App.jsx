@@ -70,6 +70,8 @@ export default function App() {
   const [threshold, setThreshold] = useState(0.75);
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
+  const [multiResults, setMultiResults] = useState(null);
+  const [searchMode, setSearchMode] = useState('single'); // 'single' | 'multi'
   const [samples, setSamples] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
@@ -100,6 +102,7 @@ export default function App() {
     reader.onload = (e) => {
       setSearchImage(e.target.result);
       setSearchResults(null);
+      setMultiResults(null);
     };
     reader.readAsDataURL(file);
   };
@@ -108,6 +111,7 @@ export default function App() {
     setSearchImage(null);
     setSearchFile(null);
     setSearchResults(null);
+    setMultiResults(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -121,17 +125,28 @@ export default function App() {
     formData.append('top_k', topK);
     formData.append('threshold', threshold);
 
+    const isMulti = searchMode === 'multi';
+    if (isMulti) {
+      formData.append('rows', '2');
+      formData.append('cols', '2');
+      formData.append('overlap', '0.18');
+    }
+
+    const endpoint = isMulti ? '/api/match/multi' : '/api/match';
     try {
-      const res = await fetch('/api/match', {
-        method: 'POST',
-        body: formData,
-      });
+      const res = await fetch(endpoint, { method: 'POST', body: formData });
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         throw new Error(err.detail || 'Visual search failed.');
       }
       const data = await res.json();
-      setSearchResults(data);
+      if (isMulti) {
+        setMultiResults(data);
+        setSearchResults(null);
+      } else {
+        setSearchResults(data);
+        setMultiResults(null);
+      }
     } catch (err) {
       alert('Search Error: ' + err.message);
     } finally {
@@ -385,6 +400,54 @@ export default function App() {
                 )}
               </div>
 
+              {/* ── Search Mode Toggle ── */}
+              <div style={{
+                display: 'flex',
+                gap: '0.5rem',
+                marginBottom: '1rem',
+                padding: '4px',
+                background: 'var(--bg-surface-alt)',
+                borderRadius: '10px',
+                border: '1px solid var(--border)',
+              }}>
+                {[['single', '🔍 Single Item'], ['multi', '🪬 Multiple Items']].map(([val, label]) => (
+                  <button
+                    key={val}
+                    onClick={() => { setSearchMode(val); setSearchResults(null); setMultiResults(null); }}
+                    style={{
+                      flex: 1,
+                      padding: '6px 12px',
+                      borderRadius: '7px',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      transition: 'all 0.15s ease',
+                      background: searchMode === val ? 'var(--primary)' : 'transparent',
+                      color: searchMode === val ? '#fff' : 'var(--text-secondary)',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {searchMode === 'multi' && (
+                <div style={{
+                  fontSize: '0.75rem',
+                  color: 'var(--text-muted)',
+                  background: 'var(--bg-surface-alt)',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  marginBottom: '1rem',
+                  border: '1px solid var(--border)',
+                  lineHeight: 1.5,
+                }}>
+                  ✨ Uses <strong>Segment Anything (SAM)</strong> to automatically detect and segment each individual jewellery item in the photograph.
+                  Each piece is verified and matched independently against the catalogue using CLIP + FAISS.
+                </div>
+              )}
+
+
               {/* Dropzone */}
               {!searchImage ? (
                 <div
@@ -512,21 +575,21 @@ export default function App() {
               <div className="card-title-row">
                 <h2 className="card-title">
                   <Layers size={18} style={{ color: 'var(--primary)' }} />
-                  Retrieval Candidates
+                  {searchMode === 'multi' ? 'Identified Jewellery Items' : 'Retrieval Candidates'}
                 </h2>
-                {searchResults && (
+                {(searchResults || multiResults) && (
                   <span style={{
                     fontSize: '0.8rem',
                     fontFamily: 'var(--font-mono)',
                     color: 'var(--text-muted)'
                   }}>
-                    {searchResults.query_time_ms} ms
+                    {(searchResults || multiResults).query_time_ms} ms
                   </span>
                 )}
               </div>
 
-              {/* Results or Empty State */}
-              {searchResults ? (
+              {/* ── SINGLE-ITEM RESULTS ── */}
+              {searchMode === 'single' && searchResults ? (
                 <div>
                   {/* Verdict Banner */}
                   <div
@@ -582,9 +645,7 @@ export default function App() {
                             src={imgUrl}
                             alt={item.product_name}
                             className="candidate-thumb"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
+                            onError={(e) => { e.target.style.display = 'none'; }}
                           />
                           <div className="candidate-info">
                             <div className="candidate-title">{item.product_name}</div>
@@ -596,10 +657,7 @@ export default function App() {
                           <div className="candidate-score-block">
                             <div className="candidate-score-num">{simPct}%</div>
                             <div className="score-bar-bg">
-                              <div
-                                className="score-bar-fill"
-                                style={{ width: `${simPct}%` }}
-                              />
+                              <div className="score-bar-fill" style={{ width: `${simPct}%` }} />
                             </div>
                           </div>
                         </div>
@@ -607,6 +665,270 @@ export default function App() {
                     })}
                   </div>
                 </div>
+
+              /* ── MULTI-ITEM RESULTS ── */
+              ) : searchMode === 'multi' && multiResults ? (
+                <div>
+                  {/* ── Summary Banner ── */}
+                  <div className={`verdict-banner ${multiResults.matched_count > 0 ? 'match' : 'unknown'}`}
+                    style={{
+                      background: multiResults.matched_count > 0
+                        ? 'linear-gradient(135deg, rgba(5,150,105,0.12) 0%, rgba(16,185,129,0.05) 100%)'
+                        : 'var(--bg-surface-alt)',
+                      borderColor: multiResults.matched_count > 0 ? '#059669' : 'var(--border)',
+                    }}
+                  >
+                    <div className="verdict-left">
+                      <span className="verdict-badge" style={{
+                        background: multiResults.matched_count > 0 ? '#059669' : '#64748b',
+                        fontSize: '0.75rem', minWidth: 80, textAlign: 'center',
+                      }}>
+                        {multiResults.matched_count > 0 ? `${multiResults.matched_count} FOUND` : 'NO MATCH'}
+                      </span>
+                      <div>
+                        <div className="verdict-text-main">
+                          {multiResults.matched_count > 0
+                            ? multiResults.matches.map(m => m.product_name).join(' · ')
+                            : 'No products identified — all regions below threshold'}
+                        </div>
+                        <div className="verdict-text-sub">
+                          {multiResults.total_crops} detected items · Segment Anything (SAM) · {multiResults.query_time_ms}ms
+                        </div>
+                      </div>
+                    </div>
+                    <div className="verdict-metrics">
+                      <div className="verdict-metric-item">
+                        <div className="verdict-metric-label">Detected</div>
+                        <div className="verdict-metric-value">{multiResults.total_crops}</div>
+                      </div>
+                      <div className="verdict-metric-item">
+                        <div className="verdict-metric-label">Found</div>
+                        <div className="verdict-metric-value" style={{ color: multiResults.matched_count > 0 ? '#059669' : 'inherit' }}>
+                          {multiResults.matched_count}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Matched Products (PRIMARY output) ── */}
+                  {multiResults.matches.length > 0 ? (
+                    <div style={{ marginBottom: '1.25rem' }}>
+                      <div style={{
+                        fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase',
+                        letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '0.6rem',
+                        display: 'flex', alignItems: 'center', gap: '0.4rem',
+                      }}>
+                        <span style={{
+                          display: 'inline-block', width: 8, height: 8,
+                          borderRadius: '50%', background: '#059669',
+                        }} />
+                        Identified Items ({multiResults.matched_count})
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                        {multiResults.matches.map((item) => {
+                          const simPct = (Math.max(0, Math.min(1, item.similarity)) * 100).toFixed(1);
+                          const imgUrl = item.image_url || (item.image_path ? `/${item.image_path}` : null);
+                          return (
+                            <div key={item.product_id} style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.85rem',
+                              padding: '0.85rem 1rem',
+                              borderRadius: '12px',
+                              border: `2px solid ${item.rank === 1 ? '#059669' : 'var(--border)'}`,
+                              background: item.rank === 1
+                                ? 'linear-gradient(135deg, rgba(5,150,105,0.08) 0%, rgba(16,185,129,0.03) 100%)'
+                                : 'var(--bg-surface-alt)',
+                              transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                            }}>
+                              {/* Rank badge */}
+                              <div style={{
+                                width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                background: item.rank === 1 ? '#059669' : 'var(--text-muted)',
+                                color: '#fff', fontSize: '0.8rem', fontWeight: 800,
+                              }}>
+                                #{item.rank}
+                              </div>
+
+                              {/* Thumbnail */}
+                              {imgUrl ? (
+                                <img
+                                  src={imgUrl}
+                                  alt={item.product_name}
+                                  style={{
+                                    width: 64, height: 64, objectFit: 'contain',
+                                    borderRadius: '8px', flexShrink: 0,
+                                    border: '1px solid var(--border)',
+                                    background: '#fff',
+                                  }}
+                                  onError={(e) => { e.target.style.display = 'none'; }}
+                                />
+                              ) : (
+                                <div style={{
+                                  width: 64, height: 64, borderRadius: '8px',
+                                  background: 'var(--border)', flexShrink: 0,
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  fontSize: '1.5rem',
+                                }}>💎</div>
+                              )}
+
+                              {/* Info */}
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{
+                                  fontWeight: 700, fontSize: '0.95rem',
+                                  color: 'var(--text-main)', marginBottom: '3px',
+                                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                }}>
+                                  {item.product_name}
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '6px' }}>
+                                  <span style={{
+                                    padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem',
+                                    background: 'var(--primary-light)', color: 'var(--primary)', fontWeight: 600,
+                                  }}>
+                                    {item.category}
+                                  </span>
+                                  <span style={{
+                                    padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem',
+                                    background: 'var(--bg-surface-alt)', color: 'var(--text-muted)',
+                                    fontFamily: 'var(--font-mono)',
+                                  }}>
+                                    {item.product_id}
+                                  </span>
+                                  <span style={{
+                                    padding: '2px 8px', borderRadius: '999px', fontSize: '0.7rem',
+                                    background: 'rgba(5,150,105,0.1)', color: '#059669', fontWeight: 600,
+                                  }}>
+                                    from segment {item.source_crop_id}
+                                  </span>
+                                </div>
+                                {/* Similarity bar */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <div style={{
+                                    flex: 1, height: 6, borderRadius: 999,
+                                    background: 'var(--border)', overflow: 'hidden',
+                                  }}>
+                                    <div style={{
+                                      height: '100%', borderRadius: 999,
+                                      width: `${simPct}%`,
+                                      background: parseFloat(simPct) >= 85
+                                        ? '#059669'
+                                        : parseFloat(simPct) >= 75
+                                        ? '#d97706'
+                                        : '#ef4444',
+                                      transition: 'width 0.4s ease',
+                                    }} />
+                                  </div>
+                                  <span style={{
+                                    fontWeight: 800, fontSize: '0.9rem', minWidth: 46, textAlign: 'right',
+                                    color: parseFloat(simPct) >= 85 ? '#059669' : parseFloat(simPct) >= 75 ? '#d97706' : '#ef4444',
+                                  }}>
+                                    {simPct}%
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div style={{
+                      textAlign: 'center', padding: '2rem',
+                      color: 'var(--text-muted)', fontSize: '0.85rem',
+                    }}>
+                      No items matched the similarity threshold ({threshold.toFixed(2)}).<br />
+                      Try lowering the threshold slider.
+                    </div>
+                  )}
+
+                  {/* ── Region breakdown (secondary, compact) ── */}
+                  <details style={{ marginTop: '0.5rem' }}>
+                    <summary style={{
+                      cursor: 'pointer', fontSize: '0.72rem', fontWeight: 700,
+                      textTransform: 'uppercase', letterSpacing: '0.08em',
+                      color: 'var(--text-muted)', userSelect: 'none',
+                      listStyle: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem',
+                      padding: '6px 0', borderTop: '1px solid var(--border)',
+                    }}>
+                      <span style={{ fontSize: '0.65rem' }}>▶</span>
+                      SAM Segments Breakdown ({multiResults.total_crops} items detected)
+                    </summary>
+                    <div style={{
+                      display: 'grid', gridTemplateColumns: '1fr 1fr',
+                      gap: '0.4rem', marginTop: '0.6rem',
+                    }}>
+                      {multiResults.crop_results.map((cr) => {
+                        const matchedItem = multiResults.matches.find(m => m.product_id === cr.product_id);
+                        const imgUrl = matchedItem?.image_url || (matchedItem?.image_path ? `/${matchedItem.image_path}` : null);
+                        return (
+                          <div key={cr.crop_id} style={{
+                            padding: '0.55rem 0.7rem',
+                            borderRadius: '8px',
+                            border: `1px solid ${cr.decision === 'MATCH' ? '#059669' : 'var(--border)'}`,
+                            background: cr.decision === 'MATCH' ? 'rgba(5,150,105,0.05)' : 'var(--bg-surface-alt)',
+                            fontSize: '0.72rem',
+                            display: 'flex', gap: '0.5rem', alignItems: 'center',
+                          }}>
+                            {/* Tiny thumbnail for matched crop */}
+                            {cr.decision === 'MATCH' && imgUrl && (
+                              <img
+                                src={imgUrl}
+                                alt=""
+                                style={{
+                                  width: 32, height: 32, objectFit: 'contain',
+                                  borderRadius: '5px', border: '1px solid var(--border)',
+                                  background: '#fff', flexShrink: 0,
+                                }}
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                            )}
+                            {cr.decision === 'UNKNOWN' && (
+                              <div style={{
+                                width: 32, height: 32, borderRadius: '5px',
+                                background: 'var(--border)', flexShrink: 0,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: '0.9rem', opacity: 0.5,
+                              }}>?</div>
+                            )}
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1px' }}>
+                                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--text-main)' }}>
+                                  {cr.crop_id}
+                                </span>
+                                <span style={{
+                                  padding: '1px 6px', borderRadius: '5px', fontSize: '0.65rem', fontWeight: 700,
+                                  background: cr.decision === 'MATCH' ? '#059669' : '#64748b', color: '#fff',
+                                }}>
+                                  {cr.decision}
+                                </span>
+                              </div>
+                              {cr.decision === 'MATCH' ? (
+                                <div style={{
+                                  color: 'var(--text-secondary)', whiteSpace: 'nowrap',
+                                  overflow: 'hidden', textOverflow: 'ellipsis',
+                                }}>
+                                  {matchedItem?.product_name || cr.product_id}
+                                  <span style={{ color: '#059669', fontWeight: 700, marginLeft: 4 }}>
+                                    {(cr.similarity * 100).toFixed(1)}%
+                                  </span>
+                                </div>
+                              ) : (
+                                <div style={{ color: 'var(--text-muted)' }}>
+                                  {(cr.similarity * 100).toFixed(1)}% — below threshold
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </details>
+                </div>
+
+
               ) : (
                 <div className="empty-placeholder">
                   <div className="empty-icon-box">
@@ -614,13 +936,16 @@ export default function App() {
                   </div>
                   <div className="empty-title">No Active Query</div>
                   <div className="empty-desc">
-                    Upload a jewellery photo or pick one of the catalogue samples to view matching items.
+                    {searchMode === 'multi'
+                      ? 'Upload a photo containing 2–3 jewellery items to identify each product separately.'
+                      : 'Upload a jewellery photo or pick one of the catalogue samples to view matching items.'}
                   </div>
                 </div>
               )}
             </div>
           </div>
         )}
+
 
         {/* VIEW 2: EVALUATION ARENA (PHASE 7) */}
         {activeTab === 'eval' && (

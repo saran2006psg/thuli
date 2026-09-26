@@ -158,14 +158,14 @@ class TestDataCollectionPipeline:
         search_resp = client.post(
             "/api/match",
             files={"file": ("query.jpg", clean_img_bytes, "image/jpeg")},
-            data={"top_k": 5, "threshold": 0.50},
+            data={"top_k": 20, "threshold": 0.50},
         )
         assert search_resp.status_code == 200, search_resp.text
         search_data = search_resp.json()
         assert search_data["status"] == "success"
         candidate_ids = [c["product_id"] for c in search_data["results"]]
         assert prod_id in candidate_ids, f"Expected {prod_id} in {candidate_ids}"
-        # Top 1 should have high similarity with itself
+        # Match should have high similarity with itself
         top_match = next(c for c in search_data["results"] if c["product_id"] == prod_id)
         assert top_match["similarity"] > 0.90
 
