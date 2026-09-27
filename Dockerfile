@@ -25,7 +25,7 @@ COPY evaluation ./evaluation
 COPY experiments ./experiments
 COPY phases ./phases
 COPY tests ./tests
-COPY README.md SHIPPING.md .env.example ./
+COPY README.md SHIPPING.md SETUP.md .env.example ./
 
 RUN mkdir -p /app/data /app/artifacts /app/.cache
 

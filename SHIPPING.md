@@ -2,6 +2,8 @@
 
 This document is the handoff guide for running Thuli on another computer.
 
+For the shortest copy-paste installation, see [SETUP.md](SETUP.md).
+
 ## What Goes Where
 
 ### Tracked in Git
@@ -23,7 +25,7 @@ The `evaluation/` directory is intentionally part of Git. It contains the evalua
 
 ### Downloaded separately
 
-The catalogue dataset is large and should be distributed through Drive, object storage, or another file-sharing service instead of Git. Share one archive containing this structure:
+The catalogue dataset is large and is distributed separately from Git. Download the [`thuli-data.zip` catalogue archive from Google Drive](https://drive.google.com/file/d/1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct/view?usp=sharing). The archive should contain this structure:
 
 ```text
 thuli-data/
@@ -81,7 +83,7 @@ From the repository root, after extracting the Drive dataset as `data/`:
 
 ```powershell
 docker compose build
-docker compose run --rm setup
+docker compose run --rm setup --rebuild
 docker compose up -d app
 docker compose logs -f app
 ```
@@ -90,7 +92,7 @@ docker compose logs -f app
 
 ```bash
 docker compose build
-docker compose run --rm setup
+docker compose run --rm setup --rebuild
 docker compose up -d app
 docker compose logs -f app
 ```
@@ -139,7 +141,7 @@ If the release also includes `artifacts/embeddings/` and `artifacts/indexes/`, r
 
 ```powershell
 docker compose build
-docker compose run --rm setup --skip-model
+docker compose run --rm setup
 ```
 
 This checks the catalogue CSV, FAISS index, and product ID mapping, then downloads/checks the model.
@@ -149,7 +151,7 @@ This checks the catalogue CSV, FAISS index, and product ID mapping, then downloa
 If the release does not include generated artifacts, place the downloaded `data/` folder at the repository root and run:
 
 ```powershell
-docker compose run --rm setup
+docker compose run --rm setup --rebuild
 ```
 
 This performs the following pipeline:
@@ -195,7 +197,7 @@ When adding or replacing catalogue images:
 1. Put the new images under `data/catalogue/`.
 2. Update `data/catalogue.csv` with portable relative paths.
 3. Remove the old generated artifacts if they no longer describe the catalogue.
-4. Run `docker compose run --rm setup`.
+4. Run `docker compose run --rm setup --rebuild`.
 5. Restart the application with `docker compose up -d app` and check `/api/health`.
 
 The product ID order in `product_ids.json` must remain aligned with the rows in the FAISS index. Always rebuild through the provided script instead of manually editing generated files.
@@ -264,7 +266,7 @@ Download the data archive and extract it as the root-level `data/` directory. Do
 Run:
 
 ```powershell
-docker compose run --rm setup
+docker compose run --rm setup --rebuild
 ```
 
 The catalogue images must be present before rebuilding.
@@ -295,7 +297,7 @@ Before sharing a release:
 - [ ] Upload the large `data/` archive separately.
 - [ ] Confirm `data/catalogue.csv` contains no absolute local paths.
 - [ ] Confirm the archive extracts to `data/catalogue.csv` and `data/catalogue/...`.
-- [ ] Test `docker compose run --rm setup` on a clean machine if generated artifacts are not shipped.
+- [ ] Test `docker compose run --rm setup --rebuild` on a clean machine if generated artifacts are not shipped.
 - [ ] Test `docker compose up -d app`.
 - [ ] Test `GET /api/health` and one image match.
 - [ ] Do not commit `.env`, `.cache/`, catalogue images, or generated artifacts unless the release policy explicitly requires them.

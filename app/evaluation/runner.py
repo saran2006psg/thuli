@@ -59,10 +59,13 @@ def _gt_rank(results: List[Dict], ground_truth_category: str) -> Optional[int]:
     return None
 
 
-def run_evaluation(matcher: Any) -> Dict[str, Any]:
+def run_evaluation(matcher: Any, progress_callback=None) -> Dict[str, Any]:
     """
     Scan evaluation/images/ for all images, run through matcher, return full report.
     Ground-truth labels come from stumper.csv lookup.
+
+    Args:
+        progress_callback: optional callable(current: int, total: int) called after each image.
     """
     gt_lookup = _load_gt_lookup()
 
@@ -75,16 +78,22 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
     if not image_files:
         raise ValueError(f"No images found in {IMAGES_DIR}. Check the path.")
 
+    total_files = len(image_files)
+    if progress_callback:
+        progress_callback(0, total_files)
+
     result_rows: List[Dict] = []
     latencies: List[float] = []
 
     for img_path in image_files:
-        image_id = img_path.stem  # e.g. 'id01'
+        image_id = img_path.stem        # e.g. 'id01'
+        image_filename = img_path.name  # e.g. 'id01.jpeg' or 'id11.jpg'
 
         # Skip obviously corrupt/empty files (< 1 KB)
         if img_path.stat().st_size < 1024:
             result_rows.append({
                 "image_id": image_id,
+                "image_filename": image_filename,
                 "ground_truth": gt_lookup.get(image_id, {}).get("product_id", "unknown"),
                 "failure_condition": gt_lookup.get(image_id, {}).get("failure_condition", "unknown"),
                 "decision": "SKIP",
@@ -109,6 +118,7 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
         except Exception as e:
             result_rows.append({
                 "image_id": image_id,
+                "image_filename": image_filename,
                 "ground_truth": ground_truth,
                 "failure_condition": condition,
                 "decision": "ERROR",
@@ -147,6 +157,7 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
 
         result_rows.append({
             "image_id": image_id,
+            "image_filename": image_filename,
             "ground_truth": ground_truth,
             "failure_condition": condition,
             "decision": match_result["decision"],
@@ -159,6 +170,9 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
             "has_gt": has_gt,
             "error": "",
         })
+
+        if progress_callback:
+            progress_callback(len(result_rows), total_files)
 
     # ── Aggregate metrics ──────────────────────────────────────────────────────
     valid        = [r for r in result_rows if r["decision"] not in ("ERROR", "SKIP")]
@@ -254,7 +268,7 @@ def run_evaluation(matcher: Any) -> Dict[str, Any]:
 def write_results(metrics: Dict, rows: List[Dict]) -> None:
     """Persist results.csv, metrics.json, and analysis.md."""
     fieldnames = [
-        "image_id", "ground_truth", "failure_condition", "decision",
+        "image_id", "image_filename", "ground_truth", "failure_condition", "decision",
         "top1_category", "top1_similarity", "gt_rank",
         "top1_correct", "top5_correct", "latency_ms", "has_gt", "error",
     ]

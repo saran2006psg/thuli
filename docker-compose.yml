@@ -10,7 +10,7 @@ services:
       - ./data:/app/data:ro
       - ./artifacts:/app/artifacts
       - thuli-model-cache:/app/.cache
-    command: ["python", "scripts/setup.py", "--rebuild"]
+    command: ["python", "scripts/setup.py"]
 
   app:
     build:

@@ -8,8 +8,8 @@
     "unknown_count": 8,
     "unknown_rate": 0.0696,
     "wrong_matches_count": 23,
-    "median_latency_ms": 153.49,
-    "p95_latency_ms": 244.81
+    "median_latency_ms": 105.82,
+    "p95_latency_ms": 131.38
   },
   "automated": {
     "name": "Automated Stumper (100 Catalogue Items \u00d7 9 Realistic Variations)",
@@ -23,8 +23,8 @@
     "unknown_count": 26,
     "unknown_rate": 0.0289,
     "wrong_matches_count": 404,
-    "median_latency_ms": 102.0,
-    "p95_latency_ms": 151.47
+    "median_latency_ms": 68.22,
+    "p95_latency_ms": 102.08
   },
   "delta": {
     "top1_pct": -19.85,

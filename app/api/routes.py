@@ -527,28 +527,69 @@ def delete_stumper_condition(product_id: str, failure_condition: str) -> Dict[st
 
 # ── Phase 7: Evaluation Endpoints ────────────────────────────────────────────
 
+import concurrent.futures
 from app.evaluation.runner import (
     METRICS_JSON, RESULTS_CSV, run_evaluation, write_results,
 )
+
+# Track current evaluation job state
+_eval_state: Dict[str, Any] = {
+    "running": False,
+    "progress": 0,
+    "total": 0,
+    "error": None,
+    "last_completed_at": None,
+}
+_eval_executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
+
+def _run_eval_background() -> None:
+    """Run full evaluation in background thread, updating _eval_state."""
+    global _eval_state
+    _eval_state["running"] = True
+    _eval_state["error"] = None
+    _eval_state["progress"] = 0
+    _eval_state["total"] = 0
+
+    def _on_progress(current: int, total: int) -> None:
+        _eval_state["progress"] = current
+        _eval_state["total"] = total
+
+    try:
+        matcher = get_matcher()
+        report  = run_evaluation(matcher, progress_callback=_on_progress)
+        write_results(report["metrics"], report["rows"])
+        _eval_state["progress"] = report["metrics"]["total_images"]
+        _eval_state["total"]    = report["metrics"]["total_images"]
+        _eval_state["last_completed_at"] = report["metrics"]["run_at"]
+    except Exception as e:
+        _eval_state["error"] = str(e)
+    finally:
+        _eval_state["running"] = False
 
 
 @router.post("/evaluation/run")
 def run_evaluation_endpoint() -> Dict[str, Any]:
     """
-    Trigger Phase 7 evaluation: run all stumper images through the matcher,
-    compute metrics, and persist results.csv + metrics.json + analysis.md.
+    Trigger Phase 7 evaluation in the background.
+    Returns immediately with status='started'. Poll /evaluation/status for progress.
     """
-    try:
-        matcher = get_matcher()
-        report  = run_evaluation(matcher)
-        write_results(report["metrics"], report["rows"])
-        return {
-            "status": "success",
-            "metrics": report["metrics"],
-            "rows_evaluated": len(report["rows"]),
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Evaluation failed: {e}")
+    if _eval_state["running"]:
+        return {"status": "already_running", "message": "Evaluation is already in progress."}
+    _eval_executor.submit(_run_eval_background)
+    return {"status": "started", "message": "Evaluation started in background. Poll /api/evaluation/status."}
+
+
+@router.get("/evaluation/status")
+def get_evaluation_status() -> Dict[str, Any]:
+    """Poll this endpoint to check evaluation progress."""
+    return {
+        "running": _eval_state["running"],
+        "progress": _eval_state["progress"],
+        "total": _eval_state["total"],
+        "error": _eval_state["error"],
+        "last_completed_at": _eval_state["last_completed_at"],
+    }
 
 
 @router.get("/evaluation/results")
@@ -569,6 +610,7 @@ def get_evaluation_results() -> Dict[str, Any]:
             for row in reader:
                 rows.append({
                     "image_id": row.get("image_id", ""),
+                    "image_filename": row.get("image_filename", row.get("image_id", "") + ".jpeg"),
                     "ground_truth": row.get("ground_truth", ""),
                     "failure_condition": row.get("failure_condition", ""),
                     "decision": row.get("decision", ""),

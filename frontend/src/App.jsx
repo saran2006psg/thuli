@@ -199,22 +199,82 @@ export default function App() {
     }
   }, [activeTab]);
 
+  const [evalProgress, setEvalProgress] = useState(null); // { progress, total }
+  const [evalToast, setEvalToast] = useState(null); // success toast message
+
   const triggerEvaluation = async () => {
+    if (isEvaluating) return;
     setIsEvaluating(true);
+    setEvalProgress({ progress: 0, total: 115 }); // show immediately
+
     try {
-      const res = await fetch('/api/evaluation/run', { method: 'POST' });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({ detail: res.statusText }));
-        throw new Error(err.detail || 'Evaluation failed.');
+      // 1. Snapshot current last_completed_at so we know when a NEW run finishes
+      let prevCompletedAt = null;
+      try {
+        const snap = await fetch('/api/evaluation/status');
+        if (snap.ok) {
+          const s = await snap.json();
+          prevCompletedAt = s.last_completed_at;
+        }
+      } catch (_) {}
+
+      // 2. Start the background job
+      const startRes = await fetch('/api/evaluation/run', { method: 'POST' });
+      if (!startRes.ok) {
+        const err = await startRes.json().catch(() => ({ detail: startRes.statusText }));
+        throw new Error(err.detail || 'Failed to start evaluation.');
       }
-      const data = await res.json();
-      setEvalMetrics(data.metrics);
+
+      // 3. Poll until last_completed_at changes (new run finished) — timeout 120s
+      const deadline = Date.now() + 120_000;
+      await new Promise((resolve, reject) => {
+        let seenRunning = false;
+        const poll = setInterval(async () => {
+          if (Date.now() > deadline) {
+            clearInterval(poll);
+            reject(new Error('Evaluation timed out after 120s.'));
+            return;
+          }
+          try {
+            const statusRes = await fetch('/api/evaluation/status');
+            if (!statusRes.ok) return;
+            const s = await statusRes.json();
+
+            // Update progress bar
+            if (s.total > 0) setEvalProgress({ progress: s.progress, total: s.total });
+            if (s.running) seenRunning = true;
+            if (s.error) { clearInterval(poll); reject(new Error(s.error)); return; }
+
+            // Done when: (A) last_completed_at changed from snapshot, OR
+            //            (B) we saw it running and now it stopped
+            const newRun = s.last_completed_at && s.last_completed_at !== prevCompletedAt;
+            const ranAndStopped = seenRunning && !s.running;
+            if (newRun || ranAndStopped) {
+              clearInterval(poll);
+              resolve();
+            }
+          } catch (_) {}
+        }, 800);
+      });
+
+      // 4. Fetch the final results
+      const resultRes = await fetch('/api/evaluation/results');
+      if (resultRes.ok) {
+        const data = await resultRes.json();
+        setEvalMetrics(data.metrics);
+        const acc = (data.metrics.top1_accuracy * 100).toFixed(1);
+        const n = data.metrics.total_images;
+        setEvalToast(`✅ Evaluation complete — ${n} images · Top-1: ${acc}%`);
+        setTimeout(() => setEvalToast(null), 5000);
+      }
     } catch (err) {
       alert('Evaluation error: ' + err.message);
     } finally {
       setIsEvaluating(false);
+      setEvalProgress(null);
     }
   };
+
 
   // ── Tab 3: Add Item State ──────────────────────────────────────────────────
   const [addFile, setAddFile] = useState(null);
@@ -989,7 +1049,9 @@ export default function App() {
                   {isEvaluating ? (
                     <>
                       <RotateCw size={16} className="spin-anim" />
-                      Evaluating...
+                      {evalProgress
+                        ? `${evalProgress.progress}/${evalProgress.total} images…`
+                        : 'Starting…'}
                     </>
                   ) : (
                     <>
@@ -1018,6 +1080,58 @@ export default function App() {
                 </a>
               </div>
             </div>
+
+            {/* Progress bar while evaluating */}
+            {isEvaluating && evalProgress && (
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--primary)',
+                borderRadius: '10px',
+                padding: '0.75rem 1rem',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+              }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--primary)', marginBottom: 6 }}>
+                    Running evaluation — {evalProgress.total > 0 ? `${evalProgress.progress} / ${evalProgress.total} images processed` : 'Starting…'}
+                  </div>
+                  <div style={{ height: 8, borderRadius: 999, background: 'var(--border)', overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      borderRadius: 999,
+                      background: 'var(--primary)',
+                      width: evalProgress.total > 0 ? `${Math.round((evalProgress.progress / evalProgress.total) * 100)}%` : '5%',
+                      transition: 'width 0.5s ease',
+                    }} />
+                  </div>
+                </div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, fontFamily: 'var(--font-mono)', minWidth: 60, textAlign: 'right', color: 'var(--primary)' }}>
+                  {evalProgress.total > 0 ? `${Math.round((evalProgress.progress / evalProgress.total) * 100)}%` : '…'}
+                </span>
+              </div>
+            )}
+
+            {/* Success toast */}
+            {evalToast && (
+              <div style={{
+                background: 'rgba(5,150,105,0.1)',
+                border: '1px solid #059669',
+                borderRadius: '10px',
+                padding: '0.75rem 1rem',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '0.875rem',
+                fontWeight: 600,
+                color: '#059669',
+              }}>
+                <span>{evalToast}</span>
+                <button onClick={() => setEvalToast(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#059669', fontSize: '1.1rem', lineHeight: 1 }}>×</button>
+              </div>
+            )}
 
             {/* Dashboard Content */}
             {evalMetrics ? (
@@ -1352,7 +1466,7 @@ export default function App() {
                                   <tr key={row.image_id} className={isCorrect ? 'row-correct' : isFA ? 'row-wrong' : 'row-unknown'}>
                                     <td>
                                       <img
-                                        src={`/evaluation/images/${row.image_id}.jpeg`}
+                                        src={`/evaluation/images/${row.image_filename || (row.image_id + '.jpeg')}`}
                                         alt={row.image_id}
                                         className="fail-thumb"
                                         onError={(e) => {
