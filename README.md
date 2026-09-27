@@ -1,4 +1,4 @@
-# THULI — Fine Jewellery Visual Retrieval Engine
+# ThuliMatch - Jewellery Visual Retrieval Engine
 
 > **Submission for Problem Statement 2: Stump the Model**  
 > Visual similarity search, multi-item segmentation, and physical robustness evaluation across 6,157 fine jewellery items.
