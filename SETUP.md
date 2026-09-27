@@ -1,21 +1,18 @@
 # Thuli Setup
 
-This is the shortest way to run Thuli on a new CPU-only machine.
+This is the simple CPU-only setup for a new machine. No Docker is required.
 
-## 1. Install Docker
+## Requirements
 
-Install Docker Desktop on Windows or Docker Engine with Docker Compose v2 on Linux. Start Docker and confirm that this command works:
+- Python 3.10 or newer
+- Internet access for the first CLIP model download
+- Enough disk space for the catalogue images, model cache, and generated artifacts
 
-```powershell
-docker version
-docker compose version
-```
+## 1. Get the Code and Catalogue
 
-No Python installation is required on the host. Python and all project dependencies run inside Docker.
+Clone or download this repository, then download the catalogue archive from [Google Drive](https://drive.google.com/file/d/1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct/view?usp=sharing).
 
-## 2. Download the Catalogue Data
-
-Download the [`thuli-data.zip` catalogue archive from Google Drive](https://drive.google.com/file/d/1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct/view?usp=sharing). Extract it into the repository root so the final layout is exactly:
+Extract the Drive archive into the repository root. The final layout must be:
 
 ```text
 thuli/
@@ -29,189 +26,139 @@ thuli/
         ring/
 ```
 
-Do not extract it as `data/thuli-data/`, `thuli-data/`, or another nested folder.
+Do not extract it as `data/thuli-data/` or `thuli-data/`.
 
-The `evaluation/` folder is already supplied by Git. Do not replace it with the Drive data.
+The `evaluation/` directory comes from Git. Do not replace it with the Drive data.
 
-## 3. Check the CSV Paths
+## 2. Check Catalogue Paths
 
-Open `data/catalogue.csv`. The `image_path` column must contain paths relative to the repository root:
+Open `data/catalogue.csv`. Each `image_path` must be relative to the repository root and use forward slashes:
 
-```csv
-image_path
+```text
 data/catalogue/jewelry_dataset/ring/ring_00001.jpg
 ```
 
-Remove or replace paths from the original computer, such as:
+Do not use paths from another computer, such as:
 
 ```text
 D:\PL\thuli\data\catalogue\ring\ring_00001.jpg
 C:\Users\someone\Downloads\jewelry\ring_00001.jpg
 ```
 
-The CSV must use forward slashes and must match the extracted filenames exactly. The existing project CSV already uses the expected `data/catalogue/...` format, so normally no code or CSV change is needed after extracting the official archive.
+The official catalogue CSV already uses the correct format. Normally, no code or CSV edit is needed after extracting the official archive.
 
-Do not change these application settings for a normal setup:
+## 3. Create the Python Environment
 
-```dotenv
-CATALOGUE_CSV=data/catalogue.csv
-CATALOGUE_IMG_DIR=data/catalogue
-EMBEDDINGS_PATH=artifacts/embeddings/catalogue_embeddings.npy
-PRODUCT_IDS_PATH=artifacts/embeddings/product_ids.json
-FAISS_INDEX_PATH=artifacts/indexes/catalogue.faiss
-```
-
-Docker mounts them inside the container as `/app/data` and `/app/artifacts`. The application resolves the relative settings from `/app` automatically.
-
-## 4. Build the CPU Image
-
-Run these commands from the repository root:
+Open PowerShell in the repository root:
 
 ```powershell
-docker compose build
+cd D:\PL\thuli
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-The image contains CPU-only PyTorch, Transformers, FAISS, FastAPI, and the Thuli application. It does not contain the large catalogue dataset.
-
-## 5. Prepare the Model and Index
-
-Run:
+If PowerShell blocks activation, run this once in PowerShell as your user:
 
 ```powershell
-docker compose run --rm setup --rebuild
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-This one-time preparation step:
-
-1. Downloads the CLIP model into the persistent `thuli-model-cache` Docker volume.
-2. Reads `data/catalogue.csv`.
-3. Checks the catalogue images.
-4. Generates catalogue embeddings.
-5. Builds the FAISS index.
-6. Saves generated files under the host `artifacts/` folder.
-
-The first run may take several minutes because thousands of images are embedded on the CPU. Do not repeat this step unless the catalogue changes or the artifacts are deleted.
-
-## 6. Start Thuli
+Then activate again:
 
 ```powershell
-docker compose up -d app
+.\.venv\Scripts\Activate.ps1
 ```
 
-Open:
+## 4. Prepare the Model and Catalogue Index
 
-```text
-http://localhost:8000
+For a Drive-only catalogue, run:
+
+```powershell
+python scripts/setup.py --rebuild
 ```
 
-Check that the service is ready:
+This downloads `openai/clip-vit-base-patch32` once, stores it in `.cache/`, generates catalogue embeddings, and builds the FAISS index under `artifacts/`.
+
+The first run may take several minutes because it processes thousands of images on the CPU. Do not repeat it unless the catalogue or `data/catalogue.csv` changes.
+
+## 5. Start the Application
+
+```powershell
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Open `http://localhost:8000`.
+
+Check the service from another PowerShell window:
 
 ```powershell
 Invoke-RestMethod http://localhost:8000/api/health
 ```
 
-The response should contain `"status": "healthy"`, an index size, and dimension `512`.
+The response should report `status` as `healthy` and `dimension` as `512`.
 
-View logs:
+Stop the application with `Ctrl+C` in the terminal running Uvicorn.
 
-```powershell
-docker compose logs -f app
-```
+## Later Runs
 
-Stop the application:
+Activate the environment and start the application:
 
 ```powershell
-docker compose down
+cd D:\PL\thuli
+.\.venv\Scripts\Activate.ps1
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Stopping the containers does not delete the downloaded model, catalogue data, or generated artifacts.
-
-## What Users Need to Download
-
-Users need only:
-
-1. The Git repository.
-2. The `thuli-data.zip` archive from Drive.
-3. Docker Desktop or Docker Engine.
-4. Internet access for the first model download.
-
-Users do not need to install Python, PyTorch, FAISS, Node.js, or frontend dependencies on the host.
+The model and FAISS index are reused. Do not run `--rebuild` again unless the catalogue changes.
 
 ## What Is Stored Where
 
-| Item                            | Location                               | Shared or generated         |
-| ------------------------------- | -------------------------------------- | --------------------------- |
-| Application and evaluation code | Git repository                         | Shared in Git               |
-| Evaluation datasets and reports | `evaluation/` in Git                   | Shared in Git               |
-| Catalogue CSV and images        | `data/` from Drive                     | Shared separately           |
-| Embeddings and FAISS index      | `artifacts/`                           | Generated locally           |
-| CLIP model and tokenizer        | Docker volume `thuli-model-cache`      | Downloaded once per machine |
-| User uploads and runtime files  | Repository-mounted application folders | Local runtime data          |
+| Item                            | Location       | Source                 |
+| ------------------------------- | -------------- | ---------------------- |
+| Application and evaluation code | Git repository | Git                    |
+| Evaluation datasets and reports | `evaluation/`  | Git                    |
+| Catalogue CSV and images        | `data/`        | Google Drive           |
+| Downloaded model                | `.cache/`      | Created on first setup |
+| Embeddings and FAISS index      | `artifacts/`   | Created by setup       |
 
-The catalogue images are not copied into the Docker image. The application reads them from the mounted `data/` folder.
+Do not commit `.env`, `.cache/`, catalogue images, or generated artifacts.
 
 ## When the Catalogue Changes
 
-Replace or update the external `data/` folder, then run:
+Replace or update `data/`, confirm that `data/catalogue.csv` points to the correct relative image paths, then run:
 
 ```powershell
-docker compose run --rm setup --rebuild
-docker compose restart app
+.\.venv\Scripts\Activate.ps1
+python scripts/setup.py --rebuild
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-The setup service regenerates the embeddings and FAISS index so they stay aligned with the CSV.
-
-## If a User Has a Different Image Folder
-
-The user has two choices:
-
-1. Copy their images into the official `data/catalogue/` folder structure and keep the official CSV.
-2. Create a new `data/catalogue.csv` whose `image_path` values point to files under `data/` using relative paths.
-
-Example:
-
-```text
-User's files:
-  data/catalogue/my_collection/ring/ring_a.jpg
-
-CSV image_path:
-  data/catalogue/my_collection/ring/ring_a.jpg
-```
-
-Do not edit Python code or use the user's absolute Windows path. After changing the CSV or images, run the preparation command again.
-
-## Troubleshooting
-
-### Docker daemon is not running
-
-Start Docker Desktop, wait until it reports that Docker is running, then retry the Docker command.
+## Common Problems
 
 ### `data/catalogue.csv` not found
 
-The Drive archive was extracted at the wrong level. Move the archive contents so `data/catalogue.csv` exists directly under the repository root.
+The Drive archive is in the wrong location. Move it so this file exists:
 
-### Images are missing
+```text
+D:\PL\thuli\data\catalogue.csv
+```
 
-Compare the CSV `image_path` values with the actual files. Use forward slashes and preserve filenames exactly.
+### Images are not found
 
-### The model downloads again
+Compare the CSV `image_path` values with the actual files. Use relative paths, forward slashes, and exact filenames.
 
-The model cache volume was removed or Docker is using a different Compose project name. Normally, keep the volume named `thuli-model-cache`.
+### Model download fails
+
+Check internet access and rerun `python scripts/setup.py --rebuild`. The model download is cached after a successful run.
 
 ### Port 8000 is busy
 
-Edit `docker-compose.yml` from:
+Use another port:
 
-```yaml
-ports:
-  - "8000:8000"
+```powershell
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8001
 ```
 
-to:
-
-```yaml
-ports:
-  - "8001:8000"
-```
-
-Then run `docker compose up -d app` and open `http://localhost:8001`.
+Then open `http://localhost:8001`.

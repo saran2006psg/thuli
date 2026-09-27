@@ -1,7 +1,7 @@
 # Phase 7 — Evaluation Report
 ## All Images in evaluation/images/
 
-> Generated: 2026-09-27T06:19:46.139140+00:00
+> Generated: 2026-09-27T06:29:44.977373+00:00
 > Model: CLIP ViT-B/32 | Index: FAISS IndexFlatIP | Threshold: 0.75
 > Source: All 115 images scanned from evaluation/images/
 
@@ -21,9 +21,9 @@
 | Wrong Matches | 23 |
 | **False Acceptance Rate (FAR)** | **20.72%** |
 | **False Rejection Rate (FRR)** | **7.21%** |
-| Mean Latency | 94.13 ms |
-| Median Latency | 89.05 ms |
-| P95 Latency | 129.06 ms |
+| Mean Latency | 132.42 ms |
+| Median Latency | 128.47 ms |
+| P95 Latency | 159.79 ms |
 
 ## Per-Condition Accuracy
 

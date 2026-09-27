@@ -1466,7 +1466,7 @@ export default function App() {
                                   <tr key={row.image_id} className={isCorrect ? 'row-correct' : isFA ? 'row-wrong' : 'row-unknown'}>
                                     <td>
                                       <img
-                                        src={`/evaluation/images/${row.image_filename || (row.image_id + '.jpeg')}`}
+                                        src={`/evaluation/images/${row.image_filename || (row.image_id + '.jpeg')}?t=${evalMetrics?.run_at || Date.now()}`}
                                         alt={row.image_id}
                                         className="fail-thumb"
                                         onError={(e) => {
