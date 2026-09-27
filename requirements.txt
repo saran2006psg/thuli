@@ -21,6 +21,7 @@ numpy>=1.26.0
 
 # -- Phase 3: FAISS --------------------------------
 faiss-cpu>=1.8.0
+ultralytics>=8.0.0        # FastSAM runtime used by multi-item matching
 
 # -- Phase 5: API ----------------------------------
 fastapi>=0.110.0

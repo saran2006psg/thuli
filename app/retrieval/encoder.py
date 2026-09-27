@@ -40,15 +40,11 @@ class JewelleryEncoder:
 
         self.model_name = model_name
         try:
-            self.processor = CLIPProcessor.from_pretrained(model_name, local_files_only=True, use_fast=True)
+            self.processor = CLIPProcessor.from_pretrained(model_name, local_files_only=True)
             self.model = CLIPModel.from_pretrained(model_name, local_files_only=True, low_cpu_mem_usage=False).to(self.device)
         except Exception:
-            try:
-                self.processor = CLIPProcessor.from_pretrained(model_name, use_fast=True)
-                self.model = CLIPModel.from_pretrained(model_name, low_cpu_mem_usage=False).to(self.device)
-            except Exception:
-                self.processor = CLIPProcessor.from_pretrained(model_name)
-                self.model = CLIPModel.from_pretrained(model_name).to(self.device)
+            self.processor = CLIPProcessor.from_pretrained(model_name)
+            self.model = CLIPModel.from_pretrained(model_name, low_cpu_mem_usage=False).to(self.device)
         self.model.eval()
 
         self.embedding_dim = self.model.config.projection_dim if hasattr(self.model.config, "projection_dim") else EMBEDDING_DIM
@@ -80,6 +76,14 @@ class JewelleryEncoder:
         inputs = self.processor(images=pil_img, return_tensors="pt").to(self.device)
         image_features = self.model.get_image_features(**inputs)
 
+        if not isinstance(image_features, torch.Tensor):
+            if hasattr(image_features, "pooler_output") and image_features.pooler_output is not None:
+                image_features = image_features.pooler_output
+            elif hasattr(image_features, "image_embeds") and image_features.image_embeds is not None:
+                image_features = image_features.image_embeds
+            else:
+                image_features = image_features[0]
+
         # Convert to float numpy
         features = image_features.cpu().numpy().astype(np.float32)[0]
 
@@ -108,6 +112,14 @@ class JewelleryEncoder:
         pil_images = [self._load_pil(img) for img in images]
         inputs = self.processor(images=pil_images, return_tensors="pt", padding=True).to(self.device)
         image_features = self.model.get_image_features(**inputs)
+
+        if not isinstance(image_features, torch.Tensor):
+            if hasattr(image_features, "pooler_output") and image_features.pooler_output is not None:
+                image_features = image_features.pooler_output
+            elif hasattr(image_features, "image_embeds") and image_features.image_embeds is not None:
+                image_features = image_features.image_embeds
+            else:
+                image_features = image_features[0]
 
         features = image_features.cpu().numpy().astype(np.float32)
 

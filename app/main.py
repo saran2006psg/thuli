@@ -72,6 +72,17 @@ app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
 
 
+@app.get("/favicon.ico", include_in_schema=False)
+def serve_favicon():
+    """Serve favicon."""
+    fav = static_dir / "favicon.svg"
+    if fav.exists():
+        return FileResponse(str(fav), media_type="image/svg+xml")
+    return {
+        "status": "not_found"
+    }
+
+
 @app.get("/", include_in_schema=False)
 def serve_frontend():
     """Serve the interactive web test interface."""

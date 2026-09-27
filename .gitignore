@@ -1,34 +1,64 @@
-# .gitignore
-
-# Data — images are large; don't track them
+# Large local data and generated vector artifacts
 data/catalogue/
 data/raw_catalogue.csv
 data/sources/**/images/
-# (source_info.json and README.md inside sources/ ARE tracked)
-
-# Artifacts — generated offline
+# source_info.json and README.md inside data/sources/ remain tracked
 artifacts/
 
-# Environment
+# Local configuration and virtual environments
 .env
+.env.*
+!.env.example
+.venv/
+venv/
+env/
+ENV/
 
-# Python
+# Python caches, packaging, test, and coverage output
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*.pyd
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
 *.egg-info/
 dist/
 build/
 .eggs/
 
-# Kaggle temp
+# Node / Vite output
+node_modules/
+frontend/node_modules/
+frontend/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Model caches and experiment tooling
 .kaggle_tmp/
-
-# HuggingFace cache
-~/.cache/huggingface/
 .cache/
+hf_cache/
+wandb/
+runs/
+lightning_logs/
 
-# OS
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.vs/
 .DS_Store
 Thumbs.db
+Desktop.ini

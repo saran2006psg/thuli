@@ -338,8 +338,8 @@ def generate_automated_stumper(num_source_images: int = 100) -> List[Dict[str, s
                 "category": category,
                 "product_name": prod_name,
                 "failure_condition": cond,
-                "source_image_path": str(source_rel_path),
-                "generated_image_path": str(out_path),
+                "source_image_path": str(source_rel_path).replace("\\", "/"),
+                "generated_image_path": f"evaluation/automated_images/{out_filename}",
                 "source_index": str(idx),
             })
             

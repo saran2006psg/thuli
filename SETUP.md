@@ -52,7 +52,7 @@ The official catalogue CSV already uses the correct format. Normally, no code or
 Open PowerShell in the repository root:
 
 ```powershell
-cd D:\PL\thuli
+cd thuli
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -84,17 +84,17 @@ This downloads `openai/clip-vit-base-patch32` once, stores it in `.cache/`, gene
 The first run may take several minutes because it processes thousands of images on the CPU. Do not repeat it unless the catalogue or `data/catalogue.csv` changes.
 
 ## 5. Start the Application
-
+ 
 ```powershell
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+python -m uvicorn app.main:app --host 0.0.0.0 --port 3000
 ```
 
-Open `http://localhost:8000`.
+Open `http://localhost:3000`.
 
 Check the service from another PowerShell window:
 
 ```powershell
-Invoke-RestMethod http://localhost:8000/api/health
+Invoke-RestMethod http://localhost:3000/api/health
 ```
 
 The response should report `status` as `healthy` and `dimension` as `512`.

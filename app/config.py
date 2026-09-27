@@ -17,6 +17,17 @@ os.environ["USE_TF"] = "0"
 os.environ["USE_TORCH"] = "1"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+os.environ["HF_HUB_DISABLE_IMPLICIT_TOKEN"] = "1"
+
+import logging
+import warnings
+
+# Suppress HF token and deprecation warnings
+warnings.filterwarnings("ignore", message=".*unauthenticated requests to the HF Hub.*")
+warnings.filterwarnings("ignore", message=".*use_fast.*deprecated.*")
+warnings.filterwarnings("ignore", category=FutureWarning, module="transformers")
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+logging.getLogger("transformers").setLevel(logging.ERROR)
 
 # -- Paths ---------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent

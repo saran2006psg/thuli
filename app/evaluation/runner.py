@@ -301,11 +301,11 @@ def write_results(metrics: Dict, rows: List[Dict]) -> None:
 
 | Metric | Value |
 |---|---|
-| Total Images Scanned | {metrics['total_images']} |
-| Valid (ran through matcher) | {metrics['valid_images']} |
-| Scored (has ground truth) | {metrics['scored_images']} |
-| Skipped (corrupt/tiny) | {metrics['skipped_images']} |
-| Errors | {metrics['error_images']} |
+| Total Images Scanned | {metrics.get('total_images', 0)} |
+| Valid (ran through matcher) | {metrics.get('valid_images', 0)} |
+| Scored (has ground truth) | {metrics.get('scored_images', metrics.get('valid_images', 0))} |
+| Skipped (corrupt/tiny) | {metrics.get('skipped_images', 0)} |
+| Errors | {metrics.get('error_images', 0)} |
 | **Top-1 Accuracy** | **{metrics['top1_accuracy']*100:.1f}%** |
 | **Top-5 Accuracy** | **{metrics['top5_accuracy']*100:.1f}%** |
 | MATCH decisions | {metrics['match_count']} |

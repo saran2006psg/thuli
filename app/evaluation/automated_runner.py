@@ -56,9 +56,14 @@ def run_automated_evaluation(matcher: Any, progress_callback=None) -> Dict[str, 
     latencies: List[float] = []
 
     for i, row in enumerate(stumper_rows, start=1):
-        img_path = Path(row["generated_image_path"].strip())
+        raw_path = Path(row["generated_image_path"].strip())
+        img_path = raw_path if raw_path.is_absolute() else (PROJECT_ROOT / raw_path)
         if not img_path.exists():
-            continue
+            fallback = PROJECT_ROOT / "evaluation" / "automated_images" / raw_path.name
+            if fallback.exists():
+                img_path = fallback
+            else:
+                continue
 
         gt_product_id = row["product_id"].strip()
         gt_category = row["category"].strip().lower()
