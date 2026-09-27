@@ -1,3 +1,30 @@
 {
-  "items": {}
+  "items": {
+    "JW_061804::normal": {
+      "image_id": "id118",
+      "product_id": "JW_061804",
+      "jewellery_type": "ring",
+      "failure_condition": "normal",
+      "condition_name": "Normal",
+      "notes": "Handheld reference photo in ambient light",
+      "image_path": "evaluation/images/id118.jpeg",
+      "image_url": "/evaluation/images/id118.jpeg",
+      "created_at": "2026-09-27T09:26:32.023327+00:00",
+      "width": 150,
+      "height": 150
+    },
+    "JW_061804::bad_lighting": {
+      "image_id": "id119",
+      "product_id": "JW_061804",
+      "jewellery_type": "ring",
+      "failure_condition": "bad_lighting",
+      "condition_name": "Bad Lighting",
+      "notes": "Dim hallway with harsh shadow",
+      "image_path": "evaluation/images/id119.jpeg",
+      "image_url": "/evaluation/images/id119.jpeg",
+      "created_at": "2026-09-27T09:26:32.044099+00:00",
+      "width": 150,
+      "height": 150
+    }
+  }
 }

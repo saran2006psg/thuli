@@ -1,1 +1,3 @@
 image_id,product_id,jewellery_type,failure_condition,notes,image_path,created_at
+id118,JW_061804,ring,normal,Handheld reference photo in ambient light,evaluation/images/id118.jpeg,2026-09-27T09:26:32.023327+00:00
+id119,JW_061804,ring,bad_lighting,Dim hallway with harsh shadow,evaluation/images/id119.jpeg,2026-09-27T09:26:32.044099+00:00

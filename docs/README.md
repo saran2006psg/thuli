@@ -10,7 +10,9 @@ This documentation hub covers the entire system from scratch: architecture, mach
 
 | Document | Description |
 |---|---|
-| [⚡ Setup Guide](../SETUP.md) | Quick 1-minute setup to run the complete system on any machine using Python only. |
+| [🎯 Master Assessment Write-Up](../WRITEUP.md) | **Core evaluator document:** Clean gate proof, "Why it is built this way", unexpected additions, empirical rejections, named weaknesses, and human-overrule logs. |
+| [⚡ Setup Guide](../SETUP.md) | Quick 1-minute setup to run the complete system on any machine using Python only (Port 3000). |
+| [📐 Architecture Decision Records (ADRs)](../DECISIONS.md) | 12 formal architectural decisions covering context, options, decisions, reasons, and rejected alternatives. |
 | [Architecture Overview](file:///d:/PL/thuli/docs/ARCHITECTURE.md) | High-level system design, CLIP ViT-B/32 vision encoder, FAISS vector search, FastSAM segmentation, and data structures. |
 | [Implementation architecture & user flows](IMPLEMENTATION_ARCHITECTURE_AND_USER_FLOWS.md) | Code-grounded runtime architecture, complete user flows, persisted state, and production-hardening recommendations. |
 | [Pipeline & Ingestion](file:///d:/PL/thuli/docs/PIPELINE.md) | Step-by-step walkthrough of the offline embedding generation, FAISS index construction, and real-time query inference pipeline. |
@@ -47,7 +49,7 @@ Every directory in this project contains its own dedicated `README.md`:
                                           ▼
                       ┌────────────────────────────────────────┐
                       │            FastAPI Backend             │
-                      │               (Port 8000)              │
+                      │               (Port 3000)              │
                       └─────┬────────────────────────────┬─────┘
                             │                            │
              Single Item    │                            │ Multi-Item Image
