@@ -21,10 +21,20 @@ The objective of this project is to build an end-to-end visual retrieval system 
 
 ---
 
+### Live Demos in Action
+
+| Single-Item Visual Search | Multi-Item Visual Search (FastSAM) |
+|:---:|:---:|
+| ![Single Item Retrieval](docs/singlematch.gif) | ![Multi Item Retrieval](docs/multimatch.gif) |
+| *Single jewellery piece identification with confidence gating* | *Zero-shot multi-item decomposition & independent matching* |
+
+---
+
 ## 2. Architecture & Design Decisions
 
 ### Why Visual Retrieval Instead of Classification?
 I formulated the task as **open-ended vector retrieval** rather than closed-set classification. In fine jewellery e-commerce, catalogues change constantly. A retrieval pipeline allows new products to be ingested in milliseconds simply by computing an embedding and updating the search index, with zero model retraining.
+
 ### System Architecture
 
 ![Thuli System Architecture](arch.png)
