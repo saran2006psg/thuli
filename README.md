@@ -30,7 +30,28 @@ The objective of this project is to build an end-to-end visual retrieval system 
 
 ---
 
-## 2. Architecture & Design Decisions
+## 2. Solution Approach & System Features
+
+### Technical Approach
+The retrieval engine is formulated as an open-ended multimodal vector retrieval pipeline:
+1. **Vision Representation:** An OpenAI CLIP ViT-B/32 backbone maps visual jewellery features into a 512-dimensional semantic vector space, capturing fine geometry, metal tones, gemstone cuts, and silhouette structures.
+2. **Exact Vector Search:** Catalogue embeddings (6,157 items) are indexed via `faiss.IndexFlatIP` for exact inner product distance calculations with 100% recall in 0.52 ms on CPU.
+3. **Multi-Item Scene Decomposition (FastSAM):** Segment Anything (`FastSAM-s.pt`) segments individual jewellery pieces in complex multi-item scenes:
+   - **Geometric Sub-Part Unification:** Connected components and adjacent bounding boxes (clasps, stones, chain links) are merged to preserve full jewellery objects rather than fragmented sub-parts.
+   - **Aspect-Ratio Letterbox Padding (`pad_crop_to_square`):** Proportional letterboxing with median background color preservation prevents spatial distortion when feeding elongated items to CLIP's 224x224 input.
+   - **Independent Querying & Deduplication:** Each candidate region is retrieved independently and deduplicated by product ID.
+4. **Calibrated Confidence Gating:** Rejection threshold set at $\tau = 0.75$. Queries failing to meet similarity margins are classified as `UNKNOWN`, preventing false-positive matches on unindexed items.
+
+### Core Capabilities
+- **Visual Similarity Search:** Single-item query image matching returning Top-K candidates, similarity scores, category metadata, and catalogue visual comparisons.
+- **Multi-Item Scene Retrieval:** Automatic zero-shot scene decomposition identifying multiple distinct pieces (e.g., bracelets, rings, earrings) within the same photograph.
+- **Live Stumper Collector:** Web utility for camera capture across 10 physical degradation conditions (specular reflections, low lux, motion blur, hand/wrist wear, occlusions, clutter).
+- **Automated Stress-Testing Suite:** Programmatic evaluation runner generating 900 synthetic stumper cases across 9 isolated perturbations.
+- **Automated Test Coverage:** 112 unit and integration tests verifying matcher logic, index consistency, API routes, and segmentation pipelines.
+
+---
+
+## 3. Architecture & Design Decisions
 
 ### Why Visual Retrieval Instead of Classification?
 I formulated the task as **open-ended vector retrieval** rather than closed-set classification. In fine jewellery e-commerce, catalogues change constantly. A retrieval pipeline allows new products to be ingested in milliseconds simply by computing an embedding and updating the search index, with zero model retraining.
@@ -41,11 +62,13 @@ I formulated the task as **open-ended vector retrieval** rather than closed-set 
 
 ### Core Architecture Decisions:
 - **Vision Backbone (CLIP ViT-B/32):** Multimodal contrastive pre-training enables self-attention heads to focus on semantic object structures rather than getting confused by background surfaces or skin tones.
-- **Exact Vector Search (`faiss.IndexFlatIP`):** For 6,157 items (12 MB RAM footprint), exact inner product search runs in **0.52 ms** on CPU with **100% recall**. I deliberately avoided approximate index methods (like HNSW or IVF) that add hyperparameter fragility and recall loss for imperceptible speed gains.
+- **Exact Vector Search (`faiss.IndexFlatIP`):** For 6,157 items (12 MB RAM footprint), exact inner product search runs in **0.52 ms** on CPU with **100% recall**. Approximate index methods (like HNSW or IVF) were rejected due to recall loss and unnecessary hyperparameter complexity.
 - **Calibrated Rejection Gate ($\tau = 0.75$):** If the top candidate similarity is below `0.75`, the system returns `UNKNOWN`, reducing false positive acceptances on out-of-catalogue images by **62%**.
 - **Multi-Item Object Proposals (FastSAM):** Discrete piece proposals with an automatic **15% context safety margin** (preventing thin chains or delicate prongs from being cropped off) and non-maximum deduplication.
 
-## 3. Quickstart & Setup
+---
+
+## 4. Quickstart & Setup
 
 The entire project is packaged to run on **any machine (Windows, macOS, Linux) using Python only**.
 
@@ -65,14 +88,14 @@ pip install -r requirements.txt
 python -m scripts.setup --run
 ```
 
-- 🌐 **Web Interface:** Open **[http://localhost:8000](http://localhost:8000)** (or **[http://localhost:3000](http://localhost:3000)**)
-- 📖 **API Docs:** Interactive Swagger UI at **[http://localhost:8000/docs](http://localhost:8000/docs)**
-- 📦 **Automated Dataset Download:** If catalogue imagery is missing, `scripts/setup.py` automatically streams and extracts the 182 MB catalogue dataset from Google Drive (`1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct`).
-- ⚡ **Detailed Setup Guide:** See [**`SETUP.md`**](SETUP.md) for manual steps, environment variables, and troubleshooting.
+- **Web Interface:** Open **[http://localhost:8000](http://localhost:8000)** (or **[http://localhost:3000](http://localhost:3000)**)
+- **API Docs:** Interactive Swagger UI at **[http://localhost:8000/docs](http://localhost:8000/docs)**
+- **Automated Dataset Download:** If catalogue imagery is missing, `scripts/setup.py` automatically streams and extracts the 182 MB catalogue dataset from Google Drive (`1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct`).
+- **Detailed Setup Guide:** See [**`SETUP.md`**](SETUP.md) for manual steps, environment variables, and troubleshooting.
 
 ---
 
-## 4. Accuracy & Performance Metrics Achieved
+## 5. Accuracy & Performance Metrics Achieved
 
 ### 1. Retrieval Benchmarks Across Evaluation Datasets
 
@@ -91,15 +114,15 @@ Tested against real-world phone photography covering all 10 capture failure mode
 
 | Physical Stumper Condition | Top-1 Accuracy | Top-5 Accuracy | Robustness Level | Failure Mode & Impact |
 |---|---|---|---|---|
-| **Normal (Studio / Clean)** | **100.0%** | **100.0%** | 🟢 Extremely High | Ideal alignment; zero confusion |
-| **Bright Lighting / Specular** | **100.0%** | **100.0%** | 🟢 Extremely High | Surface glare does not destroy overall geometry |
-| **Odd Angle / Perspective Tilt**| **100.0%** | **100.0%** | 🟢 High | CLIP ViT attention preserves rotational invariants |
-| **Hand / Wrist Worn** | **100.0%** | **100.0%** | 🟢 High | Full frame attention separates hand from jewellery |
-| **Bad Lighting / Low Lux** | **40.0%** | **60.0%** | 🟡 Moderate | Low contrast degrades fine gemstone facet edges |
-| **Background Clutter** | **50.0%** | **50.0%** | 🟡 Moderate | Surrounding items distract global ViT pooling |
-| **Motion Blur (Hand Shake)** | **50.0%** | **83.3%** | 🔴 Low (Fragile) | High-frequency prong edges smeared into metal sheen |
-| **Distance (Small Object)** | **33.3%** | **66.7%** | 🔴 Low (Fragile) | Jewellery occupies $<15\%$ frame area |
-| **Occlusion (Covered Pieces)** | **33.3%** | **66.7%** | 🔴 Low (Fragile) | 30–50% missing geometry forces ambiguous top-5 |
+| **Normal (Studio / Clean)** | **100.0%** | **100.0%** | Extremely High | Ideal alignment; zero confusion |
+| **Bright Lighting / Specular** | **100.0%** | **100.0%** | Extremely High | Surface glare does not destroy overall geometry |
+| **Odd Angle / Perspective Tilt**| **100.0%** | **100.0%** | High | CLIP ViT attention preserves rotational invariants |
+| **Hand / Wrist Worn** | **100.0%** | **100.0%** | High | Full frame attention separates hand from jewellery |
+| **Bad Lighting / Low Lux** | **40.0%** | **60.0%** | Moderate | Low contrast degrades fine gemstone facet edges |
+| **Background Clutter** | **50.0%** | **50.0%** | Moderate | Surrounding items distract global ViT pooling |
+| **Motion Blur (Hand Shake)** | **50.0%** | **83.3%** | Low (Fragile) | High-frequency prong edges smeared into metal sheen |
+| **Distance (Small Object)** | **33.3%** | **66.7%** | Low (Fragile) | Jewellery occupies $<15\%$ frame area |
+| **Occlusion (Covered Pieces)** | **33.3%** | **66.7%** | Low (Fragile) | 30–50% missing geometry forces ambiguous top-5 |
 
 ### 3. Latency & Resource Utilization Profile
 
@@ -111,21 +134,6 @@ Tested against real-world phone photography covering all 10 capture failure mode
 | **Segment Anything (FastSAM CPU)** | 180.0 ms | 260.0 ms | ~450 MB RAM |
 | **Metadata Resolution & Decision Gate** | 0.08 ms | 0.15 ms | In-memory CSV cache |
 | **End-to-End Single-Item Total** | **70.60 ms** | **98.71 ms** | **Within 100 ms SLA** |
-
----
-
-## 5. Key Features & Current Implementation
-
-- 🔍 **Visual Similarity Search:** Upload any single jewellery photograph and retrieve Top-K catalogue candidates with similarity scores, category metadata, and high-resolution comparison imagery.
-- 💍 **Multi-Item Search with Segment Anything (SAM):**
-  - Uses **FastSAM** (`FastSAM-s.pt`) to detect individual jewellery pieces in complex multi-item scenes (e.g. multiple bracelets, rings, earrings together).
-  - **Geometric Sub-Part Unification:** Automatically merges connected links, charms, stones, and bands into cohesive jewellery pieces rather than fragmenting them.
-  - **Aspect-Ratio Letterboxing (`pad_crop_to_square`):** Pads candidate crops to a square canvas with background color preservation, preventing CLIP from distorting elongated chains and bracelets into square crops.
-  - **Independent Vector Retrieval:** Passes each segmented crop independently into the FAISS index and deduplicates results by `product_id`.
-- 🛡️ **Confidence-Aware Gating:** Automatically gates matches at $\tau = 0.75$, rejecting out-of-catalogue or low-confidence queries as `UNKNOWN`.
-- 📱 **Live Mobile Stumper Collector:** Web interface to capture live camera photos across 10 physical degradation conditions (bad lighting, motion blur, odd angle, occlusion, hand/wrist, etc.).
-- 🧪 **Programmatic Stress-Testing Suite:** Automated evaluation generator creating **900 synthetic stumper images** across 9 controlled physical perturbations.
-- ✅ **Comprehensive Test Suite:** **112 automated unit and integration tests** passing across matcher, vector index, SAM segmentation, and API routes (`python -m pytest tests/ -v`).
 
 ---
 
