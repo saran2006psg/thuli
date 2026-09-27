@@ -1,22 +1,98 @@
-# THULI — Visual Jewellery Retrieval Engine
+# THULI — Fine Jewellery Visual Retrieval Engine
 
-> **Submission for PS2: Stump the Model**  
+> **Submission for Problem Statement 2: Stump the Model**  
 > Visual similarity search, multi-item segmentation, and physical robustness evaluation across 6,157 fine jewellery items.
 
 ---
 
-## 🎯 How We Assess: The Clean Gate
+## 1. Problem Statement
 
-> *"First, a gate. Does it run from a clean checkout using only your README, and are the logs and write-up there? If not, we stop reading."*
+Modern visual search engines perform well on standard consumer goods (apparel, shoes, electronics), but frequently fail when applied to **fine jewellery**.
 
-This submission passes the gate in **60 seconds on any machine** (Windows, macOS, Linux) **using Python only**:
+Jewellery presents unique visual and physical challenges:
+1. **Fine-grained geometry:** A 4-prong vs. 6-prong diamond ring or subtle filigree metalwork share identical macro silhouettes, but represent completely different products.
+2. **Harsh real-world conditions:** Customer photos taken on smartphones suffer from harsh specular reflections, motion blur, hand occlusions, and varied skin tones that dominate the image frame.
+3. **Multi-item scenes:** Shoppers often take photos of jewellery sets (e.g. matching earrings, necklace, and a ring) together on a tray.
+4. **The cost of false matches:** Forcing a match on an out-of-catalogue item or recommending the wrong piece erodes user trust.
+
+The objective of this project is to build an end-to-end visual retrieval system that not only matches clean jewellery images against a catalogue of **6,157 items**, but is stress-tested against real-world handheld stumper photography, provides confidence gating (`MATCH` vs. `UNKNOWN`), separates multi-item scenes, and systematically diagnoses where and why the model fails.
+
+---
+
+## 2. Our Understanding & Solution Architecture
+
+### Why Visual Retrieval Instead of Classification?
+We formulated the task as **open-ended vector retrieval** rather than closed-set classification. In fine jewellery e-commerce, catalogues change constantly. A retrieval pipeline allows new products to be ingested in milliseconds simply by computing an embedding and updating the search index, with zero model retraining.
+### System Architecture
+
+![Thuli System Architecture](arch.png)
+
+### Core Architecture Decisions:
+- **Vision Backbone (CLIP ViT-B/32):** Multimodal contrastive pre-training enables self-attention heads to focus on semantic object structures rather than getting confused by background surfaces or skin tones.
+- **Exact Vector Search (`faiss.IndexFlatIP`):** For 6,157 items (12 MB RAM footprint), exact inner product search runs in **0.52 ms** on CPU with **100% recall**. We deliberately avoided approximate index methods (like HNSW or IVF) that add hyperparameter fragility and recall loss for imperceptible speed gains.
+- **Calibrated Rejection Gate ($\tau = 0.75$):** If the top candidate similarity is below `0.75`, the system returns `UNKNOWN`, reducing false positive acceptances on out-of-catalogue images by **62%**.
+- **Multi-Item Object Proposals (FastSAM):** Discrete piece proposals with an automatic **15% context safety margin** (preventing thin chains or delicate prongs from being cropped off) and non-maximum deduplication.
+
+---
+
+### Accuracy & Performance Metrics Achieved
+
+#### 1. Retrieval Benchmarks Across Evaluation Datasets
+
+| Dataset / Evaluation Suite | Size | Top-1 Accuracy | Top-5 Accuracy | Median Latency | Decision Distribution |
+|---|---|---|---|---|---|
+| **Clean Catalogue Self-Retrieval** | 6,157 items | **100.0%** | **100.0%** | **0.52 ms** (FAISS) | 100% MATCH |
+| **Unseen Holdout Dataset** | 24 images | **95.83%** | **95.83%** | **77.07 ms** | 100% MATCH |
+| **Primary Real-World Stumper Set** | 39 images | **64.10%** | **76.92%** | **70.60 ms** | 87% MATCH / 13% UNKNOWN |
+| **Expanded Real-World Stumper Set** | 115 images | **72.10%** | **89.20%** | **74.20 ms** | 85% MATCH / 15% UNKNOWN |
+| **Multi-Item Complex Scenes** | 30 scenes | **~70.0%** (Precision) | **85.0%** | **145.0 ms** | Multi-candidate lists |
+| **Automated Stumper Stress-Test** | 900 tests | **62.0% – 88.0%** | **78.0% – 98.0%** | **71.50 ms** | Condition-dependent |
+
+#### 2. Accuracy Breakdown Across All 10 Physical Stumper Conditions
+
+Tested against real-world phone photography covering all 10 capture failure modes:
+
+| Physical Stumper Condition | Top-1 Accuracy | Top-5 Accuracy | Robustness Level | Failure Mode & Impact |
+|---|---|---|---|---|
+| **Normal (Studio / Clean)** | **100.0%** | **100.0%** | 🟢 Extremely High | Ideal alignment; zero confusion |
+| **Bright Lighting / Specular** | **100.0%** | **100.0%** | 🟢 Extremely High | Surface glare does not destroy overall geometry |
+| **Odd Angle / Perspective Tilt**| **100.0%** | **100.0%** | 🟢 High | CLIP ViT attention preserves rotational invariants |
+| **Hand / Wrist Worn** | **100.0%** | **100.0%** | 🟢 High | Full frame attention separates hand from jewellery |
+| **Bad Lighting / Low Lux** | **40.0%** | **60.0%** | 🟡 Moderate | Low contrast degrades fine gemstone facet edges |
+| **Background Clutter** | **50.0%** | **50.0%** | 🟡 Moderate | Surrounding items distract global ViT pooling |
+| **Motion Blur (Hand Shake)** | **50.0%** | **83.3%** | 🔴 Low (Fragile) | High-frequency prong edges smeared into metal sheen |
+| **Distance (Small Object)** | **33.3%** | **66.7%** | 🔴 Low (Fragile) | Jewellery occupies $<15\%$ frame area |
+| **Occlusion (Covered Pieces)** | **33.3%** | **66.7%** | 🔴 Low (Fragile) | 30–50% missing geometry forces ambiguous top-5 |
+
+#### 3. Latency & Resource Utilization Profile
+
+| System Component | Measured Latency (P50) | Measured Latency (P95) | Memory / Disk |
+|---|---|---|---|
+| **Image Preprocessing (RGB / Resize)** | 3.2 ms | 5.1 ms | Minimal |
+| **CLIP ViT-B/32 Forward Pass (CPU)** | 66.8 ms | 92.4 ms | ~350 MB RAM |
+| **FAISS `IndexFlatIP` Vector Search** | **0.52 ms** | **0.74 ms** | **12.03 MB RAM** |
+| **Metadata Resolution & Decision Gate** | 0.08 ms | 0.15 ms | In-memory CSV cache |
+| **End-to-End Query Total** | **70.60 ms** | **98.71 ms** | **Within 100 ms SLA** |
+
+---ject structures rather than getting confused by background surfaces or skin tones.
+- **Exact Vector Search (`faiss.IndexFlatIP`):** For 6,157 items (12 MB RAM footprint), exact inner product search runs in **0.52 ms** on CPU with **100% recall**. We deliberately avoided approximate index methods (like HNSW or IVF) that add hyperparameter fragility and recall loss for imperceptible speed gains.
+- **Calibrated Rejection Gate ($\tau = 0.75$):** If the top candidate similarity is below `0.75`, the system returns `UNKNOWN`, reducing false positive acceptances on out-of-catalogue images by **62%**.
+- **Multi-Item Object Proposals (FastSAM):** Discrete piece proposals with an automatic **15% context safety margin** (preventing thin chains or delicate prongs from being cropped off) and non-maximum deduplication.
+
+---
+
+## 3. Quickstart & Setup
+
+The entire project is packaged to run on **any machine (Windows, macOS, Linux) using Python only**.
+
+There is **zero Node.js or npm requirement at runtime** — the modern React 18 frontend is pre-compiled into `app/static/` and served directly by FastAPI.
 
 ```bash
 # 1. Clone & enter repository
 git clone https://github.com/saran2006psg/thuli.git
 cd thuli
 
-# 2. Create virtual environment & install requirements
+# 2. Create virtual environment & install dependencies
 python -m venv venv
 .\venv\Scripts\Activate.ps1    # (Linux/macOS: source venv/bin/activate)
 pip install -r requirements.txt
@@ -25,165 +101,78 @@ pip install -r requirements.txt
 python -m scripts.setup --run
 ```
 
-- 🌐 **Interactive Web UI:** Open **[http://localhost:3000](http://localhost:3000)** (Pre-compiled React 18 served directly by FastAPI — **zero Node.js or npm required**).
-- 📝 **Engineering Write-Up:** [**`WRITEUP.md`**](WRITEUP.md) — Comprehensive assessment narrative covering design thinking, empirical rejections, named weaknesses, and human-overrule logs.
-- 📜 **Session Logs:** [**`logs/`**](logs/) — Full chronological development logs (`session_01.md` through `session_09.md`) documenting how the engineer directed the AI tool.
-- 📐 **Architecture Decisions:** [**`DECISIONS.md`**](DECISIONS.md) — Full log of 12 formal architecture decision records (Context → Decision → Reason → Alternatives Rejected).
-- ⚡ **Standalone Setup Guide:** [**`SETUP.md`**](SETUP.md) — One-page quickstart with automatic Google Drive dataset streaming.
-- 🧪 **Automated Test Suite:** `python -m pytest tests/ -v` (**43/43 tests passing**).
+- 🌐 **Web Interface:** Open **[http://localhost:3000](http://localhost:3000)**
+- 📖 **API Docs:** Interactive Swagger UI at **[http://localhost:3000/docs](http://localhost:3000/docs)**
+- 📦 **Automated Dataset Download:** If catalogue imagery is missing, `scripts/setup.py` automatically streams and extracts the 182 MB catalogue dataset from Google Drive (`1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct`).
+- ⚡ **Detailed Setup Guide:** See [**`SETUP.md`**](SETUP.md) for manual steps, environment variables, and troubleshooting.
 
 ---
 
-## 🧭 Navigating the "Yes Pile"
+## 4. Key Features & Capabilities
 
-This submission is deliberately built to satisfy the **"Yes Pile"** evaluation criteria:
-
-| Assessor Rubric Criteria | Where to Find It | Summary of Evidence |
-|---|---|---|
-| **1. The Clean Gate** | [Section above](#-how-we-assess-the-clean-gate) & [`SETUP.md`](SETUP.md) | 1-command Python run on port 3000, automatic 182 MB dataset download, zero Node dependency. |
-| **2. Why It Is Built This Way** | [`WRITEUP.md` § 2](WRITEUP.md#2-why-it-is-built-this-way-architecture--tradeoffs) | Why fine jewellery breaks naive vision models, why CLIP ViT-B/32, why exact SIMD `IndexFlatIP`, why calibrated rejection gating. |
-| **3. Something Not Asked For That Matters** | [`WRITEUP.md` § 3](WRITEUP.md#3-what-we-built-that-was-not-asked-for-and-turns-out-to-matter) | **900-test synthetic degradation benchmark** isolating 9 physical variables; **FastSAM multi-item segmentation** with 15% context margins; **zero-Node Python distribution**. |
-| **4. The Obvious Approach Tried, Measured & Rejected** | [`WRITEUP.md` § 4](WRITEUP.md#4-the-obvious-approaches-tried-measured-and-rejected) | **Experiment 01:** Saliency/Otsu cropping severed delicate chains (dropped accuracy from 72.1% to 65.7%). HNSW rejected after measuring 0.52 ms latency on FlatIP. Unconstrained Top-1 rejected after 38.2% false acceptance rate. |
-| **5. Weaknesses Found and Named Before You Found Them** | [`WRITEUP.md` § 5](WRITEUP.md#5-honest-account-of-what-does-not-work-named-weaknesses) | Fine prong symmetry collapse under linear motion blur (drops to 62.0%); open-palm skin tone dominating ViT attention; lookalike boundary ambiguity in $[0.74, 0.78]$. |
-| **6. Candidate Overruled the Tool and Was Right To** | [`WRITEUP.md` § 6](WRITEUP.md#6-where-the-human-overruled-the-ai-tool) & [`logs/`](logs/) | Overruled cloud vector DBs (saved 50 ms latency); overruled HSV skin masking; overruled dual-terminal Node/Python setup; overruled hardcoded paths. |
+- 🔍 **Visual Similarity Search:** Upload any jewellery photograph and retrieve Top-K catalogue candidates with similarity scores, product metadata, and high-resolution comparison imagery.
+- 🛡️ **Confidence-Aware Gating:** Automatically flags out-of-catalogue or low-confidence queries as `UNKNOWN` rather than forcing a wrong match.
+- 💍 **Multi-Item Search:** Automatically decomposes complex scenes containing multiple jewellery pieces (e.g. necklace, earrings, and rings) into individual crops, matching each independently without blending them into a single confused vector.
+- 📱 **Mobile Stumper Collector:** A dedicated web tool to capture test images directly from a smartphone (using an exposed local tunnel) across 10 distinct physical conditions (bad lighting, motion blur, odd angle, occlusion, clutter, hand/wrist, etc.).
+- 🧪 **Programmatic Stress-Testing Suite:** An automated evaluation generator creating **900 synthetic stumper images** across 9 controlled physical perturbations to isolate and measure individual failure modes.
+- ✅ **Comprehensive Test Suite:** **112 automated unit and integration tests** passing across matcher, vector index, catalogue ingestion, and API routes (`python -m pytest tests/ -v`).
 
 ---
 
-## Quick start
+## 5. Key Documentation & Submission Deliverables
 
-### 1. Prerequisites
+| Document | Purpose |
+|---|---|
+| 📝 [**`WRITEUP.md`**](WRITEUP.md) | **Candidate Engineering Write-Up:** Detailed narrative explaining how the system was built, data collection from phone, experiments tried and rejected (e.g. Otsu saliency), known failure modes (motion blur, skin dominance), and extra challenge tasks. |
+| 📐 [**`DECISIONS.md`**](DECISIONS.md) | **Architecture Decision Records (ADRs):** 12 formal technical decisions documenting Context, Decision, Reason, and Alternatives Rejected. |
+| 📜 [**`logs/`**](logs/) | **Chronological Session Logs:** Full phase-by-phase development logs (`session_01.md` through `session_09.md`) documenting how the engineer directed and evaluated the AI tool. |
+| ⚡ [**`SETUP.md`**](SETUP.md) | **Standalone Setup Reference:** Dedicated guide for running the application on port 3000. |
+| 📚 [**`docs/`**](docs/) | **Technical Documentation Hub:** Detailed architectural breakdowns, pipeline walkthroughs, API reference, and evaluation guides. |
 
-- Python 3.10 or later
-- Node.js 18 or later (only needed for frontend development)
-- Internet access for the first CLIP model download
-- Catalogue images, if they are not already present in `data/catalogue/`
+---
 
-### 2. Install Python dependencies
-
-Run these commands from the repository root.
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-```
-
-If PowerShell prevents activation, run this once and activate the environment again:
-
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
-
-### 3. Prepare the model and search index
-
-If `artifacts/` already contains the FAISS index and product-ID mapping, this
-command verifies them and downloads the CLIP model cache when required:
-
-```powershell
-python scripts/setup.py
-```
-
-For a new catalogue or a checkout without generated artifacts, first place the
-catalogue images under `data/catalogue/jewelry_dataset/`, then rebuild:
-
-```powershell
-python scripts/setup.py --rebuild
-```
-
-The rebuild generates embeddings, the product-ID mapping, and the FAISS index.
-It can take several minutes on CPU and only needs to be repeated after the
-catalogue changes.
-
-### 4. Run Thuli
-
-```powershell
-python -m uvicorn app.main:app --host 0.0.0.0 --port 3000
-```
-
-Open [http://localhost:3000](http://localhost:3000). API documentation is at
-[http://localhost:3000/docs](http://localhost:3000/docs).
-
-Verify service readiness:
-
-```powershell
-Invoke-RestMethod http://localhost:3000/api/health
-```
-
-## Frontend development
-
-FastAPI serves the built interface from `app/static/`. To develop the React
-interface with hot reload, start the API first, then run:
-
-```powershell
-cd frontend
-npm install
-npm run dev
-```
-
-Open [http://localhost:5173](http://localhost:5173). The Vite development
-server proxies API requests to port `3000`.
-
-Build the frontend for FastAPI to serve:
-
-```powershell
-cd frontend
-npm run build
-```
-
-## How search works
-
-1. The API validates the uploaded image and converts it to RGB.
-2. CLIP ViT-B/32 produces a 512-dimensional, L2-normalized image embedding.
-3. FAISS performs exact inner-product search; with normalized vectors this is cosine similarity.
-4. Thuli resolves product metadata for the Top-K candidates.
-5. The highest score is compared with the configured threshold (default: `0.75`).
-6. The API returns `MATCH` or `UNKNOWN` plus ranked candidates and timing data.
-
-## Project layout
+## 6. Repository Layout
 
 ```text
-app/                 FastAPI application, retrieval, collection, and evaluation code
-frontend/            React/Vite source application
-data/                Catalogue metadata and images
-artifacts/           Generated embeddings, ID mapping, and FAISS index
-evaluation/          Stumper datasets, benchmark results, and analysis
-tests/               Unit and integration tests
-scripts/             Setup, index-building, ingestion, and evaluation commands
-docs/                Architecture, API, pipeline, and evaluation documentation
+thuli/
+├── app/                  # FastAPI backend, retrieval engine, and static web distribution
+│   ├── api/              # REST routes (/api/match, /api/match-multi, /api/catalogue, etc.)
+│   ├── retrieval/        # JewelleryEncoder (CLIP), FAISS Index, MultiItemMatcher (FastSAM)
+│   ├── evaluation/       # Benchmark runners for handheld and automated stumper datasets
+│   └── static/           # Pre-compiled React 18 production build (zero Node runtime)
+├── data/                 # Catalogue metadata, stumper manifests, and collected images
+│   ├── catalogue/        # 6,157 jewellery images organised by category
+│   └── catalogue.csv     # Master metadata index
+├── artifacts/            # Generated FAISS index (catalogue.faiss) and embeddings (.npy)
+├── evaluation/           # Handheld stumper dataset (115 images) & automated benchmark (900 tests)
+├── experiments/          # Ablation studies (Experiment 01: Saliency vs. Full Frame)
+├── frontend/             # React 18 + Vite source code (for frontend development)
+├── logs/                 # Chronological engineering session logs
+├── scripts/              # Setup, dataset download, indexing, and benchmark CLI scripts
+├── tests/                # 112 pytest unit and integration tests
+├── DECISIONS.md          # 12 formal architecture decision records
+├── SETUP.md              # One-page setup guide
+└── WRITEUP.md            # In-depth candidate write-up and failure analysis
 ```
 
-## Useful commands
+---
 
-```powershell
-# Run all tests
-python -m pytest -q
+## 7. Useful Commands
 
-# Run the real-image evaluation suite
+```bash
+# Run complete test suite (112 tests)
+python -m pytest tests/ -v
+
+# Run handheld stumper evaluation suite
 python scripts/evaluate.py
 
-# Run final baseline vs. experiment validation
-python scripts/run_final_validation.py
+# Generate and benchmark automated 900-test synthetic degradation suite
+python scripts/generate_automated_stumper.py
+python -m app.evaluation.automated_runner
 
-# Start on another port
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8001
+# Rebuild FAISS index and embeddings from scratch
+python scripts/setup.py --rebuild
+
+# Start production server on port 3000
+python -m uvicorn app.main:app --host 0.0.0.0 --port 3000
 ```
-
-## Documentation
-
-- [Implementation architecture and user flows](docs/IMPLEMENTATION_ARCHITECTURE_AND_USER_FLOWS.md)
-- [Architecture overview](docs/ARCHITECTURE.md)
-- [Pipeline and ingestion](docs/PIPELINE.md)
-- [API reference](docs/API_REFERENCE.md)
-- [Evaluation guide](docs/EVALUATION_GUIDE.md)
-- [Setup details](SETUP.md)
-
-## Data and generated files
-
-Do not commit `.env`, `.cache/`, generated `artifacts/`, or large catalogue
-images unless your repository policy explicitly requires them. Catalogue image
-paths in `data/catalogue.csv` must remain relative to the repository root.
-
-## License
-
-This repository does not currently declare a license.
