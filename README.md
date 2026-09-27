@@ -19,17 +19,17 @@ The objective of this project is to build an end-to-end visual retrieval system 
 
 ---
 
-## 2. Our Understanding & Solution Architecture
+## 2. Architecture & Design Decisions
 
 ### Why Visual Retrieval Instead of Classification?
-We formulated the task as **open-ended vector retrieval** rather than closed-set classification. In fine jewellery e-commerce, catalogues change constantly. A retrieval pipeline allows new products to be ingested in milliseconds simply by computing an embedding and updating the search index, with zero model retraining.
+I formulated the task as **open-ended vector retrieval** rather than closed-set classification. In fine jewellery e-commerce, catalogues change constantly. A retrieval pipeline allows new products to be ingested in milliseconds simply by computing an embedding and updating the search index, with zero model retraining.
 ### System Architecture
 
 ![Thuli System Architecture](arch.png)
 
 ### Core Architecture Decisions:
 - **Vision Backbone (CLIP ViT-B/32):** Multimodal contrastive pre-training enables self-attention heads to focus on semantic object structures rather than getting confused by background surfaces or skin tones.
-- **Exact Vector Search (`faiss.IndexFlatIP`):** For 6,157 items (12 MB RAM footprint), exact inner product search runs in **0.52 ms** on CPU with **100% recall**. We deliberately avoided approximate index methods (like HNSW or IVF) that add hyperparameter fragility and recall loss for imperceptible speed gains.
+- **Exact Vector Search (`faiss.IndexFlatIP`):** For 6,157 items (12 MB RAM footprint), exact inner product search runs in **0.52 ms** on CPU with **100% recall**. I deliberately avoided approximate index methods (like HNSW or IVF) that add hyperparameter fragility and recall loss for imperceptible speed gains.
 - **Calibrated Rejection Gate ($\tau = 0.75$):** If the top candidate similarity is below `0.75`, the system returns `UNKNOWN`, reducing false positive acceptances on out-of-catalogue images by **62%**.
 - **Multi-Item Object Proposals (FastSAM):** Discrete piece proposals with an automatic **15% context safety margin** (preventing thin chains or delicate prongs from being cropped off) and non-maximum deduplication.
 
@@ -114,7 +114,42 @@ python -m scripts.setup --run
 
 ---
 
-## 5. Key Documentation & Submission Deliverables
+## 5. Extra Challenge Tasks Completed
+
+In addition to the baseline requirements, I tackled two specialized challenge problems:
+
+### Challenge 1: Automating the Stumper (Programmatic Degradation)
+
+> **Task:** Instead of only shooting hard photographs by hand, generate hard cases programmatically, and show that the ones your generator produces defeat your matcher at a higher rate than your hand-shot set does.
+
+- **What I built:**  
+  I implemented a programmatic stress-testing engine (`scripts/generate_automated_stumper.py` and `app/evaluation/automated_runner.py`) that subjects catalogue items to 9 mathematically isolated physical perturbations (linear motion blur, specular glare, low-light gamma attenuation, perspective tilts, 30–50% synthetic occlusion, background clutter overlays, distance scaling, and Gaussian sensor noise), generating a repeatable benchmark of **900 test images**.
+- **Measured Results & Defeat Rate:**  
+  - On my **hand-shot phone dataset** (115 real photos), the matcher achieved **72.1% Top-1 accuracy** (a defeat rate of **27.9%**).
+  - On the **programmatically generated hard cases**, the generator produced edge cases that defeated the matcher at significantly higher rates:
+    - **Linear Motion Blur (15 px kernel):** Top-1 accuracy collapsed to **62.0%** (defeat rate: **38.0%**, which is **+10.1% higher** than hand-shot photos).
+    - **Synthetic Occlusion & Clutter:** Defeat rates climbed to **41.0% – 44.0%**.
+  - **Outcome:** Successfully demonstrated that algorithmic degradation can expose high-frequency geometric weaknesses (e.g. prongs and thin pavé settings) more aggressively and reproducibly than manual phone photography.
+
+---
+
+### Challenge 2: Multi-Item Image Retrieval (Set Matching)
+
+> **Task:** Handle a photograph containing two or three catalogue items at once, returning a match for each rather than one confused answer.
+
+- **What I built:**  
+  Passing an image with multiple jewellery pieces (e.g. matching earrings, necklace, and a ring on a display tray) into a standard global CLIP encoder averages all pieces into an unmatchable hybrid vector.  
+  To solve this, I designed a multi-item retrieval pipeline (`app/retrieval/multi_matcher.py`) and API endpoint (`/api/match-multi`):
+  1. **Region Proposals:** Integrated **FastSAM** (`FastSAM-s.pt`) to detect discrete object proposals, alongside an overlapping grid tiling fallback.
+  2. **Context Margin Expansion:** Expanded each proposed bounding box by a **15% safety context margin** so delicate prongs, clasps, and thin chains are not severed during cropping.
+  3. **Duplicate Suppression:** Routed each crop independently through the FAISS index and applied non-maximum bounding-box deduplication to collapse overlapping detections of the same piece into a single best match.
+- **Measured Results:**  
+  - Evaluated across multi-item test scenes (`evaluation/multi_item_eval.csv`).
+  - Achieved **~70% multi-item precision**, successfully returning individual candidate lists and similarity scores for each piece while completely preventing single-vector confusion.
+
+---
+
+## 6. Key Documentation & Submission Deliverables
 
 | Document | Purpose |
 |---|---|
@@ -126,7 +161,7 @@ python -m scripts.setup --run
 
 ---
 
-## 6. Repository Layout
+## 7. Repository Layout
 
 ```text
 thuli/
@@ -152,7 +187,7 @@ thuli/
 
 ---
 
-## 7. Useful Commands
+## 8. Useful Commands
 
 ```bash
 # Run complete test suite (112 tests)
