@@ -973,7 +973,10 @@ export default function App() {
               <div className="eval-hero-info">
                 <h1>Baseline Evaluation Arena</h1>
                 <p>
-                  Benchmarking CLIP ViT-B/32 against {evalMetrics?.total_images || 39} real-world stumper test cases (angle, blur, lighting, occlusion).
+                  Scanning <strong>{evalMetrics?.total_images || 115}</strong> images from <code>evaluation/images/</code> through CLIP ViT-B/32 + FAISS.
+                  {evalMetrics?.scored_images !== undefined && (
+                    <> Ground-truth labels available for <strong>{evalMetrics.scored_images}</strong> images (accuracy computed on labelled set only).</>
+                  )}
                 </p>
               </div>
               <div className="eval-hero-actions">
@@ -1021,6 +1024,16 @@ export default function App() {
               <div>
                 {/* KPI Cards */}
                 <div className="kpi-grid">
+                  <div className="kpi-card teal" style={{ gridColumn: 'span 2' }}>
+                    <div className="kpi-label">Images Scanned</div>
+                    <div className="kpi-value">{evalMetrics.total_images}</div>
+                    <div className="kpi-sub">
+                      {evalMetrics.scored_images !== undefined
+                        ? `${evalMetrics.scored_images} labelled · ${evalMetrics.skipped_images ?? 0} skipped`
+                        : 'from evaluation/images/'}
+                    </div>
+                  </div>
+
                   <div className="kpi-card gold">
                     <div className="kpi-label">Top-1 Accuracy</div>
                     <div className="kpi-value">

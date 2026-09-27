@@ -1,5 +1,5 @@
 {
-  "run_at": "2026-09-27T04:57:20.331700+00:00",
+  "run_at": "2026-09-27T05:47:41.045049+00:00",
   "source_images_count": 100,
   "total_images": 900,
   "valid_images": 900,
@@ -16,9 +16,9 @@
   "failure_count": 430,
   "failure_rate": 0.4778,
   "product_failure_rate": 0.8856,
-  "mean_latency_ms": 111.87,
-  "median_latency_ms": 107.25,
-  "p95_latency_ms": 161.65,
+  "mean_latency_ms": 105.98,
+  "median_latency_ms": 102.0,
+  "p95_latency_ms": 151.47,
   "per_condition": {
     "bad_lighting": {
       "total": 100,
@@ -30,7 +30,7 @@
       "unknown_count": 0,
       "wrong_matches_count": 95,
       "failure_rate": 0.95,
-      "median_latency_ms": 98.81
+      "median_latency_ms": 101.1
     },
     "bright_lighting": {
       "total": 100,
@@ -42,7 +42,7 @@
       "unknown_count": 1,
       "wrong_matches_count": 70,
       "failure_rate": 0.71,
-      "median_latency_ms": 109.45
+      "median_latency_ms": 100.79
     },
     "clutter": {
       "total": 100,
@@ -54,7 +54,7 @@
       "unknown_count": 2,
       "wrong_matches_count": 18,
       "failure_rate": 0.2,
-      "median_latency_ms": 109.8
+      "median_latency_ms": 102.13
     },
     "distance": {
       "total": 100,
@@ -66,7 +66,7 @@
       "unknown_count": 0,
       "wrong_matches_count": 65,
       "failure_rate": 0.65,
-      "median_latency_ms": 108.57
+      "median_latency_ms": 101.84
     },
     "motion_blur": {
       "total": 100,
@@ -78,7 +78,7 @@
       "unknown_count": 5,
       "wrong_matches_count": 36,
       "failure_rate": 0.41,
-      "median_latency_ms": 108.6
+      "median_latency_ms": 101.79
     },
     "noise": {
       "total": 100,
@@ -90,7 +90,7 @@
       "unknown_count": 8,
       "wrong_matches_count": 37,
       "failure_rate": 0.45,
-      "median_latency_ms": 108.47
+      "median_latency_ms": 103.02
     },
     "occlusion": {
       "total": 100,
@@ -102,7 +102,7 @@
       "unknown_count": 5,
       "wrong_matches_count": 39,
       "failure_rate": 0.44,
-      "median_latency_ms": 108.04
+      "median_latency_ms": 101.16
     },
     "odd_angle": {
       "total": 100,
@@ -114,7 +114,7 @@
       "unknown_count": 4,
       "wrong_matches_count": 26,
       "failure_rate": 0.3,
-      "median_latency_ms": 108.56
+      "median_latency_ms": 102.01
     },
     "reflection": {
       "total": 100,
@@ -126,7 +126,7 @@
       "unknown_count": 1,
       "wrong_matches_count": 18,
       "failure_rate": 0.19,
-      "median_latency_ms": 108.03
+      "median_latency_ms": 103.22
     }
   },
   "failed_examples": [
@@ -147,7 +147,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 318.07,
+      "latency_ms": 163.18,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_001_bad_lighting.jpg"
     },
@@ -168,7 +168,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": 1,
       "gt_product_rank": 1,
-      "latency_ms": 116.22,
+      "latency_ms": 78.66,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_001_occlusion.jpg"
     },
@@ -189,7 +189,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 142.09,
+      "latency_ms": 77.4,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_001_distance.jpg"
     },
@@ -210,7 +210,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 105.3,
+      "latency_ms": 72.59,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_001_noise.jpg"
     },
@@ -231,7 +231,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 99.68,
+      "latency_ms": 79.71,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_002_bad_lighting.jpg"
     },
@@ -252,7 +252,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": 2,
       "gt_product_rank": -1,
-      "latency_ms": 106.59,
+      "latency_ms": 89.4,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_002_bright_lighting.jpg"
     },
@@ -273,7 +273,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": 2,
       "gt_product_rank": -1,
-      "latency_ms": 111.47,
+      "latency_ms": 92.0,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_002_motion_blur.jpg"
     },
@@ -294,7 +294,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 100.14,
+      "latency_ms": 91.64,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_003_bad_lighting.jpg"
     },
@@ -315,7 +315,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 101.59,
+      "latency_ms": 79.47,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_003_bright_lighting.jpg"
     },
@@ -336,7 +336,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": 2,
       "gt_product_rank": -1,
-      "latency_ms": 106.33,
+      "latency_ms": 85.63,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_003_occlusion.jpg"
     },
@@ -357,7 +357,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 109.61,
+      "latency_ms": 84.49,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_003_motion_blur.jpg"
     },
@@ -378,7 +378,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 109.33,
+      "latency_ms": 73.81,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_003_reflection.jpg"
     },
@@ -399,7 +399,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 111.36,
+      "latency_ms": 76.23,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_003_distance.jpg"
     },
@@ -420,7 +420,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 110.54,
+      "latency_ms": 83.18,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_003_noise.jpg"
     },
@@ -441,7 +441,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": 4,
       "gt_product_rank": -1,
-      "latency_ms": 108.83,
+      "latency_ms": 126.29,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_004_occlusion.jpg"
     },
@@ -462,7 +462,7 @@
       "top5_product_correct": 1,
       "gt_category_rank": 5,
       "gt_product_rank": 5,
-      "latency_ms": 118.66,
+      "latency_ms": 124.2,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_004_clutter.jpg"
     },
@@ -483,7 +483,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 111.51,
+      "latency_ms": 88.42,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_004_motion_blur.jpg"
     },
@@ -504,7 +504,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 105.54,
+      "latency_ms": 87.39,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_004_reflection.jpg"
     },
@@ -525,7 +525,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 105.25,
+      "latency_ms": 80.09,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_004_distance.jpg"
     },
@@ -546,7 +546,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 106.96,
+      "latency_ms": 83.41,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_004_noise.jpg"
     },
@@ -567,7 +567,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 100.38,
+      "latency_ms": 84.61,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_005_bad_lighting.jpg"
     },
@@ -588,7 +588,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": 2,
       "gt_product_rank": -1,
-      "latency_ms": 108.84,
+      "latency_ms": 83.57,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_005_occlusion.jpg"
     },
@@ -609,7 +609,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 108.38,
+      "latency_ms": 111.85,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_005_distance.jpg"
     },
@@ -630,7 +630,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": 1,
       "gt_product_rank": -1,
-      "latency_ms": 107.29,
+      "latency_ms": 110.53,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_005_noise.jpg"
     },
@@ -651,7 +651,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 97.76,
+      "latency_ms": 107.11,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_006_bad_lighting.jpg"
     },
@@ -672,7 +672,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 109.31,
+      "latency_ms": 103.96,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_006_bright_lighting.jpg"
     },
@@ -693,7 +693,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 111.7,
+      "latency_ms": 101.04,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_006_distance.jpg"
     },
@@ -714,7 +714,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 94.11,
+      "latency_ms": 99.71,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_007_bad_lighting.jpg"
     },
@@ -735,7 +735,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 109.44,
+      "latency_ms": 98.99,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_007_bright_lighting.jpg"
     },
@@ -756,7 +756,7 @@
       "top5_product_correct": 0,
       "gt_category_rank": -1,
       "gt_product_rank": -1,
-      "latency_ms": 109.54,
+      "latency_ms": 97.48,
       "error": "",
       "generated_image_path": "evaluation/automated_images/auto_007_distance.jpg"
     }

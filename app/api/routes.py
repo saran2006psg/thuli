@@ -578,6 +578,7 @@ def get_evaluation_results() -> Dict[str, Any]:
                     "top1_correct": int(row.get("top1_correct", 0) or 0),
                     "top5_correct": int(row.get("top5_correct", 0) or 0),
                     "latency_ms": float(row.get("latency_ms", 0.0) or 0.0),
+                    "has_gt": int(row.get("has_gt", 1) or 1),
                 })
             metrics["all_results"] = rows
     return {"status": "ok", "metrics": metrics}

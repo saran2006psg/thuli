@@ -1,15 +1,15 @@
 {
   "handshot": {
     "name": "Hand-Shot Stumper (Real Phone Photos)",
-    "total_images": 113,
-    "top1_accuracy": 0.7257,
-    "top5_accuracy": 0.8938,
-    "failure_rate": 0.2743,
+    "total_images": 115,
+    "top1_accuracy": 0.7207,
+    "top5_accuracy": 0.8919,
+    "failure_rate": 0.2696,
     "unknown_count": 8,
-    "unknown_rate": 0.0708,
+    "unknown_rate": 0.0696,
     "wrong_matches_count": 23,
-    "median_latency_ms": 207.95,
-    "p95_latency_ms": 341.39
+    "median_latency_ms": 153.49,
+    "p95_latency_ms": 244.81
   },
   "automated": {
     "name": "Automated Stumper (100 Catalogue Items \u00d7 9 Realistic Variations)",
@@ -23,14 +23,14 @@
     "unknown_count": 26,
     "unknown_rate": 0.0289,
     "wrong_matches_count": 404,
-    "median_latency_ms": 107.25,
-    "p95_latency_ms": 161.65
+    "median_latency_ms": 102.0,
+    "p95_latency_ms": 151.47
   },
   "delta": {
-    "top1_pct": -20.35,
-    "top5_pct": -29.38,
-    "failure_rate_pct": 20.35,
+    "top1_pct": -19.85,
+    "top5_pct": -29.19,
+    "failure_rate_pct": 20.82,
     "defeated_higher": true
   },
-  "summary": "Automated stumper DEFEATED the matcher at a higher rate. Failure Rate: Automated 47.8% vs Hand-Shot 27.4% (+20.35% difference). Top-1 Accuracy: Automated 52.2% vs Hand-Shot 72.6%."
+  "summary": "Automated stumper DEFEATED the matcher at a higher rate. Failure Rate: Automated 47.8% vs Hand-Shot 27.0% (+20.82% difference). Top-1 Accuracy: Automated 52.2% vs Hand-Shot 72.1%."
 }
