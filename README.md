@@ -9,11 +9,13 @@
 
 Modern visual search engines perform well on standard consumer goods (apparel, shoes, electronics), but frequently fail when applied to **fine jewellery**.
 
-Jewellery presents unique visual and physical challenges:
+The core real-world challenge is simple: **someone photographs an object in the wild and wants to know exactly which catalogue item it is.** 
+
+Driven by curiosity to explore fine jewellery retrieval, this project tackles why standard computer vision struggles with this domain:
 1. **Fine-grained geometry:** A 4-prong vs. 6-prong diamond ring or subtle filigree metalwork share identical macro silhouettes, but represent completely different products.
-2. **Harsh real-world conditions:** Customer photos taken on smartphones suffer from harsh specular reflections, motion blur, hand occlusions, and varied skin tones that dominate the image frame.
-3. **Multi-item scenes:** Shoppers often take photos of jewellery sets (e.g. matching earrings, necklace, and a ring) together on a tray.
-4. **The cost of false matches:** Forcing a match on an out-of-catalogue item or recommending the wrong piece erodes user trust.
+2. **Harsh real-world conditions:** Customer photos taken on smartphones in the wild suffer from harsh specular reflections, motion blur, hand/wrist occlusions, and varied skin tones that dominate the image frame.
+3. **Multi-item scenes:** Shoppers often capture multiple jewellery pieces together on a tray or hand (e.g. matching earrings, necklace, and a ring).
+4. **The cost of false matches:** Forcing a confident match on an out-of-catalogue piece or recommending the wrong item erodes trust in luxury appraisal and commerce.
 
 The objective of this project is to build an end-to-end visual retrieval system that not only matches clean jewellery images against a catalogue of **6,157 items**, but is stress-tested against real-world handheld stumper photography, provides confidence gating (`MATCH` vs. `UNKNOWN`), separates multi-item scenes, and systematically diagnoses where and why the model fails.
 
