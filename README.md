@@ -74,11 +74,6 @@ Tested against real-world phone photography covering all 10 capture failure mode
 | **Metadata Resolution & Decision Gate** | 0.08 ms | 0.15 ms | In-memory CSV cache |
 | **End-to-End Query Total** | **70.60 ms** | **98.71 ms** | **Within 100 ms SLA** |
 
----ject structures rather than getting confused by background surfaces or skin tones.
-- **Exact Vector Search (`faiss.IndexFlatIP`):** For 6,157 items (12 MB RAM footprint), exact inner product search runs in **0.52 ms** on CPU with **100% recall**. We deliberately avoided approximate index methods (like HNSW or IVF) that add hyperparameter fragility and recall loss for imperceptible speed gains.
-- **Calibrated Rejection Gate ($\tau = 0.75$):** If the top candidate similarity is below `0.75`, the system returns `UNKNOWN`, reducing false positive acceptances on out-of-catalogue images by **62%**.
-- **Multi-Item Object Proposals (FastSAM):** Discrete piece proposals with an automatic **15% context safety margin** (preventing thin chains or delicate prongs from being cropped off) and non-maximum deduplication.
-
 ---
 
 ## 3. Quickstart & Setup
