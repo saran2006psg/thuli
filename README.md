@@ -7,7 +7,7 @@
 
 ## 1. Problem Statement
 
-Modern visual search engines perform well on standard consumer goods (apparel, shoes, electronics), but frequently fail when applied to **fine jewellery**.
+
 
 The core real-world challenge is simple: **someone photographs an object in the wild and wants to know exactly which catalogue item it is.** 
 
