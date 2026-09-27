@@ -1,21 +1,21 @@
 {
-  "run_at": "2026-09-26T18:41:43.051839+00:00",
-  "total_images": 113,
-  "valid_images": 113,
-  "top1_accuracy": 0.7257,
-  "top5_accuracy": 0.8938,
-  "top1_correct_count": 82,
-  "top5_correct_count": 101,
-  "match_count": 105,
+  "run_at": "2026-09-27T05:06:55.903708+00:00",
+  "total_images": 115,
+  "valid_images": 115,
+  "top1_accuracy": 0.7304,
+  "top5_accuracy": 0.8957,
+  "top1_correct_count": 84,
+  "top5_correct_count": 103,
+  "match_count": 107,
   "unknown_count": 8,
   "wrong_matches_count": 23,
-  "false_acceptance_rate": 0.2035,
-  "far_pct": 20.35,
-  "false_rejection_rate": 0.0708,
-  "frr_pct": 7.08,
-  "mean_latency_ms": 218.99,
-  "median_latency_ms": 207.95,
-  "p95_latency_ms": 341.39,
+  "false_acceptance_rate": 0.2,
+  "far_pct": 20.0,
+  "false_rejection_rate": 0.0696,
+  "frr_pct": 6.96,
+  "mean_latency_ms": 88.17,
+  "median_latency_ms": 85.75,
+  "p95_latency_ms": 103.73,
   "per_condition": {
     "clutter": {
       "total": 14,
@@ -38,7 +38,7 @@
       "top5_accuracy": 0.0
     },
     "bad_lighting": {
-      "total": 8,
+      "total": 9,
       "top1_accuracy": 1.0,
       "top5_accuracy": 1.0
     },
@@ -63,8 +63,8 @@
       "top5_accuracy": 1.0
     },
     "normal": {
-      "total": 14,
-      "top1_accuracy": 0.9286,
+      "total": 15,
+      "top1_accuracy": 0.9333,
       "top5_accuracy": 1.0
     },
     "occlusion": {
@@ -84,9 +84,9 @@
     }
   },
   "dataset_progress": {
-    "current": 113,
+    "current": 115,
     "target": 100,
-    "pct": 113.0
+    "pct": 115.0
   },
   "worst_failures": [
     {
@@ -99,7 +99,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 155.57
+      "latency_ms": 91.67
     },
     {
       "image_id": "id04",
@@ -111,7 +111,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 161.81
+      "latency_ms": 109.22
     },
     {
       "image_id": "id18",
@@ -123,7 +123,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 151.01
+      "latency_ms": 83.65
     },
     {
       "image_id": "id05",
@@ -135,7 +135,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 195.46
+      "latency_ms": 121.19
     },
     {
       "image_id": "id14",
@@ -147,7 +147,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 136.55
+      "latency_ms": 77.15
     },
     {
       "image_id": "id58",
@@ -159,7 +159,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 154.7
+      "latency_ms": 93.93
     },
     {
       "image_id": "id113",
@@ -171,7 +171,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 217.1
+      "latency_ms": 86.87
     },
     {
       "image_id": "id76",
@@ -183,7 +183,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 242.78
+      "latency_ms": 84.8
     },
     {
       "image_id": "id08",
@@ -195,7 +195,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 154.51
+      "latency_ms": 100.03
     },
     {
       "image_id": "id03",
@@ -207,7 +207,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 139.19
+      "latency_ms": 104.94
     }
   ],
   "all_results": [
@@ -221,7 +221,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 310.81
+      "latency_ms": 166.46
     },
     {
       "image_id": "id02",
@@ -229,11 +229,11 @@
       "failure_condition": "hand",
       "decision": "MATCH",
       "top1_category": "bracelet",
-      "top1_similarity": 0.7759,
+      "top1_similarity": 0.7999,
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 186.4
+      "latency_ms": 106.85
     },
     {
       "image_id": "id03",
@@ -245,7 +245,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 139.19
+      "latency_ms": 104.94
     },
     {
       "image_id": "id04",
@@ -257,7 +257,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 161.81
+      "latency_ms": 109.22
     },
     {
       "image_id": "id05",
@@ -269,7 +269,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 195.46
+      "latency_ms": 121.19
     },
     {
       "image_id": "id06",
@@ -281,7 +281,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 179.49
+      "latency_ms": 102.13
     },
     {
       "image_id": "id07",
@@ -293,7 +293,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 178.7
+      "latency_ms": 96.81
     },
     {
       "image_id": "id08",
@@ -305,7 +305,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 154.51
+      "latency_ms": 100.03
     },
     {
       "image_id": "id09",
@@ -317,7 +317,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 157.96
+      "latency_ms": 98.11
     },
     {
       "image_id": "id10",
@@ -329,7 +329,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 162.16
+      "latency_ms": 99.66
     },
     {
       "image_id": "id11",
@@ -341,7 +341,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 143.47
+      "latency_ms": 121.0
     },
     {
       "image_id": "id12",
@@ -353,7 +353,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 136.19
+      "latency_ms": 81.74
     },
     {
       "image_id": "id13",
@@ -365,7 +365,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 155.11
+      "latency_ms": 78.83
     },
     {
       "image_id": "id14",
@@ -377,7 +377,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 136.55
+      "latency_ms": 77.15
     },
     {
       "image_id": "id15",
@@ -389,7 +389,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 136.75
+      "latency_ms": 81.45
     },
     {
       "image_id": "id16",
@@ -401,7 +401,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 132.57
+      "latency_ms": 80.75
     },
     {
       "image_id": "id17",
@@ -413,7 +413,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 310.86
+      "latency_ms": 80.98
     },
     {
       "image_id": "id18",
@@ -425,7 +425,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 151.01
+      "latency_ms": 83.65
     },
     {
       "image_id": "id19",
@@ -437,7 +437,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 152.08
+      "latency_ms": 80.93
     },
     {
       "image_id": "id20",
@@ -449,7 +449,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 163.1
+      "latency_ms": 81.89
     },
     {
       "image_id": "id21",
@@ -461,7 +461,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 164.06
+      "latency_ms": 80.76
     },
     {
       "image_id": "id22",
@@ -473,7 +473,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 151.12
+      "latency_ms": 85.7
     },
     {
       "image_id": "id23",
@@ -485,7 +485,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 147.27
+      "latency_ms": 98.45
     },
     {
       "image_id": "id24",
@@ -497,7 +497,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 167.64
+      "latency_ms": 78.46
     },
     {
       "image_id": "id25",
@@ -509,7 +509,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 279.13
+      "latency_ms": 84.07
     },
     {
       "image_id": "id26",
@@ -521,7 +521,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 497.63
+      "latency_ms": 82.28
     },
     {
       "image_id": "id27",
@@ -533,7 +533,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 169.41
+      "latency_ms": 75.83
     },
     {
       "image_id": "id28",
@@ -545,7 +545,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 182.71
+      "latency_ms": 78.28
     },
     {
       "image_id": "id29",
@@ -557,7 +557,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 175.4
+      "latency_ms": 83.12
     },
     {
       "image_id": "id30",
@@ -569,7 +569,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 178.04
+      "latency_ms": 83.5
     },
     {
       "image_id": "id31",
@@ -581,7 +581,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 179.83
+      "latency_ms": 83.06
     },
     {
       "image_id": "id32",
@@ -593,7 +593,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 217.1
+      "latency_ms": 82.38
     },
     {
       "image_id": "id33",
@@ -605,7 +605,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 204.21
+      "latency_ms": 80.02
     },
     {
       "image_id": "id34",
@@ -617,7 +617,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 221.33
+      "latency_ms": 80.27
     },
     {
       "image_id": "id35",
@@ -629,7 +629,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 251.25
+      "latency_ms": 82.47
     },
     {
       "image_id": "id36",
@@ -641,7 +641,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 258.11
+      "latency_ms": 81.86
     },
     {
       "image_id": "id37",
@@ -653,7 +653,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 371.32
+      "latency_ms": 85.93
     },
     {
       "image_id": "id38",
@@ -665,7 +665,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 404.44
+      "latency_ms": 82.1
     },
     {
       "image_id": "id39",
@@ -677,7 +677,7 @@
       "gt_rank": 4,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 438.1
+      "latency_ms": 81.52
     },
     {
       "image_id": "id40",
@@ -689,7 +689,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 234.47
+      "latency_ms": 94.13
     },
     {
       "image_id": "id41",
@@ -701,7 +701,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 249.68
+      "latency_ms": 96.01
     },
     {
       "image_id": "id42",
@@ -713,7 +713,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 234.3
+      "latency_ms": 93.34
     },
     {
       "image_id": "id43",
@@ -725,7 +725,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 218.76
+      "latency_ms": 94.41
     },
     {
       "image_id": "id44",
@@ -737,7 +737,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 166.25
+      "latency_ms": 97.41
     },
     {
       "image_id": "id45",
@@ -749,7 +749,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 171.05
+      "latency_ms": 95.06
     },
     {
       "image_id": "id46",
@@ -761,7 +761,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 155.57
+      "latency_ms": 91.67
     },
     {
       "image_id": "id49",
@@ -773,7 +773,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 162.52
+      "latency_ms": 88.82
     },
     {
       "image_id": "id50",
@@ -785,7 +785,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 155.56
+      "latency_ms": 91.37
     },
     {
       "image_id": "id51",
@@ -797,7 +797,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 167.99
+      "latency_ms": 89.23
     },
     {
       "image_id": "id52",
@@ -809,7 +809,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 172.66
+      "latency_ms": 88.74
     },
     {
       "image_id": "id53",
@@ -821,7 +821,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 165.38
+      "latency_ms": 91.62
     },
     {
       "image_id": "id54",
@@ -833,7 +833,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 332.71
+      "latency_ms": 93.8
     },
     {
       "image_id": "id55",
@@ -845,7 +845,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 179.06
+      "latency_ms": 90.36
     },
     {
       "image_id": "id56",
@@ -857,7 +857,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 161.88
+      "latency_ms": 92.83
     },
     {
       "image_id": "id57",
@@ -869,7 +869,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 179.1
+      "latency_ms": 89.14
     },
     {
       "image_id": "id58",
@@ -881,7 +881,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 154.7
+      "latency_ms": 93.93
     },
     {
       "image_id": "id59",
@@ -893,7 +893,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 173.44
+      "latency_ms": 94.05
     },
     {
       "image_id": "id60",
@@ -905,7 +905,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 157.72
+      "latency_ms": 92.42
     },
     {
       "image_id": "id61",
@@ -917,7 +917,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 163.07
+      "latency_ms": 82.96
     },
     {
       "image_id": "id62",
@@ -929,7 +929,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 153.46
+      "latency_ms": 81.65
     },
     {
       "image_id": "id63",
@@ -941,7 +941,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 354.42
+      "latency_ms": 83.15
     },
     {
       "image_id": "id64",
@@ -953,7 +953,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 176.19
+      "latency_ms": 81.28
     },
     {
       "image_id": "id65",
@@ -965,7 +965,7 @@
       "gt_rank": 5,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 171.89
+      "latency_ms": 83.83
     },
     {
       "image_id": "id66",
@@ -977,7 +977,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 171.73
+      "latency_ms": 81.02
     },
     {
       "image_id": "id67",
@@ -989,7 +989,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 172.29
+      "latency_ms": 86.64
     },
     {
       "image_id": "id68",
@@ -1001,7 +1001,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 161.33
+      "latency_ms": 88.21
     },
     {
       "image_id": "id69",
@@ -1013,7 +1013,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 170.78
+      "latency_ms": 89.44
     },
     {
       "image_id": "id70",
@@ -1025,7 +1025,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 230.26
+      "latency_ms": 89.45
     },
     {
       "image_id": "id71",
@@ -1037,7 +1037,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 227.7
+      "latency_ms": 85.36
     },
     {
       "image_id": "id72",
@@ -1049,7 +1049,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 237.32
+      "latency_ms": 87.75
     },
     {
       "image_id": "id73",
@@ -1061,7 +1061,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 306.91
+      "latency_ms": 83.86
     },
     {
       "image_id": "id74",
@@ -1073,7 +1073,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 293.87
+      "latency_ms": 82.21
     },
     {
       "image_id": "id75",
@@ -1085,7 +1085,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 259.93
+      "latency_ms": 83.33
     },
     {
       "image_id": "id76",
@@ -1097,7 +1097,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 242.78
+      "latency_ms": 84.8
     },
     {
       "image_id": "id77",
@@ -1109,7 +1109,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 270.74
+      "latency_ms": 85.72
     },
     {
       "image_id": "id78",
@@ -1121,7 +1121,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 262.76
+      "latency_ms": 88.51
     },
     {
       "image_id": "id79",
@@ -1133,7 +1133,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 260.61
+      "latency_ms": 86.85
     },
     {
       "image_id": "id80",
@@ -1145,7 +1145,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 289.16
+      "latency_ms": 87.74
     },
     {
       "image_id": "id81",
@@ -1157,7 +1157,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 286.62
+      "latency_ms": 87.77
     },
     {
       "image_id": "id82",
@@ -1169,7 +1169,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 301.83
+      "latency_ms": 85.65
     },
     {
       "image_id": "id83",
@@ -1181,7 +1181,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 270.4
+      "latency_ms": 86.39
     },
     {
       "image_id": "id84",
@@ -1193,7 +1193,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 227.23
+      "latency_ms": 84.89
     },
     {
       "image_id": "id85",
@@ -1205,7 +1205,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 220.27
+      "latency_ms": 85.12
     },
     {
       "image_id": "id86",
@@ -1217,7 +1217,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 226.63
+      "latency_ms": 83.79
     },
     {
       "image_id": "id87",
@@ -1229,7 +1229,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 232.9
+      "latency_ms": 82.73
     },
     {
       "image_id": "id88",
@@ -1241,7 +1241,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 233.39
+      "latency_ms": 84.43
     },
     {
       "image_id": "id89",
@@ -1253,7 +1253,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 281.98
+      "latency_ms": 84.46
     },
     {
       "image_id": "id90",
@@ -1265,7 +1265,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 207.95
+      "latency_ms": 83.93
     },
     {
       "image_id": "id91",
@@ -1277,7 +1277,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 208.86
+      "latency_ms": 81.84
     },
     {
       "image_id": "id92",
@@ -1289,7 +1289,7 @@
       "gt_rank": -1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 223.28
+      "latency_ms": 89.95
     },
     {
       "image_id": "id93",
@@ -1301,7 +1301,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 252.64
+      "latency_ms": 86.42
     },
     {
       "image_id": "id94",
@@ -1313,7 +1313,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 365.12
+      "latency_ms": 82.22
     },
     {
       "image_id": "id95",
@@ -1325,7 +1325,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 326.48
+      "latency_ms": 85.24
     },
     {
       "image_id": "id96",
@@ -1337,7 +1337,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 268.35
+      "latency_ms": 85.25
     },
     {
       "image_id": "id97",
@@ -1349,7 +1349,7 @@
       "gt_rank": 3,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 228.78
+      "latency_ms": 86.52
     },
     {
       "image_id": "id98",
@@ -1361,7 +1361,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 242.52
+      "latency_ms": 85.39
     },
     {
       "image_id": "id99",
@@ -1373,7 +1373,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 217.12
+      "latency_ms": 87.12
     },
     {
       "image_id": "id100",
@@ -1385,7 +1385,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 194.84
+      "latency_ms": 87.63
     },
     {
       "image_id": "id101",
@@ -1397,7 +1397,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 182.89
+      "latency_ms": 84.58
     },
     {
       "image_id": "id102",
@@ -1409,7 +1409,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 196.57
+      "latency_ms": 86.78
     },
     {
       "image_id": "id103",
@@ -1421,7 +1421,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 215.8
+      "latency_ms": 88.81
     },
     {
       "image_id": "id104",
@@ -1433,7 +1433,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 207.45
+      "latency_ms": 89.55
     },
     {
       "image_id": "id105",
@@ -1445,7 +1445,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 230.66
+      "latency_ms": 103.21
     },
     {
       "image_id": "id106",
@@ -1457,7 +1457,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 293.38
+      "latency_ms": 86.99
     },
     {
       "image_id": "id107",
@@ -1469,7 +1469,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 262.58
+      "latency_ms": 88.28
     },
     {
       "image_id": "id108",
@@ -1481,7 +1481,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 234.18
+      "latency_ms": 88.84
     },
     {
       "image_id": "id109",
@@ -1493,7 +1493,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 327.73
+      "latency_ms": 90.13
     },
     {
       "image_id": "id110",
@@ -1505,7 +1505,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 257.38
+      "latency_ms": 86.49
     },
     {
       "image_id": "id111",
@@ -1517,7 +1517,7 @@
       "gt_rank": 2,
       "top1_correct": 0,
       "top5_correct": 1,
-      "latency_ms": 264.12
+      "latency_ms": 85.75
     },
     {
       "image_id": "id112",
@@ -1529,7 +1529,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 229.03
+      "latency_ms": 85.69
     },
     {
       "image_id": "id113",
@@ -1541,7 +1541,7 @@
       "gt_rank": 1,
       "top1_correct": 0,
       "top5_correct": 0,
-      "latency_ms": 217.1
+      "latency_ms": 86.87
     },
     {
       "image_id": "id114",
@@ -1553,7 +1553,7 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 181.86
+      "latency_ms": 75.4
     },
     {
       "image_id": "id115",
@@ -1565,7 +1565,31 @@
       "gt_rank": 1,
       "top1_correct": 1,
       "top5_correct": 1,
-      "latency_ms": 155.8
+      "latency_ms": 74.07
+    },
+    {
+      "image_id": "id116",
+      "ground_truth": "ring",
+      "failure_condition": "normal",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9958,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 71.56
+    },
+    {
+      "image_id": "id117",
+      "ground_truth": "ring",
+      "failure_condition": "bad_lighting",
+      "decision": "MATCH",
+      "top1_category": "ring",
+      "top1_similarity": 0.9408,
+      "gt_rank": 1,
+      "top1_correct": 1,
+      "top5_correct": 1,
+      "latency_ms": 73.82
     }
   ]
 }

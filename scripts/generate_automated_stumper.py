@@ -40,169 +40,131 @@ MANIFEST_CSV = PROJECT_ROOT / "evaluation" / "automated_stumper.csv"
 RANDOM_SEED = 42
 
 
-# ── Realistic Transformation Functions ────────────────────────────────────────
+# ── Realistic Adversarial Transformation Functions ────────────────────────────
 
 def apply_bad_lighting(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate underexposed ambient indoor room lighting."""
-    factor = rng.uniform(0.38, 0.48)
+    """Simulate severe underexposure in dim indoor lighting with heavy shadow clipping."""
+    factor = rng.uniform(0.18, 0.28)
     enhancer = ImageEnhance.Brightness(pil_img)
     dimmed = enhancer.enhance(factor)
     
-    # Slight contrast adjustment
-    contrast_enhancer = ImageEnhance.Contrast(dimmed)
-    result = contrast_enhancer.enhance(0.90)
+    # Non-linear gamma compression (crushing midtones and shadows)
+    arr = np.array(dimmed, dtype=np.float32) / 255.0
+    gamma = rng.uniform(1.8, 2.3)
+    arr = np.power(arr, gamma) * 255.0
     
-    # Convert to numpy to apply a soft subtle vignette gradient
-    arr = np.array(result, dtype=np.float32)
-    h, w = arr.shape[:2]
-    Y, X = np.ogrid[:h, :w]
-    center_y, center_x = h / 2.0, w / 2.0
-    dist_from_center = np.sqrt((X - center_x) ** 2 + (Y - center_y) ** 2)
-    max_dist = np.sqrt(center_x ** 2 + center_y ** 2)
-    vignette = 1.0 - 0.25 * (dist_from_center / max_dist)
-    vignette = np.clip(vignette, 0.65, 1.0)
+    # Sensor noise & yellow/tungsten color cast
+    arr[:, :, 0] *= rng.uniform(1.05, 1.15)  # Red boost
+    arr[:, :, 2] *= rng.uniform(0.70, 0.85)  # Blue drop
     
-    for c in range(arr.shape[2] if arr.ndim == 3 else 1):
-        if arr.ndim == 3:
-            arr[:, :, c] *= vignette
-        else:
-            arr *= vignette
-            
+    # Shadow clipping: dark pixels drop to black
+    arr[arr < 35] = 0
     return Image.fromarray(np.uint8(np.clip(arr, 0, 255)))
 
 
 def apply_bright_lighting(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate harsh directional jewellery showcase lighting or flash blowout."""
-    factor = rng.uniform(1.45, 1.65)
-    enhancer = ImageEnhance.Brightness(pil_img)
-    bright = enhancer.enhance(factor)
+    """Simulate intense smartphone flash blowout and specular flare across jewellery facets."""
+    arr = np.array(pil_img, dtype=np.float32)
+    h, w = arr.shape[:2]
     
-    # Slight highlight wash
-    arr = np.array(bright, dtype=np.float32)
-    # Clip near pure white highlights to simulate sensor saturation
-    mask = arr > 220
-    arr[mask] = np.minimum(255, arr[mask] * 1.08)
+    # Global brightness boost
+    arr = arr * rng.uniform(1.5, 1.8)
+    
+    # Intense localized specular flash blowout hotspot centered on the jewellery
+    cx = int(w * rng.uniform(0.42, 0.58))
+    cy = int(h * rng.uniform(0.42, 0.58))
+    flare_radius = rng.uniform(w * 0.25, w * 0.40)
+    
+    Y, X = np.ogrid[:h, :w]
+    dist_sq = (X - cx) ** 2 + (Y - cy) ** 2
+    flare = np.exp(-dist_sq / (2 * (flare_radius ** 2)))
+    flare = flare[:, :, np.newaxis] * rng.uniform(220.0, 320.0)
+    arr = arr + flare
+    
     return Image.fromarray(np.uint8(np.clip(arr, 0, 255)))
 
 
 def apply_odd_angle(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate casual photo taken from an oblique, odd viewing angle."""
-    img_np = np.array(pil_img)
-    h, w = img_np.shape[:2]
+    """Simulate steep oblique perspective tilt (45-75 degrees) with rotation and foreshortening."""
+    # Rotate first by an unusual angle (e.g. 50-75 degrees)
+    rot_angle = rng.choice([-1, 1]) * rng.uniform(45, 75)
+    rotated = pil_img.rotate(rot_angle, expand=False, fillcolor=(240, 238, 233))
     
-    # Source corners
+    img_np = np.array(rotated)
+    h, w = img_np.shape[:2]
     src_pts = np.float32([[0, 0], [w, 0], [w, h], [0, h]])
     
-    # Slight perspective perturbation (10-18% delta on corners)
-    dx1 = rng.uniform(0.08, 0.16) * w
-    dy1 = rng.uniform(0.06, 0.14) * h
-    dx2 = rng.uniform(0.08, 0.16) * w
-    dy2 = rng.uniform(0.06, 0.14) * h
-    
-    dst_pts = np.float32([
-        [dx1, dy1],
-        [w - dx2, dy2 * 0.5],
-        [w - dx1 * 0.5, h - dy1],
-        [dx2 * 0.5, h - dy2]
-    ])
-    
+    # Steep perspective compression
+    inset_top = rng.uniform(0.32, 0.42) * w
+    drop_top = rng.uniform(0.28, 0.40) * h
+    dst_pts = np.float32([[inset_top, drop_top], [w - inset_top, drop_top], [w, h], [0, h]])
     matrix = cv2.getPerspectiveTransform(src_pts, dst_pts)
-    warped = cv2.warpPerspective(
-        img_np,
-        matrix,
-        (w, h),
-        flags=cv2.INTER_LINEAR,
-        borderMode=cv2.BORDER_REFLECT_101
-    )
+    warped = cv2.warpPerspective(img_np, matrix, (w, h), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=(240, 238, 233))
     return Image.fromarray(warped)
 
 
 def apply_occlusion(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate realistic partial occlusion (e.g. thumb/finger edge, display tag, box corner)."""
+    """Simulate realistic heavy occlusion (finger, velvet clamp, price tag) directly covering 35-50% of the central jewellery."""
     img_np = np.array(pil_img).copy()
     h, w = img_np.shape[:2]
     
-    # Finger/card-like patch on one of the edges/corners covering ~15-25%
-    corner = rng.choice(["bottom_right", "bottom_left", "top_right", "center_edge"])
+    center_x = int(w * rng.uniform(0.45, 0.55))
+    center_y = int(h * rng.uniform(0.45, 0.55))
+    occlusion_style = rng.choice(["finger", "price_tag", "clamp_bar"])
     
-    # Realistic skin/cloth tone for finger/fabric (e.g. soft warm tan or velvet)
-    color = (
-        rng.randint(185, 215),  # R
-        rng.randint(145, 175),  # G
-        rng.randint(125, 155),  # B
-    )
-    
-    overlay = img_np.copy()
-    if corner == "bottom_right":
-        center = (int(w * 0.85), int(h * 0.85))
-        axes = (int(w * 0.35), int(h * 0.28))
-        angle = rng.randint(-30, 30)
-        cv2.ellipse(overlay, center, axes, angle, 0, 360, color, -1)
-    elif corner == "bottom_left":
-        center = (int(w * 0.15), int(h * 0.85))
-        axes = (int(w * 0.35), int(h * 0.28))
-        angle = rng.randint(-30, 30)
-        cv2.ellipse(overlay, center, axes, angle, 0, 360, color, -1)
-    elif corner == "top_right":
-        center = (int(w * 0.82), int(h * 0.20))
-        axes = (int(w * 0.30), int(h * 0.25))
-        angle = rng.randint(-45, 45)
-        cv2.ellipse(overlay, center, axes, angle, 0, 360, color, -1)
+    if occlusion_style == "finger":
+        skin_color = (rng.randint(180, 215), rng.randint(130, 165), rng.randint(110, 140))
+        angle = rng.randint(20, 70)
+        axes = (int(w * rng.uniform(0.42, 0.55)), int(h * rng.uniform(0.22, 0.32)))
+        cv2.ellipse(img_np, (center_x, center_y), axes, angle, 0, 360, skin_color, -1)
+    elif occlusion_style == "price_tag":
+        tag_w = int(w * rng.uniform(0.45, 0.60))
+        tag_h = int(h * rng.uniform(0.32, 0.45))
+        x1 = max(0, center_x - tag_w // 2)
+        y1 = max(0, center_y - tag_h // 2)
+        cv2.rectangle(img_np, (x1, y1), (x1 + tag_w, y1 + tag_h), (235, 230, 220), -1)
+        cv2.rectangle(img_np, (x1, y1), (x1 + tag_w, y1 + tag_h), (120, 110, 100), 2)
+        for bx in range(x1 + 10, x1 + tag_w - 10, 6):
+            cv2.line(img_np, (bx, y1 + 10), (bx, y1 + tag_h - 10), (50, 45, 40), 2)
     else:
-        # Side thumb hold
-        center = (int(w * 0.05), int(h * 0.50))
-        axes = (int(w * 0.28), int(h * 0.32))
-        cv2.ellipse(overlay, center, axes, 0, 0, 360, color, -1)
+        clamp_color = (rng.randint(25, 45), rng.randint(20, 35), rng.randint(40, 65))
+        axes = (int(w * 0.60), int(h * rng.uniform(0.25, 0.35)))
+        cv2.ellipse(img_np, (center_x, center_y), axes, rng.randint(-30, 30), 0, 360, clamp_color, -1)
         
-    # Soft alpha blend for organic edge
-    alpha = 0.92
-    cv2.addWeighted(overlay, alpha, img_np, 1 - alpha, 0, img_np)
-    
     return Image.fromarray(img_np)
 
 
 def apply_clutter(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate jewellery resting on a textured or patterned surface with minor distractors."""
+    """Simulate high-entropy textured environment (wood desk grain, fabric, metallic distractors) intersecting the jewellery."""
     img_np = np.array(pil_img).copy()
     h, w = img_np.shape[:2]
     
-    # Generate subtle background texture (linen / velvet grain lines)
-    texture = np.zeros((h, w, 3), dtype=np.uint8)
-    base_col = (rng.randint(210, 235), rng.randint(200, 225), rng.randint(190, 215))
-    texture[:] = base_col
+    clutter_bg = np.zeros((h, w, 3), dtype=np.uint8)
+    wood_base = (rng.randint(110, 140), rng.randint(80, 105), rng.randint(55, 75))
+    clutter_bg[:] = wood_base
     
-    # Add random fabric line noise
-    for _ in range(15):
-        pt1 = (rng.randint(0, w), rng.randint(0, h))
-        pt2 = (rng.randint(0, w), rng.randint(0, h))
-        line_col = (rng.randint(160, 190), rng.randint(150, 180), rng.randint(140, 170))
-        cv2.line(texture, pt1, pt2, line_col, thickness=rng.randint(1, 2))
+    for y in range(0, h, rng.randint(4, 8)):
+        stripe_color = (int(wood_base[0] + rng.randint(-25, 25)), int(wood_base[1] + rng.randint(-20, 20)), int(wood_base[2] + rng.randint(-15, 15)))
+        cv2.line(clutter_bg, (0, y), (w, y), stripe_color, thickness=rng.randint(2, 4))
         
-    # Minor peripheral distractor object (e.g. key, coin, or fabric rim in a corner)
-    distractor_pos = (rng.randint(int(w * 0.05), int(w * 0.25)), rng.randint(int(h * 0.05), int(h * 0.25)))
-    distractor_rad = rng.randint(int(w * 0.08), int(w * 0.15))
-    cv2.circle(img_np, distractor_pos, distractor_rad, (120, 110, 95), -1)
-    cv2.circle(img_np, distractor_pos, distractor_rad, (180, 170, 150), 2)
+    coin_pos = (int(w * rng.uniform(0.30, 0.70)), int(h * rng.uniform(0.25, 0.40)))
+    cv2.circle(clutter_bg, coin_pos, int(w * 0.16), (180, 150, 80), -1)
     
-    # Blend subtle grain into the background areas
     gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
-    is_bg = (gray > 230) | (gray < 25)
-    img_np[is_bg] = cv2.addWeighted(img_np[is_bg], 0.70, texture[is_bg], 0.30, 0)
-    
+    is_bg = (gray > 220) | (gray < 25)
+    img_np[is_bg] = clutter_bg[is_bg]
     return Image.fromarray(img_np)
 
 
 def apply_motion_blur(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate camera shake / hand tremor motion blur."""
+    """Simulate severe handheld camera shake motion blur (kernel 35-53px)."""
     img_np = np.array(pil_img)
-    kernel_size = rng.choice([11, 13, 15])
+    kernel_size = rng.choice([35, 41, 47, 53])
     angle = rng.uniform(0, 180)
     
-    # Create directional motion blur kernel
     kernel = np.zeros((kernel_size, kernel_size), dtype=np.float32)
     radian = math.radians(angle)
     cx, cy = kernel_size // 2, kernel_size // 2
-    
     for i in range(kernel_size):
         offset = i - cx
         x = int(round(cx + offset * math.cos(radian)))
@@ -210,81 +172,77 @@ def apply_motion_blur(pil_img: Image.Image, rng: random.Random) -> Image.Image:
         if 0 <= x < kernel_size and 0 <= y < kernel_size:
             kernel[y, x] = 1.0
             
-    kernel_sum = kernel.sum()
-    if kernel_sum > 0:
-        kernel /= kernel_sum
-    else:
-        kernel[cx, cy] = 1.0
-        
+    kernel /= max(kernel.sum(), 1.0)
     blurred = cv2.filter2D(img_np, -1, kernel)
     return Image.fromarray(blurred)
 
 
 def apply_reflection(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate glass showcase reflection or ambient window specular sheen."""
+    """Simulate display case glass reflection: mirrored double-ghosting plus specular streaks."""
     img_np = np.array(pil_img, dtype=np.float32)
     h, w = img_np.shape[:2]
     
-    # Diagonal light sheen band
-    sheen = np.zeros((h, w), dtype=np.float32)
-    angle = rng.uniform(30, 60)
-    radian = math.radians(angle)
+    # Mirrored ghost
+    flipped = cv2.flip(img_np, 1)
+    shift_matrix = np.float32([[1, 0, rng.randint(30, 60)], [0, 1, rng.randint(20, 50)]])
+    ghost = cv2.warpAffine(flipped, shift_matrix, (w, h), borderMode=cv2.BORDER_REFLECT)
+    img_np = cv2.addWeighted(img_np, 0.55, ghost, 0.45, 0)
     
-    # Create a diagonal band across the image
-    Y, X = np.ogrid[:h, :w]
-    proj = X * math.cos(radian) + Y * math.sin(radian)
-    mid_proj = (w * math.cos(radian) + h * math.sin(radian)) / 2.0
-    band_width = max(w, h) * 0.25
-    
-    sheen = np.exp(-((proj - mid_proj) ** 2) / (2 * (band_width ** 2)))
-    sheen = sheen * rng.uniform(70.0, 110.0)  # Sheen intensity
-    
-    for c in range(3):
-        img_np[:, :, c] += sheen
-        
+    # Bright specular reflections
+    for _ in range(2):
+        angle = rng.uniform(25, 45)
+        rad = math.radians(angle)
+        Y, X = np.ogrid[:h, :w]
+        proj = X * math.cos(rad) + Y * math.sin(rad)
+        band_center = (w * math.cos(rad) + h * math.sin(rad)) * rng.uniform(0.30, 0.70)
+        band = np.exp(-((proj - band_center) ** 2) / (2 * (15.0 ** 2))) * rng.uniform(160.0, 220.0)
+        for c in range(3):
+            img_np[:, :, c] += band
+            
     return Image.fromarray(np.uint8(np.clip(img_np, 0, 255)))
 
 
 def apply_distance(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate jewellery photographed from a distance (occupying only ~40-50% of the frame)."""
-    scale = rng.uniform(0.42, 0.52)
+    """Simulate severe distance capture: jewellery occupies only 18-28% of the frame."""
+    scale = rng.uniform(0.18, 0.28)
     orig_w, orig_h = pil_img.size
     new_w = max(1, int(orig_w * scale))
     new_h = max(1, int(orig_h * scale))
-    
     downscaled = pil_img.resize((new_w, new_h), Image.Resampling.LANCZOS)
     
-    # Place onto a neutral retail display background canvas (e.g. linen / off-white counter)
-    canvas = Image.new("RGB", (orig_w, orig_h), color=(240, 238, 233))
-    
-    # Random slight offset from exact center
+    canvas = np.zeros((orig_h, orig_w, 3), dtype=np.uint8)
+    canvas[:] = (160, 150, 140)
     max_ox = orig_w - new_w
     max_oy = orig_h - new_h
-    offset_x = rng.randint(int(max_ox * 0.3), int(max_ox * 0.7))
-    offset_y = rng.randint(int(max_oy * 0.3), int(max_oy * 0.7))
+    offset_x = rng.randint(int(max_ox * 0.2), int(max_ox * 0.8))
+    offset_y = rng.randint(int(max_oy * 0.2), int(max_oy * 0.8))
     
-    canvas.paste(downscaled, (offset_x, offset_y))
-    return canvas
+    canvas_pil = Image.fromarray(canvas)
+    canvas_pil.paste(downscaled, (offset_x, offset_y))
+    return canvas_pil
 
 
 def apply_noise(pil_img: Image.Image, rng: random.Random) -> Image.Image:
-    """Simulate high-ISO smartphone sensor grain and low-bandwidth JPEG compression."""
+    """Simulate severe high-ISO sensor grain, dead pixels, and blocky low-bitrate JPEG artifacts."""
     img_np = np.array(pil_img, dtype=np.float32)
-    
-    # Add Gaussian sensor noise
-    sigma = rng.uniform(16.0, 24.0)
+    sigma = rng.uniform(38.0, 55.0)
     noise = np.random.normal(0, sigma, img_np.shape)
     noisy_img = np.clip(img_np + noise, 0, 255).astype(np.uint8)
     
-    # Re-encode with realistic low JPEG quality (compression artifacts)
-    quality = rng.randint(24, 34)
+    sp_mask = np.random.rand(*noisy_img.shape[:2])
+    noisy_img[sp_mask < 0.02] = 255
+    noisy_img[sp_mask > 0.98] = 0
+    
+    h, w = noisy_img.shape[:2]
+    small = cv2.resize(noisy_img, (w // 3, h // 3), interpolation=cv2.INTER_LINEAR)
+    noisy_img = cv2.resize(small, (w, h), interpolation=cv2.INTER_NEAREST)
+    
+    quality = rng.randint(8, 15)
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
     bgr = cv2.cvtColor(noisy_img, cv2.COLOR_RGB2BGR)
     _, encimg = cv2.imencode(".jpg", bgr, encode_param)
     decimg = cv2.imdecode(encimg, cv2.IMREAD_COLOR)
-    rgb = cv2.cvtColor(decimg, cv2.COLOR_BGR2RGB)
-    
-    return Image.fromarray(rgb)
+    return Image.fromarray(cv2.cvtColor(decimg, cv2.COLOR_BGR2RGB))
 
 
 VARIATION_DISPATCH = {

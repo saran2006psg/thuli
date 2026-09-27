@@ -1,9 +1,38 @@
 # THULI — Jewellery Retrieval & Vision Matching Engine
+
 # The Complete Technical Architecture, Implementation, and Experimental Dossier
+
+## Run Anywhere In A Few Minutes
+
+The repository contains the catalogue CSV and runtime metadata, but catalogue
+images and generated vector artifacts may be distributed separately because of
+their size. A fresh machine needs Python 3.10+ and internet access for the
+first model download.
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+python scripts/setup.py
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Open `http://localhost:8000`. The setup command downloads
+`openai/clip-vit-base-patch32` once into `.cache/` and reuses it on later runs.
+The prebuilt FAISS index and product ID mapping are used when present; setup
+reports exactly which artifacts are missing instead of failing mysteriously.
+
+For a checkout without prepared embeddings/indexes, place the catalogue images
+under `data/catalogue/` and run `python scripts/setup.py --rebuild`. This is an
+offline preparation step and can take several minutes; normal application
+startup only loads the model and index. To store downloads elsewhere, set
+`MODEL_CACHE_DIR`, `HF_HOME`, or `TORCH_HOME` in `.env`.
 
 ---
 
 # TABLE OF CONTENTS
+
 1. [Executive Summary & Problem Definition](#1-executive-summary--problem-definition)
    - 1.1 [Problem Context (PS2 — Stump the Model)](#11-problem-context-ps2--stump-the-model)
    - 1.2 [Core Quantitative Milestones Achieved](#12-core-quantitative-milestones-achieved)
@@ -38,7 +67,9 @@
 # 1. Executive Summary & Problem Definition
 
 ### 1.1 Problem Context (PS2 — Stump the Model)
+
 In luxury retail, e-commerce appraisal, and customer visual search, matching smartphone-captured jewellery photographs against a high-resolution, professionally photographed catalogue is exceptionally difficult. Unlike apparel or consumer electronics, fine jewellery items present unique optical and spatial challenges:
+
 - High specular reflectivity from polished precious metals (gold, platinum, silver).
 - Complex refractive faceting in gemstones and diamonds that changes appearance based on ambient lighting.
 - Thin, delicate spatial structures (chains, prongs, ring bands) easily obscured by background noise.
@@ -47,6 +78,7 @@ In luxury retail, e-commerce appraisal, and customer visual search, matching sma
 **Project Thuli** builds an end-to-end, sub-100ms visual search and retrieval system that reliably matches noisy real-world smartphone photos against an authoritative database of **6,165 luxury jewellery products** across four distinct categories: **Rings, Earrings, Necklaces, and Bracelets**.
 
 ### 1.2 Core Quantitative Milestones Achieved
+
 - **Catalogue Corpus**: 6,165 catalogue images embedded into a unified 512-dimensional vector space.
 - **Vector Search Latency**: **0.52 ms** median query latency across all 6,165 items via FAISS.
 - **End-to-End Latency**: **70.60 ms** (including network, decode, CLIP inference, vector retrieval, and metadata resolution).
@@ -57,16 +89,19 @@ In luxury retail, e-commerce appraisal, and customer visual search, matching sma
 - **Test Integrity**: **69 of 69 automated unit and integration tests passing** (`python -m pytest -q`).
 
 ### 1.3 The Evaluation Philosophy: Clean (95%) vs Hard Set (70%) Defended
-> *"The interesting part is the gap between the two halves. A matcher that scores well on clean images and collapses on your own hard set is an honest and useful result, provided you diagnose why. Define your own evaluation methodology and defend it. Tell us which failure conditions hurt most, what you tried in response, and what did not work. We would rather read a clear-eyed account of a system at seventy percent than a claim of ninety-five with no error analysis."*
+
+> _"The interesting part is the gap between the two halves. A matcher that scores well on clean images and collapses on your own hard set is an honest and useful result, provided you diagnose why. Define your own evaluation methodology and defend it. Tell us which failure conditions hurt most, what you tried in response, and what did not work. We would rather read a clear-eyed account of a system at seventy percent than a claim of ninety-five with no error analysis."_
 
 Project Thuli explicitly embraces and defends this principle:
+
 1. **The Gap Quantified**:
    - **Studio / Clean Holdout**: **95.83% Top-1** and **95.83% Top-5**.
-   - **Automated Synthetic Augmentations**: **94.67% Top-1** (revealing the limitation of purely synthetic tests).
-   - **Real-World Hand-Shot Stumpers (111 Images)**: **72.07% Top-1** and **89.19% Top-5**.
-   - **Hardest Stumper Benchmark (39 Images)**: **64.10% Top-1** and **76.92% Top-5**.
-2. **Defending Our Methodology**: We test with real smartphone camera captures featuring true non-Lambertian reflections, sensor noise, hand occlusions, and distant framing rather than synthetic approximations. Queries with similarity $< 0.75$ are strictly counted as misses (`UNKNOWN`) to ensure reliability.
-3. **Forensic Failure Diagnosis**: Distance (58.3% Top-1) and Clutter (64.3% Top-1) cause ViT patch token dilution (target object occupies only 2-4 out of 49 tokens). Motion blur (33.3% Top-1) and occlusion (58.3% Top-1) break continuous-loop geometry.
+   - **Real-World Hand-Shot Stumpers (113 Images)**: **72.57% Top-1** and **89.38% Top-5** (Failure Rate: 27.43%).
+   - **Hardest Stumper Benchmark (39 Images)**: **64.10% Top-1** and **76.92% Top-5** (Failure Rate: 35.90%).
+   - **Automated Adversarial Stumper (900 Generated Images)**: **52.22% Top-1** and **60.00% Top-5** (**Failure Rate: 47.78%**).
+   - **Key Finding**: Programmatic adversarial generation **successfully defeats the matcher at a higher rate** (+20.35% higher failure rate than the hand-shot set)!
+2. **Defending Our Methodology**: We test with real smartphone camera captures featuring true non-Lambertian reflections, sensor noise, hand occlusions, and distant framing, plus automated programmatic generation that exposes architectural edge cases. Queries with similarity $< 0.75$ are strictly counted as misses (`UNKNOWN`) to ensure reliability.
+3. **Forensic Failure Diagnosis**: Distance (35.0% Top-1) and Bad Lighting (5.0% Top-1) cause ViT patch token dilution and dynamic range collapse. Motion blur (59.0% Top-1) and occlusion (56.0% Top-1) break continuous-loop geometry.
 4. **What We Tried & Why It Failed**: Saliency-aware cropping (`cropper.py`) boosted compact rings (+6.4% on `id14`, +12.9% on `id04`), but catastrophically fragmented continuous loops (necklaces and bracelets), dropping Top-1 from 64.10% to 41.03%. We empirically **REJECTED** the change to preserve system integrity.
 5. **The Complete Dossier**: For full mathematical derivations, per-condition tables, token mechanics, and error trajectories, see [EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md](file:///d:/PL/thuli/EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md).
 
@@ -148,6 +183,7 @@ graph TB
 ---
 
 ### 3.1 Core Architectural Philosophy
+
 The Matcher Subsystem is responsible for converting raw query photographs into high-dimensional geometric coordinates, querying the catalogue index, and returning ranked candidate items alongside a calibrated classification verdict.
 
 To prevent cold-start delays, memory leaks, and concurrent race conditions, the Matcher is structured as a **thread-safe singleton** accessed through `get_matcher()`:
@@ -167,9 +203,11 @@ flowchart LR
 ---
 
 ### 3.2 Image Preprocessing & Normalization Engine
-Raw consumer images can be corrupted, truncated, rotated, or provided in arbitrary color spaces (RGBA, CMYK, Grayscale, WebP). 
+
+Raw consumer images can be corrupted, truncated, rotated, or provided in arbitrary color spaces (RGBA, CMYK, Grayscale, WebP).
 
 The preprocessing module ([app/preprocessing/image.py](file:///d:/PL/thuli/app/preprocessing/image.py)) guarantees clean, consistent inputs:
+
 1. **Validation & Defensive Loading**: Checks file existence, loads underlying image buffers to detect truncated files, and raises descriptive exceptions.
 2. **Color Mode Standardization**: Converts any color space into standard 3-channel 8-bit RGB (`img.convert("RGB")`).
 3. **Dual Input Resolution**: Transparently accepts a string filepath, a `pathlib.Path` instance, or an existing in-memory `PIL.Image.Image`.
@@ -177,10 +215,11 @@ The preprocessing module ([app/preprocessing/image.py](file:///d:/PL/thuli/app/p
 ---
 
 ### 3.3 Vision Encoder Pipeline (CLIP ViT-B/32)
-* **Model**: OpenAI's `clip-vit-base-patch32` via Hugging Face Transformers.
-* **Architecture**: Vision Transformer (ViT) with $32 \times 32$ input patch sizes operating on $224 \times 224$ images.
-* **Feature Dimension**: $D = 512$.
-* **Mathematical Vector Normalization**:
+
+- **Model**: OpenAI's `clip-vit-base-patch32` via Hugging Face Transformers.
+- **Architecture**: Vision Transformer (ViT) with $32 \times 32$ input patch sizes operating on $224 \times 224$ images.
+- **Feature Dimension**: $D = 512$.
+- **Mathematical Vector Normalization**:
   To guarantee that vector inner product computation is identical to Cosine Similarity, every extracted feature vector is explicitly normalized using Euclidean L2-norm:
 
 $$\mathbf{v}_{\text{raw}} = f_{\text{CLIP}}(\mathbf{I}) \in \mathbb{R}^{512}$$
@@ -196,21 +235,23 @@ This eliminates the need for expensive trigonometric or square-root operations d
 ---
 
 ### 3.4 Vector Indexing & Retrieval Engine (FAISS IndexFlatIP)
-* **Index Mechanism**: Facebook AI Similarity Search (**FAISS**) `IndexFlatIP`.
-* **Rationale for IndexFlatIP over IVF/HNSW**:
+
+- **Index Mechanism**: Facebook AI Similarity Search (**FAISS**) `IndexFlatIP`.
+- **Rationale for IndexFlatIP over IVF/HNSW**:
   - Catalogue size $N = 6,165$ is within the regime where exhaustive search takes less than $1\text{ ms}$.
   - Approximate Nearest Neighbor (ANN) structures like `IndexIVFFlat` or `IndexHNSW` introduce recall loss (typically $2\%\text{--}8\%$).
   - `IndexFlatIP` delivers **100.0% exact recall** with zero approximation error.
-* **Memory & Storage Metrics**:
+- **Memory & Storage Metrics**:
   - 6,165 vectors $\times$ 512 dimensions $\times$ 4 bytes (`float32`) $\approx 12.63\text{ MB}$.
   - Index load time from disk: $\sim 14\text{ ms}$.
   - Search latency: **0.52 ms** median on standard CPU.
-* **Sequential Identity Mapping**:
+- **Sequential Identity Mapping**:
   FAISS internally addresses vectors by contiguous integer indices ($0, 1, 2, \dots, N-1$). We serialize an aligned array `data/product_ids.npy` so that FAISS index $i$ maps directly to `product_ids[i]`, which in turn indexes into `catalogue.csv`.
 
 ---
 
 ### 3.5 Decision Boundary & Threshold Calibration
+
 A critical requirement of retail retrieval is avoiding hallucinated false positives. If a customer photographs an unknown item or a product not in the catalogue, the system must reject the candidate.
 
 ```mermaid
@@ -237,6 +278,7 @@ stateDiagram-v2
 ---
 
 ### 3.6 Dynamic Ingestion & Live Index Mutation
+
 The system supports live catalogue expansion without restarting the server or re-indexing the existing database:
 
 ```mermaid
@@ -263,6 +305,7 @@ sequenceDiagram
 ---
 
 ### 3.7 Production JewelleryMatcher Implementation Code
+
 The complete, authoritative implementation of the matching engine ([app/retrieval/matcher.py](file:///d:/PL/thuli/app/retrieval/matcher.py)):
 
 ```python
@@ -427,6 +470,7 @@ class JewelleryMatcher:
 ---
 
 ### 3.8 FastAPI Backend Service & Thread-Safe Lifespan
+
 The API service ([app/main.py](file:///d:/PL/thuli/app/main.py) and [app/api/routes.py](file:///d:/PL/thuli/app/api/routes.py)) implements model pre-warming and thread-safe instance caching:
 
 ```python
@@ -463,7 +507,9 @@ async def lifespan(app: FastAPI):
 ---
 
 ### 3.9 React 19 + Vite Luxury Web Application
+
 The user interface in `frontend/` provides:
+
 - **Visual Search Workspace**: Dual-column layout with file dropzone, live image previews, Top-K/threshold sliders, catalogue sample chips, and candidate cards with animated similarity bars.
 - **Evaluation Arena Dashboard**: 6-card KPI scoreboard, per-condition accuracy distribution, milestone progress gauge, and failure diagnosis table.
 - **Dynamic Ingestion Tab**: Single-click catalogue photo upload, category selector, live embedding generation, and "Test in Search" shortcut.
@@ -476,6 +522,7 @@ The user interface in `frontend/` provides:
 ---
 
 ### 4.1 The Real-World Stumper Challenge & 10-Condition Taxonomy
+
 To stress-test the model against realistic consumer photography, we defined an empirical evaluation taxonomy covering **10 canonical real-world failure conditions**:
 
 ```mermaid
@@ -511,6 +558,7 @@ mindmap
 ---
 
 ### 4.2 Dataset Construction & Validation Harness
+
 - **Primary Stumper Dataset**: 39 phone-captured photos stored in `evaluation/images/` with metadata in `evaluation/stumper.csv`.
 - **Unseen Holdout Dataset**: 24 holdout images in `evaluation/unseen_images/` with metadata in `evaluation/unseen_stumper.csv`.
 - **Validation Script (`scripts/validate_stumper_dataset.py`)**: Checks for file existence, image readability via PIL, product ID validity against the catalogue, and taxonomy compliance.
@@ -518,6 +566,7 @@ mindmap
 ---
 
 ### 4.3 Phase 7: Baseline Stumper Evaluation Benchmarks
+
 Benchmarking the production `JewelleryMatcher` against the 39 primary stumper images established our official baseline:
 
 ```
@@ -538,25 +587,28 @@ P95 Query Latency:           98.71 ms
 ---
 
 ### 4.4 Phase 8: Forensic Error Analysis & Root Cause Diagnosis
+
 We analyzed the **14 baseline failures** from `evaluation/results.csv`:
 
-| Condition | Failure Count | Error Rate | Failed Cases | Root Cause Observed |
-|---|---|---|---|---|
-| **Clutter** | 3 / 6 | 50.0% | `id01`, `id04`, `id23` | Tabletop artifacts compete with jewellery tokens in ViT pooling |
-| **Bad Lighting** | 3 / 5 | 60.0% | `id09`, `id10`, `id11` | Compressed dynamic range depresses similarity |
-| **Motion Blur** | 3 / 6 | 50.0% | `id03`, `id08`, `id36` | Blurred loops make bracelets look like necklaces |
-| **Distance** | 2 / 3 | 66.7% | `id14`, `id34` | Small object scale; background pixels dominate 224x224 input |
-| **Occlusion** | 2 / 3 | 66.7% | `id18`, `id38` | Missing contours drop similarity below 0.75 threshold |
-| **Noise** | 1 / 1 | 100.0% | `id05` | Sensor noise depresses similarity ($0.7165 < 0.75 \rightarrow$ `UNKNOWN`) |
+| Condition        | Failure Count | Error Rate | Failed Cases           | Root Cause Observed                                                       |
+| ---------------- | ------------- | ---------- | ---------------------- | ------------------------------------------------------------------------- |
+| **Clutter**      | 3 / 6         | 50.0%      | `id01`, `id04`, `id23` | Tabletop artifacts compete with jewellery tokens in ViT pooling           |
+| **Bad Lighting** | 3 / 5         | 60.0%      | `id09`, `id10`, `id11` | Compressed dynamic range depresses similarity                             |
+| **Motion Blur**  | 3 / 6         | 50.0%      | `id03`, `id08`, `id36` | Blurred loops make bracelets look like necklaces                          |
+| **Distance**     | 2 / 3         | 66.7%      | `id14`, `id34`         | Small object scale; background pixels dominate 224x224 input              |
+| **Occlusion**    | 2 / 3         | 66.7%      | `id18`, `id38`         | Missing contours drop similarity below 0.75 threshold                     |
+| **Noise**        | 1 / 1         | 100.0%     | `id05`                 | Sensor noise depresses similarity ($0.7165 < 0.75 \rightarrow$ `UNKNOWN`) |
 
 #### The Dominant Failure Mode: Background Pixel Interference
+
 In 7 of 14 failures (`clutter`, `distance`, `occlusion`), the jewellery piece occupied a small fraction of the frame. Because CLIP standardizes input to $224 \times 224$ via whole-image resize, background tokens dilute the object's visual signal. In `id14` (distance ring), similarity was $0.7438$—just $0.0062$ below threshold!
 
 ---
 
 ### 4.5 Phase 8 Experiment 01: Saliency-Aware Jewellery Object Cropping
-* **Hypothesis**: Automatically detecting and tightly cropping the primary jewellery object prior to CLIP encoding will eliminate background noise, elevate cosine similarity, and convert sub-threshold rejections into confirmed matches.
-* **Architecture ([experiments/experiment_01/cropper.py](file:///d:/PL/thuli/experiments/experiment_01/cropper.py))**:
+
+- **Hypothesis**: Automatically detecting and tightly cropping the primary jewellery object prior to CLIP encoding will eliminate background noise, elevate cosine similarity, and convert sub-threshold rejections into confirmed matches.
+- **Architecture ([experiments/experiment_01/cropper.py](file:///d:/PL/thuli/experiments/experiment_01/cropper.py))**:
   1. Computes **Spectral Residual Saliency** via OpenCV (`cv2.saliency.StaticSaliencySpectralResidual_create()`).
   2. Binarizes the saliency map using Otsu adaptive thresholding.
   3. Applies morphological closing (`cv2.MORPH_CLOSE`) to merge fragmented contours.
@@ -579,6 +631,7 @@ flowchart TD
 ---
 
 ### 4.6 Phase 8 Results & Empirical Rejection Decision
+
 Running the 39 stumper images through `experiments/experiment_01/eval_experiment.py` revealed a major insight:
 
 ```
@@ -595,6 +648,7 @@ P95 Latency                      98.71 ms                  193.62 ms            
 ```
 
 #### The Forensic Diagnosis: Why Did Cropping Fail?
+
 1. **Success on Compact Rings (+4 cases)**:
    - `id14` (distance ring): Similarity jumped from **0.7438 to 0.8079** (+6.4%), flipping the verdict from `UNKNOWN` to `MATCH`.
    - `id04` (clutter ring): Similarity jumped from **0.6625 to 0.7912** (+12.9%), flipping `UNKNOWN` to `MATCH`.
@@ -607,7 +661,9 @@ P95 Latency                      98.71 ms                  193.62 ms            
 ---
 
 ### 4.7 Phase 9: Final Validation & Generalization Testing (Dual Dataset)
+
 To prove definitively whether the Phase 8 improvement generalizes or whether the baseline is superior, Phase 9 implemented a side-by-side automated harness (`scripts/run_final_validation.py`) evaluating both pipelines across **63 total test queries**:
+
 - **Dataset 1**: 39 Primary Stumper Images (known harsh conditions).
 - **Dataset 2**: 24 Unseen Holdout Images (unseen items under simulated capture perturbations).
 
@@ -617,59 +673,66 @@ To prove definitively whether the Phase 8 improvement generalizes or whether the
 
 #### Master Comparison Table
 
-| Evaluation Corpus | Metric | Baseline | Improved | Difference | Production Verdict |
-|---|---|---|---|---|---|
-| **Primary Stumpers (39 imgs)** | **Top-1 Accuracy** | **64.10%** (25/39) | **41.03%** (16/39) | **-23.07%** | Baseline Superior |
-| | **Top-5 Accuracy** | **76.92%** (30/39) | **69.23%** (27/39) | **-7.69%** | Baseline Superior |
-| | **MATCH Count** | **34** | 33 | -1 | Baseline Superior |
-| | **UNKNOWN Count** | **5** | 6 | +1 | Baseline Superior |
-| | **Median Latency** | **70.60 ms** | 72.31 ms | +1.71 ms | Baseline Faster |
-| | **P95 Latency** | **98.71 ms** | 99.57 ms | +0.86 ms | Baseline Faster |
-| **Unseen Holdout (24 imgs)** | **Top-1 Accuracy** | **95.83%** (23/24) | **75.00%** (18/24) | **-20.83%** | Baseline Superior |
-| | **Top-5 Accuracy** | **95.83%** (23/24) | **79.17%** (19/24) | **-16.66%** | Baseline Superior |
-| | **Median Latency** | **77.07 ms** | 69.70 ms | -7.37 ms | Comparable |
+| Evaluation Corpus              | Metric             | Baseline           | Improved           | Difference  | Production Verdict |
+| ------------------------------ | ------------------ | ------------------ | ------------------ | ----------- | ------------------ |
+| **Primary Stumpers (39 imgs)** | **Top-1 Accuracy** | **64.10%** (25/39) | **41.03%** (16/39) | **-23.07%** | Baseline Superior  |
+|                                | **Top-5 Accuracy** | **76.92%** (30/39) | **69.23%** (27/39) | **-7.69%**  | Baseline Superior  |
+|                                | **MATCH Count**    | **34**             | 33                 | -1          | Baseline Superior  |
+|                                | **UNKNOWN Count**  | **5**              | 6                  | +1          | Baseline Superior  |
+|                                | **Median Latency** | **70.60 ms**       | 72.31 ms           | +1.71 ms    | Baseline Faster    |
+|                                | **P95 Latency**    | **98.71 ms**       | 99.57 ms           | +0.86 ms    | Baseline Faster    |
+| **Unseen Holdout (24 imgs)**   | **Top-1 Accuracy** | **95.83%** (23/24) | **75.00%** (18/24) | **-20.83%** | Baseline Superior  |
+|                                | **Top-5 Accuracy** | **95.83%** (23/24) | **79.17%** (19/24) | **-16.66%** | Baseline Superior  |
+|                                | **Median Latency** | **77.07 ms**       | 69.70 ms           | -7.37 ms    | Comparable         |
 
 ---
 
 #### Complete 10-Condition Accuracy Breakdown (Primary 39 Stumpers)
 
-| Condition | Cases | Base Top-1 | Imp Top-1 | Base Top-5 | Imp Top-5 | Detailed Impact Analysis |
-|---|---|---|---|---|---|---|
-| **Normal** | 4 | **100.0%** | **100.0%** | **100.0%** | **100.0%** | Clean baseline maintained |
-| **Bad Lighting** | 5 | **40.0%** | **40.0%** | 60.0% | **80.0%** | +20% Top-5 gain; ring similarities elevated |
-| **Bright Lighting** | 3 | **100.0%** | **100.0%** | **100.0%** | **100.0%** | Resilient to overexposure |
-| **Odd Angle** | 3 | **100.0%** | 33.3% | **100.0%** | **100.0%** | -66.7% Top-1; oblique crops lost silhouette |
-| **Occlusion** | 3 | **33.3%** | 0.0% | **66.7%** | 33.3% | -33.3% Top-1; bounding box clipped boundaries |
-| **Clutter** | 6 | **50.0%** | 16.7% | 50.0% | **66.7%** | -33.3% Top-1; segmented background textures |
-| **Motion Blur** | 6 | **50.0%** | 33.3% | **83.3%** | 33.3% | -16.7% Top-1; smearing confused contour detector |
-| **Reflection** | 1 | **100.0%** | 0.0% | **100.0%** | 0.0% | -100.0% Top-1; mirror artifact bounded instead |
-| **Hand / Wrist** | 4 | **100.0%** | 50.0% | **100.0%** | **100.0%** | -50.0% Top-1; skin-tone boundary clipping |
-| **Distance** | 3 | **33.3%** | 33.3% | **66.7%** | **66.7%** | Neutral Top-1; `id14` gained $+6.4\%$ similarity |
+| Condition           | Cases | Base Top-1 | Imp Top-1  | Base Top-5 | Imp Top-5  | Detailed Impact Analysis                         |
+| ------------------- | ----- | ---------- | ---------- | ---------- | ---------- | ------------------------------------------------ |
+| **Normal**          | 4     | **100.0%** | **100.0%** | **100.0%** | **100.0%** | Clean baseline maintained                        |
+| **Bad Lighting**    | 5     | **40.0%**  | **40.0%**  | 60.0%      | **80.0%**  | +20% Top-5 gain; ring similarities elevated      |
+| **Bright Lighting** | 3     | **100.0%** | **100.0%** | **100.0%** | **100.0%** | Resilient to overexposure                        |
+| **Odd Angle**       | 3     | **100.0%** | 33.3%      | **100.0%** | **100.0%** | -66.7% Top-1; oblique crops lost silhouette      |
+| **Occlusion**       | 3     | **33.3%**  | 0.0%       | **66.7%**  | 33.3%      | -33.3% Top-1; bounding box clipped boundaries    |
+| **Clutter**         | 6     | **50.0%**  | 16.7%      | 50.0%      | **66.7%**  | -33.3% Top-1; segmented background textures      |
+| **Motion Blur**     | 6     | **50.0%**  | 33.3%      | **83.3%**  | 33.3%      | -16.7% Top-1; smearing confused contour detector |
+| **Reflection**      | 1     | **100.0%** | 0.0%       | **100.0%** | 0.0%       | -100.0% Top-1; mirror artifact bounded instead   |
+| **Hand / Wrist**    | 4     | **100.0%** | 50.0%      | **100.0%** | **100.0%** | -50.0% Top-1; skin-tone boundary clipping        |
+| **Distance**        | 3     | **33.3%**  | 33.3%      | **66.7%**  | **66.7%**  | Neutral Top-1; `id14` gained $+6.4\%$ similarity |
 
 ---
 
 ### 4.9 Core Evaluation Questions Answered
 
 #### 1. Did the improvement increase Top-1 accuracy?
+
 **No.** Top-1 accuracy degraded by **-23.07%** on the primary stumper set (41.03% vs 64.10%) and by **-20.83%** on the unseen holdout set (75.00% vs 95.83%).
 
 #### 2. Did it increase Top-5 accuracy?
+
 **No.** Top-5 accuracy degraded by **-7.69%** on the primary stumper set (69.23% vs 76.92%) and by **-16.66%** on the unseen holdout set (79.17% vs 95.83%).
 
 #### 3. Which failure conditions improved?
+
 - **Bad Lighting Top-5**: Increased from $60.0\%$ to $80.0\%$ (+20%).
 - **Isolated Rings**: Compact objects benefited from cropping—`id14` ($+6.4\%$ sim, converting `UNKNOWN` $\rightarrow$ `MATCH`), `id04` ($+12.9\%$), and `id09` ($+5.5\%$) improved significantly.
 
 #### 4. Which conditions became worse?
+
 - **Hand/Wrist** (-50%), **Odd Angle** (-66.7%), **Clutter** (-33.3%), **Motion Blur** (-16.7%), and **Occlusion** (-33.3%). Single-contour saliency severed open-loop chains (necklaces and bracelets), destroying essential geometric context.
 
 #### 5. Did latency increase?
+
 **Marginally**: Median latency on the 39 stumpers shifted from **70.60 ms to 72.31 ms** (+1.71 ms), remaining within the 100 ms SLA.
 
 #### 6. Did the improvement generalize to unseen images?
+
 **No.** On the 24 unseen holdout images, the baseline achieved **95.83% Top-1**, whereas the improved system achieved only **75.00%** (-20.83%).
 
 #### 7. Should we keep or reject the improvement?
+
 **REJECT.** The empirical evidence is decisive. The baseline `JewelleryMatcher` is superior in accuracy, stability, and generalizability.
 
 ---
@@ -688,6 +751,7 @@ python -m pytest -q
 ```
 
 ### Breakdown of the 69 Automated Unit Tests:
+
 - **`tests/test_api.py`** (8 tests):
   - Validates `GET /api/health`, `GET /api/stats`, `GET /api/samples`.
   - Tests image upload via multipart form-data (`POST /api/match`).
@@ -724,14 +788,17 @@ python -m pytest -q
 # 6. Operational Runbook & Deployment Guide
 
 ### 6.1 Starting the Production Backend Server
+
 ```powershell
 # Starts the FastAPI application on http://localhost:8000
 python -m uvicorn app.main:app --reload --port 8000
 ```
+
 - Access Visual Search & Evaluation Dashboard at: `http://localhost:8000/`
 - Access Interactive Swagger API Docs at: `http://localhost:8000/docs`
 
 ### 6.2 Running the React Frontend in Development Mode
+
 ```powershell
 cd frontend
 npm run dev
@@ -739,6 +806,7 @@ npm run dev
 ```
 
 ### 6.3 Compiling Production Frontend Assets
+
 ```powershell
 cd frontend
 npm run build
@@ -746,6 +814,7 @@ npm run build
 ```
 
 ### 6.4 Executing the Phase 9 Final Validation Benchmark
+
 ```powershell
 python -m scripts.run_final_validation
 # Runs 39 stumpers + 24 unseen queries; updates final_comparison.csv & final_metrics.json
@@ -755,29 +824,29 @@ python -m scripts.run_final_validation
 
 # 7. Comprehensive Repository File Manifest
 
-| Path | Primary Function |
-|---|---|
-| **`app/main.py`** | FastAPI entry point with async lifespan pre-warming, static asset mounts, and CORS configuration. |
-| **`app/config.py`** | Global project configuration, model names, thresholds, dimensions, and path constants. |
-| **`app/api/routes.py`** | REST endpoints (`/match`, `/catalogue/add`, `/health`, `/stats`, `/evaluation/*`) with thread-safe singleton lock. |
-| **`app/preprocessing/image.py`** | Robust image validation, defensive loading, and standard RGB normalization. |
-| **`app/retrieval/encoder.py`** | CLIP ViT-B/32 vision encoder producing 512-d L2-normalized embeddings. |
-| **`app/retrieval/index.py`** | FAISS `IndexFlatIP` wrapper managing vector indexing, search, and live mutation. |
-| **`app/retrieval/matcher.py`** | Core `JewelleryMatcher` retrieval engine, confidence decision boundaries, and candidate ranking. |
-| **`app/evaluation/runner.py`** | Automated evaluation runner against the stumper dataset; computes accuracy, percentiles, and reports. |
-| **`app/static/`** | Production-compiled static assets (HTML, bundled React JS, and CSS) served by FastAPI. |
-| **`data/catalogue.csv`** | Authoritative metadata table for 6,165 jewellery items. |
-| **`data/embeddings.npy`** | Serialized matrix of 6,165 512-d float32 embeddings. |
-| **`data/faiss_index.bin`** | Serialized binary FAISS IndexFlatIP index file. |
-| **`data/product_ids.npy`** | Sequential mapping of FAISS indices to product IDs. |
-| **`evaluation/stumper.csv`** | 39 primary real-world stumper test queries and ground-truth metadata. |
-| **`evaluation/unseen_stumper.csv`**| 24 holdout test queries for generalization testing. |
-| **`evaluation/final_comparison.csv`**| Per-query side-by-side benchmark comparison (Baseline vs Improved) across all 63 queries. |
-| **`evaluation/final_metrics.json`**| Final structured metrics JSON for Phase 9. |
-| **`evaluation/final_analysis.md`**| Definitive 7-question comparative evaluation report. |
-| **`experiments/experiment_01/`** | Isolated Phase 8 experimental sandbox containing cropper, evaluation runner, and metrics. |
-| **`frontend/src/App.jsx`** | Master React application supporting Visual Search, Evaluation Arena, and Catalogue Management. |
-| **`frontend/src/index.css`** | Custom design system with light and dark themes. |
-| **`scripts/run_final_validation.py`**| Production runner for Phase 9 final validation. |
-| **`tests/`** | 69 automated unit tests verifying API, matcher, embeddings, FAISS, catalogue, and evaluation logic. |
-| **`PROJECT_COMPLETE_REPORT.md`** | This document. |
+| Path                                  | Primary Function                                                                                                   |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **`app/main.py`**                     | FastAPI entry point with async lifespan pre-warming, static asset mounts, and CORS configuration.                  |
+| **`app/config.py`**                   | Global project configuration, model names, thresholds, dimensions, and path constants.                             |
+| **`app/api/routes.py`**               | REST endpoints (`/match`, `/catalogue/add`, `/health`, `/stats`, `/evaluation/*`) with thread-safe singleton lock. |
+| **`app/preprocessing/image.py`**      | Robust image validation, defensive loading, and standard RGB normalization.                                        |
+| **`app/retrieval/encoder.py`**        | CLIP ViT-B/32 vision encoder producing 512-d L2-normalized embeddings.                                             |
+| **`app/retrieval/index.py`**          | FAISS `IndexFlatIP` wrapper managing vector indexing, search, and live mutation.                                   |
+| **`app/retrieval/matcher.py`**        | Core `JewelleryMatcher` retrieval engine, confidence decision boundaries, and candidate ranking.                   |
+| **`app/evaluation/runner.py`**        | Automated evaluation runner against the stumper dataset; computes accuracy, percentiles, and reports.              |
+| **`app/static/`**                     | Production-compiled static assets (HTML, bundled React JS, and CSS) served by FastAPI.                             |
+| **`data/catalogue.csv`**              | Authoritative metadata table for 6,165 jewellery items.                                                            |
+| **`data/embeddings.npy`**             | Serialized matrix of 6,165 512-d float32 embeddings.                                                               |
+| **`data/faiss_index.bin`**            | Serialized binary FAISS IndexFlatIP index file.                                                                    |
+| **`data/product_ids.npy`**            | Sequential mapping of FAISS indices to product IDs.                                                                |
+| **`evaluation/stumper.csv`**          | 39 primary real-world stumper test queries and ground-truth metadata.                                              |
+| **`evaluation/unseen_stumper.csv`**   | 24 holdout test queries for generalization testing.                                                                |
+| **`evaluation/final_comparison.csv`** | Per-query side-by-side benchmark comparison (Baseline vs Improved) across all 63 queries.                          |
+| **`evaluation/final_metrics.json`**   | Final structured metrics JSON for Phase 9.                                                                         |
+| **`evaluation/final_analysis.md`**    | Definitive 7-question comparative evaluation report.                                                               |
+| **`experiments/experiment_01/`**      | Isolated Phase 8 experimental sandbox containing cropper, evaluation runner, and metrics.                          |
+| **`frontend/src/App.jsx`**            | Master React application supporting Visual Search, Evaluation Arena, and Catalogue Management.                     |
+| **`frontend/src/index.css`**          | Custom design system with light and dark themes.                                                                   |
+| **`scripts/run_final_validation.py`** | Production runner for Phase 9 final validation.                                                                    |
+| **`tests/`**                          | 69 automated unit tests verifying API, matcher, embeddings, FAISS, catalogue, and evaluation logic.                |
+| **`PROJECT_COMPLETE_REPORT.md`**      | This document.                                                                                                     |

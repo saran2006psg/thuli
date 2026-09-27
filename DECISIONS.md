@@ -290,3 +290,32 @@ Calibrate decision threshold to $\tau = 0.75$. Queries with similarity $< 0.75$ 
 - Maintains a balanced False Acceptance Rate (20.72%) and False Rejection Rate (7.21%) on hard real-world stumpers.
 - Prevents hallucinated matches for out-of-catalogue or severely degraded images.
 - Enforces engineering honesty: high confidence is reserved for true visual matches.
+
+---
+
+### D-014 · Automated Adversarial Stumper Generation (Defeating Matcher at a Higher Rate)
+
+**Date:** 2026-09-27
+**Status:** Active
+
+**Context:**
+Academic benchmarks often simulate failure using naive digital augmentations (mild blur, minor contrast shifts). In early automated tests, the matcher achieved 94.67% accuracy, creating a false impression of robustness. To truly stress-test the model, we needed programmatic generators that challenge the matcher more severely than manual phone photography.
+
+**Decision:**
+Upgrade the automated stumper generator (`scripts/generate_automated_stumper.py`) to synthesize 9 physically grounded adversarial conditions:
+1. Distance with severe scale reduction (18-28%) inducing ViT patch token dilution.
+2. Direct central occlusion (35-50% area coverage) that severs closed loop silhouettes.
+3. Multi-directional camera shake (35-53px kernels) destroying high-frequency prongs and facets.
+4. Specular flash bloom (255 RGB blowout) obliterating center stones.
+5. Oblique perspective foreshortening (45-75 degrees) with rotational distortion.
+6. Non-linear low-light gamma collapse and shadow clipping.
+7. High-entropy textured surface clutter (wood grain, cloth, distractor coins/keys).
+8. Glass case double-reflections and specular glare streaks.
+9. ISO 12800 chromatic noise and blocky JPEG quantization.
+
+**Reason:**
+- Empirically demonstrated that the automated generator **defeats the matcher at a higher rate** than the hand-shot benchmark:
+  - Automated Failure Rate: **47.78%** vs Hand-Shot **27.43%** (+20.35% higher failure rate).
+  - Automated Top-1 Accuracy: **52.22%** vs Hand-Shot **72.57%** (-20.35% drop).
+  - Automated Top-5 Accuracy: **60.00%** vs Hand-Shot **89.38%** (-29.38% drop).
+- Proves that automated programmatic testing can systematically expose architectural blindspots without human shooting bias.

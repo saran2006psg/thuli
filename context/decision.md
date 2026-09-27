@@ -275,20 +275,21 @@ We should go **Phase 1 → finish it → verify it → Phase 2 → finish it**, 
 > *"A matcher that scores well on clean images and collapses on your own hard set is an honest and useful result, provided you diagnose why. Define your own evaluation methodology and defend it. Tell us which failure conditions hurt most, what you tried in response, and what did not work. We would rather read a clear-eyed account of a system at seventy percent than a claim of ninety-five with no error analysis."*
  
 ### Summary of Findings:
-1. **The Gap**:
+1. **The Gap & Automated Adversarial Generation**:
    - Clean / Holdout: **95.83% Top-1**
-   - Automated synthetic transforms: **94.67% Top-1** (proves synthetic tests are too easy)
-   - Real Hand-Shot Stumper (111 images): **72.07% Top-1** (~70% system)
-   - Hardest Stumper benchmark (39 images): **64.10% Top-1**
+   - Real Hand-Shot Stumper (113 images): **72.57% Top-1** (Failure Rate: **27.43%**)
+   - Hardest Stumper benchmark (39 images): **64.10% Top-1** (Failure Rate: **35.90%**)
+   - **Automated Adversarial Stumper (900 tests)**: **52.22% Top-1** (Failure Rate: **47.78%**)
+   - **Verdict**: Automated stumper **DEFEATED the matcher at a higher rate** (+20.35% higher failure rate than hand-shot)!
 2. **Defending Our Methodology**:
    - Genuine phone photography capturing real optical flares, motion blur, and background textures.
    - 10-condition failure taxonomy.
    - Strict rejection threshold ($\tau = 0.75$): sub-threshold predictions strictly counted as misses (`UNKNOWN`) to prevent confident wrong matches in luxury jewellery visual search.
 3. **Worst Failure Modes**:
-   - Distance (58.3%) & Clutter (64.3%): ViT-B/32 patch token dilution (item occupies only 2-4 out of 49 tokens; background dominates self-attention).
-   - Motion blur (33.3% - 50%) & Occlusion (58.3%): Loss of closed-loop continuity causes bracelets to be misclassified as necklaces/rings.
+   - Distance (35.0%) & Bad Lighting (5.0%): ViT-B/32 patch token dilution and dynamic range collapse.
+   - Motion blur (59.0%) & Occlusion (56.0%): Loss of closed-loop continuity causes bracelets to be misclassified as necklaces/rings.
 4. **What Was Tried & What Failed**:
    - Experiment 01 (Saliency-Aware Cropping): Helped compact rings (+6.4% to +12.9%), but severed continuous loops on necklaces and bracelets, causing Top-1 to crash to 41.03%.
    - **Decision**: Strictly rejected. Production system maintains the uncropped baseline with verified error boundaries.
 5. **Full Reference**:
-   - See [EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md](file:///d:/PL/thuli/EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md) and [DECISIONS.md](file:///d:/PL/thuli/DECISIONS.md) (D-011 to D-013).
+   - See [EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md](file:///d:/PL/thuli/EVALUATION_METHODOLOGY_AND_GAP_ANALYSIS.md) and [DECISIONS.md](file:///d:/PL/thuli/DECISIONS.md) (D-011 to D-014).

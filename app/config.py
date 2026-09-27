@@ -18,19 +18,14 @@ os.environ["USE_TORCH"] = "1"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
-# Store models/cache on D: drive (where sufficient disk space exists)
-if "HF_HOME" in os.environ:
-    os.environ["HF_HOME"] = os.getenv("HF_HOME")
-else:
-    os.environ["HF_HOME"] = "D:/.cache/huggingface"
-
-if "TORCH_HOME" in os.environ:
-    os.environ["TORCH_HOME"] = os.getenv("TORCH_HOME")
-else:
-    os.environ["TORCH_HOME"] = "D:/.cache/torch"
-
 # -- Paths ---------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Keep downloads portable by default. Set HF_HOME/TORCH_HOME in .env when a
+# shared or larger cache location is preferred.
+MODEL_CACHE_DIR = Path(os.getenv("MODEL_CACHE_DIR", str(PROJECT_ROOT / ".cache")))
+os.environ.setdefault("HF_HOME", str(Path(os.getenv("HF_HOME", MODEL_CACHE_DIR / "huggingface"))))
+os.environ.setdefault("TORCH_HOME", str(Path(os.getenv("TORCH_HOME", MODEL_CACHE_DIR / "torch"))))
 
 CATALOGUE_CSV = PROJECT_ROOT / os.getenv("CATALOGUE_CSV", "data/catalogue.csv")
 CATALOGUE_IMG_DIR = PROJECT_ROOT / os.getenv("CATALOGUE_IMG_DIR", "data/catalogue")

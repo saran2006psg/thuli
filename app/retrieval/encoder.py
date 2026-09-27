@@ -39,11 +39,16 @@ class JewelleryEncoder:
             self.device = device
 
         self.model_name = model_name
-        self.processor = CLIPProcessor.from_pretrained(model_name, use_fast=True)
         try:
-            self.model = CLIPModel.from_pretrained(model_name, low_cpu_mem_usage=False).to(self.device)
-        except TypeError:
-            self.model = CLIPModel.from_pretrained(model_name).to(self.device)
+            self.processor = CLIPProcessor.from_pretrained(model_name, local_files_only=True, use_fast=True)
+            self.model = CLIPModel.from_pretrained(model_name, local_files_only=True, low_cpu_mem_usage=False).to(self.device)
+        except Exception:
+            try:
+                self.processor = CLIPProcessor.from_pretrained(model_name, use_fast=True)
+                self.model = CLIPModel.from_pretrained(model_name, low_cpu_mem_usage=False).to(self.device)
+            except Exception:
+                self.processor = CLIPProcessor.from_pretrained(model_name)
+                self.model = CLIPModel.from_pretrained(model_name).to(self.device)
         self.model.eval()
 
         self.embedding_dim = self.model.config.projection_dim if hasattr(self.model.config, "projection_dim") else EMBEDDING_DIM

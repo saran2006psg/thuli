@@ -27,6 +27,7 @@ build/
 
 # HuggingFace cache
 ~/.cache/huggingface/
+.cache/
 
 # OS
 .DS_Store

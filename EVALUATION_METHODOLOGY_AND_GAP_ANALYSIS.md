@@ -16,33 +16,47 @@ Project Thuli exposes an essential reality in computer vision for fine luxury je
 ========================================================================================
                           THE EVALUATION ACCURACY GAP
 ========================================================================================
-  Evaluation Corpus                           Top-1 Accuracy     Top-5 Accuracy    Failure Rate
+  Evaluation Corpus                            Top-1 Accuracy    Top-5 Accuracy   Failure Rate
 ----------------------------------------------------------------------------------------
-  Clean / Unseen Holdout (Studio Quality)         95.83%             95.83%            4.17%
-  Automated Synthetic Perturbations (900 imgs)    94.67%             97.33%            5.33%
+  Clean / Unseen Holdout (Studio Quality)          95.83%            95.83%           4.17%
   --------------------------------------------------------------------------------------
-  REAL-WORLD PHONE STUMPERS (111 Images)          72.07%             89.19%           27.93%
-  HARDEST BENCHMARK STUMPERS (39 Images)          64.10%             76.92%           35.90%
+  REAL-WORLD PHONE STUMPERS (113 Images)           72.57%            89.38%          27.43%
+  HARDEST BENCHMARK STUMPERS (39 Images)           64.10%            76.92%          35.90%
+  --------------------------------------------------------------------------------------
+  AUTOMATED ADVERSARIAL STUMPER (900 Hard Tests)   52.22%            60.00%          47.78%
 ========================================================================================
-  THE REALITY GAP: -23.76% Top-1 degradation between clean holdout and real phone capture!
+  KEY DISCOVERY: Automated Adversarial Stumper DEFEATS the Matcher at a HIGHER rate!
+  Failure Rate: Automated 47.78% vs Hand-Shot 27.43% (+20.35% higher failure rate)
+  Top-1 Accuracy: Automated 52.22% vs Hand-Shot 72.57% (-20.35% drop)
 ========================================================================================
 ```
 
-Rather than masking this drop with relaxed metric criteria or cherry-picked test samples, **we defend this 70% real-world result as our primary technical achievement**. This document provides our complete evaluation methodology defense, failure taxonomy analysis, diagnostic root causes, our failed intervention (saliency cropping), and why a calibrated 70% system is fundamentally more valuable in production than an uncalibrated 95% claim.
+Rather than masking weaknesses with relaxed metric criteria or cherry-picked test samples, **we defend this diagnostic reality as our primary technical achievement**. This document provides our complete evaluation methodology defense, failure taxonomy analysis, diagnostic root causes, our failed intervention (saliency cropping), and how we automated the stumper to programmatically defeat the matcher at a higher rate than hand-shot photos.
 
 ---
 
 ## 1. Defining and Defending Our Evaluation Methodology
 
-### 1.1 The "Synthetic Fallacy" in Visual Retrieval
-Standard academic benchmarks frequently simulate image degradation using digital image transformations (Gaussian noise, gamma shifts, PIL affine transforms). In our automated tests (`evaluation/automated_metrics.json`), applying 9 synthetic variations across 100 items produced an impressive **94.67% category accuracy** and **5.3% failure rate**.
+### 1.1 Automating the Stumper: Programmatic Hard Cases Defeating the Matcher (+20.35% Failure Rate)
+Academic benchmarks often settle for simplistic digital augmentations (mild Gaussian blur, subtle PIL color jitter). When we initially ran naive synthetic variations across 100 items, the matcher achieved **94.67% accuracy** (a fragile 5.3% failure rate). This revealed the **Synthetic Fallacy**: simplistic digital filters fail to model true physical capture distress.
 
-**Why Synthetic Augmentations Fail to Test Real Retrieval:**
-1. **No Non-Lambertian Specular Reflections**: Synthetic brightness filters simply rescale pixel RGB values ($I' = \alpha I + \beta$). They cannot simulate how 18k polished gold or multifaceted cubic zirconia creates localized blown-out glare flares that wipe out surface texture.
-2. **Uniform Scale vs. Distance Decay**: Synthetic crops scale down the entire image uniformly. In real smartphone photography, holding the camera back at arm's length introduces complex background objects (tabletops, cloth weave, laptops) that compete for attention tokens.
-3. **No Sensor Rolling Shutter or Natural Motion Smear**: OpenCV Gaussian blur applies a symmetric kernel. Real low-light phone photography produces directional non-linear motion smear combined with aggressive smartphone ISP noise-reduction smoothing.
+**How We Hardened the Programmatic Generator:**
+Instead of settling for easy synthetic transforms, we engineered **9 physically grounded, adversarial transformations** directly targeting the architectural vulnerabilities of CLIP ViT-B/32:
+1. **Distance (Token Dilution)**: Downscaling jewellery to occupy only $18\%\text{--}28\%$ of the canvas on realistic textured surfaces with contact shadows. Target items occupy only 1–2 ViT patches, causing 96% background tokens to swamp the self-attention heads.
+2. **Center Occlusion (Loop Severing)**: Placing realistic skin-toned fingers, velvet display clips, or price tags directly over $35\%\text{--}50\%$ of the central item, breaking continuous loop silhouettes.
+3. **Severe Camera Shake**: Multi-directional camera tremor ($35\text{--}53\text{ px}$ kernels) wiping out fine gemstone faceting and metal prongs.
+4. **Harsh Specular Flash Bloom**: Direct point-source glare flare ($255\text{ RGB}$ saturation across a $60\text{ px}$ radius) obliterating central hallmark details.
+5. **Steep Foreshortening**: $45^\circ\text{--}75^\circ$ oblique perspective tilt combined with $z$-depth compression, collapsing circular rings into narrow slivers.
+6. **Low-Light Dynamic Range Collapse**: $0.18\times$ exposure combined with $\gamma = 2.1$ non-linear compression and sensor black-point clipping.
+7. **High-Entropy Clutter**: Replacing sterile backgrounds with alternating wood grain, cloth weave, and metallic coin/key distractors intersecting the item.
+8. **Display Glass Mirroring**: Blending $45\%$ inverted ghost reflections and bright specular streak bands.
+9. **Sensor Noise & Low-Bitrate Quantization**: ISO 12800 chromatic noise, salt-and-pepper hot pixels, and blocky JPEG quantization (quality 8–15).
 
-**Our Defense**: To build a true retrieval benchmark, we collected **111 real smartphone photographs** using multiple handheld devices under unpredictable consumer conditions. Synthetic tests are useful for regression checks, but **only hand-shot photographs capture real optical physics**.
+**The Result:** The updated automated generator successfully **defeats the matcher at a higher rate than hand-shot photos**:
+* **Automated Stumper Failure Rate**: **47.78%** vs. Hand-Shot **27.43%** (**$+20.35\%$ higher failure rate**).
+* **Automated Stumper Top-1 Accuracy**: **52.22%** vs. Hand-Shot **72.57%** (**$-20.35\%$ drop**).
+* **Automated Stumper Top-5 Accuracy**: **60.00%** vs. Hand-Shot **89.38%** (**$-29.38\%$ drop**).
+* **Strict Product-ID Retrieval**: Top-1 drops to **11.44%** under these adversarial conditions.
 
 ---
 
@@ -254,15 +268,16 @@ Our baseline system delivers:
 
 ## 5. Comparative Evaluation Summary
 
-| Evaluation Dimension | Studio / Clean Holdout | Synthetic Perturbations | Real-World Phone Stumpers | Saliency-Cropping Attempt |
+| Evaluation Dimension | Studio / Clean Holdout | Real-World Phone Stumpers | Automated Adversarial Stumper | Saliency-Cropping Attempt |
 |---|---|---|---|---|
-| **Dataset Size** | 24 images | 900 images | 111 images | 39 images |
-| **Top-1 Accuracy** | **95.83%** | 94.67% | **72.07%** | 41.03% (REJECTED) |
-| **Top-5 Accuracy** | **95.83%** | 97.33% | **89.19%** | 69.23% (REJECTED) |
-| **Sub-Threshold Unknowns** | 0.0% | 0.33% | **7.21%** | 15.38% |
-| **False Acceptance Rate** | 4.17% | 5.00% | **20.72%** | 43.59% |
-| **Median Retrieval Latency** | 77.07 ms | 108.08 ms | **70.60 ms** | 72.31 ms |
-| **Honesty & Validity** | Studio ceiling | Algorithmic artifact | **True production reality** | Diagnosed failure |
+| **Dataset Size** | 24 images | 113 images | 900 generated images | 39 images |
+| **Top-1 Accuracy** | **95.83%** | **72.57%** | **52.22%** (Defeats Matcher) | 41.03% (REJECTED) |
+| **Top-5 Accuracy** | **95.83%** | **89.38%** | **60.00%** (Defeats Matcher) | 69.23% (REJECTED) |
+| **Overall Failure Rate**| **4.17%** | **27.43%** | **47.78%** (+20.35% higher failure) | 58.97% |
+| **Sub-Threshold Unknowns** | 0.0% | 7.08% | 2.89% | 15.38% |
+| **Wrong Matches (FAR)** | 4.17% | 20.35% | 44.89% | 43.59% |
+| **Median Latency** | 77.07 ms | 207.95 ms | 107.25 ms | 72.31 ms |
+| **Honesty & Validity** | Studio ceiling | Grounded capture | **Adversarial stress-test** | Flawed heuristic |
 
 ---
 
