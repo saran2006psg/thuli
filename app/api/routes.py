@@ -127,6 +127,40 @@ def get_sample_images() -> List[Dict[str, Any]]:
     return samples
 
 
+@router.get("/samples/multi")
+def get_multi_sample_images() -> List[Dict[str, Any]]:
+    """Return a curated set of multi-item composition query images for quick UI testing."""
+    eval_csv = PROJECT_ROOT / "evaluation" / "multi_item_eval.csv"
+    multi_dir = PROJECT_ROOT / "evaluation" / "multi_item_images"
+
+    samples: List[Dict[str, Any]] = []
+    if eval_csv.exists():
+        import csv
+        with open(eval_csv, "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for i, row in enumerate(reader):
+                img_path = row.get("image_path", "").replace("\\", "/").lstrip("/")
+                n_expected = int(row.get("n_expected", "2") or 2)
+                expected_ids = [pid.strip() for pid in row.get("expected_ids", "").split("|") if pid.strip()]
+                samples.append({
+                    "id": f"multi_{i+1:03d}",
+                    "name": f"{n_expected} Items (#{i+1})",
+                    "item_count": n_expected,
+                    "image_path": f"/{img_path}",
+                    "expected_ids": expected_ids,
+                })
+    elif multi_dir.exists():
+        for i, img_file in enumerate(sorted(multi_dir.glob("*.jpeg")) + sorted(multi_dir.glob("*.jpg"))):
+            samples.append({
+                "id": img_file.stem,
+                "name": f"Multi Item #{i+1}",
+                "item_count": 2,
+                "image_path": f"/evaluation/multi_item_images/{img_file.name}",
+                "expected_ids": [],
+            })
+    return samples
+
+
 @router.post("/match")
 async def match_image(
     file: UploadFile = File(..., description="Query jewellery image file"),

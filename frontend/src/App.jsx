@@ -74,6 +74,7 @@ export default function App() {
   const [multiResults, setMultiResults] = useState(null);
   const [searchMode, setSearchMode] = useState('single'); // 'single' | 'multi'
   const [samples, setSamples] = useState([]);
+  const [multiSamples, setMultiSamples] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -81,10 +82,17 @@ export default function App() {
   useEffect(() => {
     const fetchSamples = async () => {
       try {
-        const res = await fetch('/api/samples');
-        if (res.ok) {
-          const data = await res.json();
+        const [singleRes, multiRes] = await Promise.all([
+          fetch('/api/samples'),
+          fetch('/api/samples/multi'),
+        ]);
+        if (singleRes.ok) {
+          const data = await singleRes.json();
           setSamples(data);
+        }
+        if (multiRes.ok) {
+          const multiData = await multiRes.json();
+          setMultiSamples(multiData);
         }
       } catch (err) {
         console.warn('Could not load samples:', err);
@@ -159,7 +167,8 @@ export default function App() {
     try {
       const res = await fetch(sample.image_path);
       const blob = await res.blob();
-      const file = new File([blob], `${sample.product_id}.jpg`, { type: 'image/jpeg' });
+      const filename = sample.product_id ? `${sample.product_id}.jpg` : `${sample.id || 'multi_sample'}.jpeg`;
+      const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
       setSearchFile(file);
       setSearchImage(sample.image_path);
       executeSearch(file);
@@ -595,8 +604,8 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Sample catalogue chips */}
-              {samples.length > 0 && (
+              {/* Sample catalogue chips (Single Item Mode) */}
+              {searchMode === 'single' && samples.length > 0 && (
                 <div className="sample-section">
                   <span className="sample-title">Or Try Catalogue Samples:</span>
                   <div className="sample-pills-row">
@@ -605,9 +614,38 @@ export default function App() {
                         key={sample.product_id}
                         className="sample-pill"
                         onClick={() => handleSampleClick(sample)}
+                        title={`Test sample ${sample.product_name}`}
                       >
                         <img src={sample.image_path} alt={sample.product_name} />
                         <span>{sample.category}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Sample multi-item composition chips (Multiple Items Mode) */}
+              {searchMode === 'multi' && multiSamples.length > 0 && (
+                <div className="sample-section">
+                  <span className="sample-title">Or Try Multi-Item Samples:</span>
+                  <div className="sample-pills-row">
+                    {(
+                      multiSamples.filter(s => ['multi_002', 'multi_004', 'multi_013', 'multi_018'].includes(s.id)).length === 4
+                        ? multiSamples.filter(s => ['multi_002', 'multi_004', 'multi_013', 'multi_018'].includes(s.id))
+                        : multiSamples.slice(0, 4)
+                    ).map((sample) => (
+                      <div
+                        key={sample.id}
+                        className="sample-pill"
+                        onClick={() => handleSampleClick(sample)}
+                        title={`Test ${sample.name} (${sample.expected_ids ? sample.expected_ids.join(', ') : ''})`}
+                      >
+                        <img
+                          src={sample.image_path}
+                          alt={sample.name}
+                          style={{ objectFit: 'contain', background: '#ffffff' }}
+                        />
+                        <span>{sample.name}</span>
                       </div>
                     ))}
                   </div>
@@ -830,6 +868,23 @@ export default function App() {
                                 #{item.rank}
                               </div>
 
+                              {/* Crop snippet from user photo */}
+                              {item.crop_image_url && (
+                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
+                                  <img
+                                    src={item.crop_image_url}
+                                    alt="Detected snippet"
+                                    style={{
+                                      width: 48, height: 48, objectFit: 'contain',
+                                      borderRadius: '6px', border: '1px solid var(--border)',
+                                      background: '#fff',
+                                    }}
+                                    title="Cropped snippet from query photo"
+                                  />
+                                  <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', fontWeight: 600 }}>Detected</span>
+                                </div>
+                              )}
+
                               {/* Thumbnail */}
                               {imgUrl ? (
                                 <img
@@ -911,6 +966,89 @@ export default function App() {
                           );
                         })}
                       </div>
+
+                      {/* Other detected regions below threshold */}
+                      {multiResults.crop_results && multiResults.crop_results.filter(cr => cr.decision !== 'MATCH' && cr.top1_product_id).length > 0 && (
+                        <div style={{ marginTop: '1.25rem', marginBottom: '1.25rem' }}>
+                          <div style={{
+                            fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase',
+                            letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '0.6rem',
+                            display: 'flex', alignItems: 'center', gap: '0.4rem',
+                          }}>
+                            <span style={{
+                              display: 'inline-block', width: 8, height: 8,
+                              borderRadius: '50%', background: '#d97706',
+                            }} />
+                            Other Detected Regions (Below Threshold τ={threshold.toFixed(2)})
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                            {multiResults.crop_results.filter(cr => cr.decision !== 'MATCH' && cr.top1_product_id).map((cr) => {
+                              const simPct = (Math.max(0, Math.min(1, cr.similarity)) * 100).toFixed(1);
+                              const imgUrl = cr.image_url || (cr.image_path ? `/${cr.image_path}` : null);
+                              return (
+                                <div key={cr.crop_id} style={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '0.85rem',
+                                  padding: '0.75rem 1rem',
+                                  borderRadius: '12px',
+                                  border: '1px dashed #d97706',
+                                  background: 'rgba(217,119,6,0.04)',
+                                }}>
+                                  {cr.crop_image_url && (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', flexShrink: 0 }}>
+                                      <img
+                                        src={cr.crop_image_url}
+                                        alt="Detected snippet"
+                                        style={{
+                                          width: 48, height: 48, objectFit: 'contain',
+                                          borderRadius: '6px', border: '1px solid var(--border)',
+                                          background: '#fff',
+                                        }}
+                                      />
+                                      <span style={{ fontSize: '0.62rem', color: 'var(--text-muted)', fontWeight: 600 }}>Detected</span>
+                                    </div>
+                                  )}
+                                  {imgUrl && (
+                                    <img
+                                      src={imgUrl}
+                                      alt={cr.product_name}
+                                      style={{
+                                        width: 52, height: 52, objectFit: 'contain',
+                                        borderRadius: '8px', flexShrink: 0,
+                                        border: '1px solid var(--border)', background: '#fff',
+                                      }}
+                                    />
+                                  )}
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--text-main)', marginBottom: '2px' }}>
+                                      {cr.product_name}
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                      <span style={{
+                                        padding: '2px 8px', borderRadius: '999px', fontSize: '0.68rem',
+                                        background: 'rgba(217,119,6,0.15)', color: '#d97706', fontWeight: 700,
+                                      }}>
+                                        {cr.crop_id} · Possible Match ({simPct}%)
+                                      </span>
+                                      <span style={{
+                                        padding: '2px 8px', borderRadius: '999px', fontSize: '0.68rem',
+                                        background: 'var(--bg-surface-alt)', color: 'var(--text-muted)',
+                                        fontFamily: 'var(--font-mono)',
+                                      }}>
+                                        {cr.top1_product_id}
+                                      </span>
+                                    </div>
+                                    <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                                      Score is below {threshold.toFixed(2)}. Lower threshold slider to convert to confirmed match.
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div style={{
