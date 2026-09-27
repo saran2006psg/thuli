@@ -11,6 +11,7 @@ This documentation hub covers the entire system from scratch: architecture, mach
 | Document | Description |
 |---|---|
 | [Architecture Overview](file:///d:/PL/thuli/docs/ARCHITECTURE.md) | High-level system design, CLIP ViT-B/32 vision encoder, FAISS vector search, FastSAM segmentation, and data structures. |
+| [Implementation architecture & user flows](IMPLEMENTATION_ARCHITECTURE_AND_USER_FLOWS.md) | Code-grounded runtime architecture, complete user flows, persisted state, and production-hardening recommendations. |
 | [Pipeline & Ingestion](file:///d:/PL/thuli/docs/PIPELINE.md) | Step-by-step walkthrough of the offline embedding generation, FAISS index construction, and real-time query inference pipeline. |
 | [REST API Reference](file:///d:/PL/thuli/docs/API_REFERENCE.md) | Complete OpenAPI/REST endpoint specifications, request/response JSON schemas, query parameters, and cURL examples. |
 | [Evaluation & Benchmarks](file:///d:/PL/thuli/docs/EVALUATION_GUIDE.md) | Evaluation methodology, physical stumper conditions, metrics (Top-1/Top-5, FAR, FRR, Latency), and the 900 automated stumper benchmark. |

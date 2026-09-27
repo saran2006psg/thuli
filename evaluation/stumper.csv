@@ -1,116 +1,116 @@
 image_id,product_id,failure_condition,notes,image_path
-id01,bracelet,clutter,its covered by lock,d:\PL\thuli\evaluation\images\id01.jpeg
-id02,bracelet,hand,its covered by lock,d:\PL\thuli\evaluation\images\id02.jpeg
-id03,bracelet,motionblur,its blurred,d:\PL\thuli\evaluation\images\id03.jpeg
-id04,ring,clutter,its covered by lock,d:\PL\thuli\evaluation\images\id04.jpeg
-id05,necklace,noise,its filled with noise,d:\PL\thuli\evaluation\images\id05.jpeg
-id06,ring,clutter,its filled with background,d:\PL\thuli\evaluation\images\id06.jpeg
-id07,ring,motionblur,its filled with background,d:\PL\thuli\evaluation\images\id07.jpeg
-id08,ring,motionblur,its filled with blur,d:\PL\thuli\evaluation\images\id08.jpeg
-id09,ring,bad_lighting,its filled with blur,d:\PL\thuli\evaluation\images\id09.jpeg
-id10,ring,bad_lighting,its filled with blur,d:\PL\thuli\evaluation\images\id10.jpeg
-id11,ring,bad_lighting,,d:\PL\thuli\evaluation\images\id11.jpg
-id12,ring,bright_lighting,35669675-16eb-407b-9a7a-b646eabbcdde,d:\PL\thuli\evaluation\images\id12.jpeg
-id13,ring,clutter,7c97de59-8640-44b0-b67f-4d4d794e3956,d:\PL\thuli\evaluation\images\id13.jpeg
-id14,ring,distance,cd192de7-a097-4e11-8ca9-1be2a1a9389e,d:\PL\thuli\evaluation\images\id14.jpeg
-id15,ring,hand_wrist,8b263036-1ec6-4f71-9adb-82f6acd046d6,d:\PL\thuli\evaluation\images\id15.jpeg
-id16,ring,motion_blur,221773e2-a017-42c3-939a-f0c0c3b6b50f,d:\PL\thuli\evaluation\images\id16.jpeg
-id17,ring,normal,9b65a9ce-3268-45c9-a774-9e777969b4af,d:\PL\thuli\evaluation\images\id17.jpeg
-id18,ring,occlusion,982ee979-730b-41b2-b7e4-0c202b6ac4f5,d:\PL\thuli\evaluation\images\id18.jpeg
-id19,ring,odd_angle,727da112-c78e-4ef4-a848-d1a9af913ae8,d:\PL\thuli\evaluation\images\id19.jpeg
-id20,ring,reflection,42dbf3ad-3af3-473f-9f17-49e0ed5bc48b,d:\PL\thuli\evaluation\images\id20.jpeg
-id21,bracelet,bad_lighting,e8e35c06-12d5-4074-bad0-300eb9f4077a,d:\PL\thuli\evaluation\images\id21.jpeg
-id22,bracelet,bright_lighting,7bb44b72-537a-467b-bbc1-ae719749a314,d:\PL\thuli\evaluation\images\id22.jpeg
-id23,bracelet,clutter,700479d3-ad07-40c8-b057-3999785b28e6,d:\PL\thuli\evaluation\images\id23.jpeg
-id24,bracelet,distance,2098c1ed-4cf3-41c6-b192-069535efb17f,d:\PL\thuli\evaluation\images\id24.jpeg
-id25,bracelet,hand_wrist,bf9996a1-ab5a-48f3-acfc-0866e1bf3cfe,d:\PL\thuli\evaluation\images\id25.jpeg
-id26,bracelet,motion_blur,2c25d119-40ad-434b-85cf-147380cda356,d:\PL\thuli\evaluation\images\id26.jpeg
-id27,bracelet,normal,728b1268-b2cc-493b-9121-ba8c06e9e843,d:\PL\thuli\evaluation\images\id27.jpeg
-id28,bracelet,normal,7b64c8ab-b1b2-47f0-aeb7-f98804ab3857,d:\PL\thuli\evaluation\images\id28.jpeg
-id29,bracelet,occlusion,9eabb195-6dbb-4dc7-81b6-8da32fc4aaca,d:\PL\thuli\evaluation\images\id29.jpeg
-id30,bracelet,odd_angle,00fa809a-d3b1-469b-9114-fd4b0f271377,d:\PL\thuli\evaluation\images\id30.jpeg
-id31,necklace,bad_lighting,9946b3cb-959b-49f1-ae3a-7f8294781d09,d:\PL\thuli\evaluation\images\id31.jpeg
-id32,necklace,bright_lighting,19c228dc-d374-409e-81e7-09ef60e7403c,d:\PL\thuli\evaluation\images\id32.jpeg
-id33,necklace,clutter,24dfcd98-7129-4a18-8a68-a2e7a295a248,d:\PL\thuli\evaluation\images\id33.jpeg
-id34,necklace,distance,9bb79310-11db-4d9d-b893-0024d7b254f1,d:\PL\thuli\evaluation\images\id34.jpeg
-id35,necklace,hand_wrist,2585f5fb-5c38-4cf6-b0c0-8b20602e271b,d:\PL\thuli\evaluation\images\id35.jpeg
-id36,necklace,motion_blur,85deb24c-fcd0-4817-99d8-4ee53aee6d5f,d:\PL\thuli\evaluation\images\id36.jpeg
-id37,necklace,normal,9f24d64b-9e83-4b27-9804-d09e4fbdae35,d:\PL\thuli\evaluation\images\id37.jpeg
-id38,necklace,occlusion,f21fd990-bf59-42e0-9a3c-efa4e43167ae,d:\PL\thuli\evaluation\images\id38.jpeg
-id39,necklace,odd_angle,aaaedafe-1bd4-4df8-a955-44b2ab838969,d:\PL\thuli\evaluation\images\id39.jpeg
-id40,bracelet,normal,JW_0061766,d:\PL\thuli\evaluation\images\id40.jpeg
-id41,bracelet,bad_lighting,JW_0061766,d:\PL\thuli\evaluation\images\id41.jpeg
-id42,bracelet,bright_lighting,JW_0061766,d:\PL\thuli\evaluation\images\id42.jpeg
-id43,bracelet,odd_angle,JW_0061766,d:\PL\thuli\evaluation\images\id43.jpeg
-id44,bracelet,occlusion,JW_0061766,d:\PL\thuli\evaluation\images\id44.jpeg
-id45,bracelet,motion_blur,JW_0061766,d:\PL\thuli\evaluation\images\id45.jpeg
-id46,bracelet,distance,JW_0061766,d:\PL\thuli\evaluation\images\id46.jpeg
-id49,bracelet,normal,JW_061769,D:\PL\thuli\evaluation\images\id49.jpeg
-id50,bracelet,bad_lighting,JW_061769,D:\PL\thuli\evaluation\images\id50.jpeg
-id51,bracelet,bright_lighting,JW_061769,D:\PL\thuli\evaluation\images\id51.jpeg
-id52,bracelet,odd_angle,JW_061769,D:\PL\thuli\evaluation\images\id52.jpeg
-id53,bracelet,occlusion,JW_061769,D:\PL\thuli\evaluation\images\id53.jpeg
-id54,bracelet,clutter,JW_061769,D:\PL\thuli\evaluation\images\id54.jpeg
-id55,bracelet,motion_blur,JW_061769,D:\PL\thuli\evaluation\images\id55.jpeg
-id56,bracelet,hand_wrist,JW_061769,D:\PL\thuli\evaluation\images\id56.jpeg
-id57,bracelet,distance,JW_061769,D:\PL\thuli\evaluation\images\id57.jpeg
-id58,ring,clutter,JW_061770,D:\PL\thuli\evaluation\images\id58.jpeg
-id59,ring,motion_blur,JW_061770,D:\PL\thuli\evaluation\images\id59.jpeg
-id60,ring,hand_wrist,JW_061770,D:\PL\thuli\evaluation\images\id60.jpeg
-id61,ring,normal,JW_061770,D:\PL\thuli\evaluation\images\id61.jpeg
-id62,ring,bright_lighting,JW_061770,D:\PL\thuli\evaluation\images\id62.jpeg
-id63,ring,odd_angle,JW_061770,D:\PL\thuli\evaluation\images\id63.jpeg
-id64,ring,distance,JW_061770,D:\PL\thuli\evaluation\images\id64.jpeg
-id65,ring,occlusion,JW_061770,D:\PL\thuli\evaluation\images\id65.jpeg
-id66,bracelet,normal,JW_061771,D:\PL\thuli\evaluation\images\id66.jpeg
-id67,bracelet,bright_lighting,JW_061771,D:\PL\thuli\evaluation\images\id67.jpeg
-id68,bracelet,odd_angle,JW_061771,D:\PL\thuli\evaluation\images\id68.jpeg
-id69,bracelet,occlusion,JW_061771,D:\PL\thuli\evaluation\images\id69.jpeg
-id70,bracelet,clutter,JW_061771,D:\PL\thuli\evaluation\images\id70.jpeg
-id71,bracelet,motion_blur,JW_061771,D:\PL\thuli\evaluation\images\id71.jpeg
-id72,bracelet,hand_wrist,JW_061771,D:\PL\thuli\evaluation\images\id72.jpeg
-id73,bracelet,distance,JW_061771,D:\PL\thuli\evaluation\images\id73.jpeg
-id74,bracelet,normal,JW_061772,D:\PL\thuli\evaluation\images\id74.jpeg
-id75,bracelet,bright_lighting,JW_061772,D:\PL\thuli\evaluation\images\id75.jpeg
-id76,bracelet,odd_angle,JW_061772,D:\PL\thuli\evaluation\images\id76.jpeg
-id77,bracelet,occlusion,JW_061772,D:\PL\thuli\evaluation\images\id77.jpeg
-id78,bracelet,clutter,JW_061772,D:\PL\thuli\evaluation\images\id78.jpeg
-id79,bracelet,motion_blur,JW_061772,D:\PL\thuli\evaluation\images\id79.jpeg
-id80,bracelet,hand_wrist,JW_061772,D:\PL\thuli\evaluation\images\id80.jpeg
-id81,bracelet,distance,JW_061772,D:\PL\thuli\evaluation\images\id81.jpeg
-id82,bracelet,normal,JW_061773,D:\PL\thuli\evaluation\images\id82.jpeg
-id83,bracelet,bright_lighting,JW_061773,D:\PL\thuli\evaluation\images\id83.jpeg
-id84,bracelet,odd_angle,JW_061773,D:\PL\thuli\evaluation\images\id84.jpeg
-id85,bracelet,occlusion,JW_061773,D:\PL\thuli\evaluation\images\id85.jpeg
-id86,bracelet,clutter,JW_061773,D:\PL\thuli\evaluation\images\id86.jpeg
-id87,bracelet,motion_blur,JW_061773,D:\PL\thuli\evaluation\images\id87.jpeg
-id88,bracelet,hand_wrist,JW_061773,D:\PL\thuli\evaluation\images\id88.jpeg
-id89,bracelet,distance,JW_061773,D:\PL\thuli\evaluation\images\id89.jpeg
-id90,bracelet,normal,JW_061774,D:\PL\thuli\evaluation\images\id90.jpeg
-id91,bracelet,odd_angle,JW_061774,D:\PL\thuli\evaluation\images\id91.jpeg
-id92,bracelet,occlusion,JW_061774,D:\PL\thuli\evaluation\images\id92.jpeg
-id93,bracelet,clutter,JW_061774,D:\PL\thuli\evaluation\images\id93.jpeg
-id94,bracelet,motion_blur,JW_061774,D:\PL\thuli\evaluation\images\id94.jpeg
-id95,bracelet,hand_wrist,JW_061774,D:\PL\thuli\evaluation\images\id95.jpeg
-id96,bracelet,distance,JW_061774,D:\PL\thuli\evaluation\images\id96.jpeg
-id97,bracelet,bright_lighting,JW_061774,D:\PL\thuli\evaluation\images\id97.jpeg
-id98,ring,normal,JW_061775,D:\PL\thuli\evaluation\images\id98.jpeg
-id99,ring,odd_angle,JW_061775,D:\PL\thuli\evaluation\images\id99.jpeg
-id100,ring,clutter,JW_061775,D:\PL\thuli\evaluation\images\id100.jpeg
-id101,ring,motion_blur,JW_061775,D:\PL\thuli\evaluation\images\id101.jpeg
-id102,ring,occlusion,JW_061775,D:\PL\thuli\evaluation\images\id102.jpeg
-id103,ring,bright_lighting,JW_061775,D:\PL\thuli\evaluation\images\id103.jpeg
-id104,ring,hand_wrist,JW_061775,D:\PL\thuli\evaluation\images\id104.jpeg
-id105,ring,distance,JW_061775,D:\PL\thuli\evaluation\images\id105.jpeg
-id106,bracelet,normal,JW_061776,D:\PL\thuli\evaluation\images\id106.jpeg
-id107,bracelet,bright_lighting,JW_061776,D:\PL\thuli\evaluation\images\id107.jpeg
-id108,bracelet,odd_angle,JW_061776,D:\PL\thuli\evaluation\images\id108.jpeg
-id109,bracelet,occlusion,JW_061776,D:\PL\thuli\evaluation\images\id109.jpeg
-id110,bracelet,clutter,JW_061776,D:\PL\thuli\evaluation\images\id110.jpeg
-id111,bracelet,motion_blur,JW_061776,D:\PL\thuli\evaluation\images\id111.jpeg
-id112,bracelet,hand_wrist,JW_061776,D:\PL\thuli\evaluation\images\id112.jpeg
-id113,bracelet,distance,JW_061776,D:\PL\thuli\evaluation\images\id113.jpeg
-id114,ring,normal,Handheld reference photo in ambient light,D:\PL\thuli\evaluation\images\id114.jpeg
-id115,ring,bad_lighting,Dim hallway with harsh shadow,D:\PL\thuli\evaluation\images\id115.jpeg
-id116,ring,normal,Handheld reference photo in ambient light,D:\PL\thuli\evaluation\images\id116.jpeg
-id117,ring,bad_lighting,Dim hallway with harsh shadow,D:\PL\thuli\evaluation\images\id117.jpeg
+id01,bracelet,clutter,its covered by lock,evaluation/images/id01.jpeg
+id02,bracelet,hand,its covered by lock,evaluation/images/id02.jpeg
+id03,bracelet,motionblur,its blurred,evaluation/images/id03.jpeg
+id04,ring,clutter,its covered by lock,evaluation/images/id04.jpeg
+id05,necklace,noise,its filled with noise,evaluation/images/id05.jpeg
+id06,ring,clutter,its filled with background,evaluation/images/id06.jpeg
+id07,ring,motionblur,its filled with background,evaluation/images/id07.jpeg
+id08,ring,motionblur,its filled with blur,evaluation/images/id08.jpeg
+id09,ring,bad_lighting,its filled with blur,evaluation/images/id09.jpeg
+id10,ring,bad_lighting,its filled with blur,evaluation/images/id10.jpeg
+id11,ring,bad_lighting,,evaluation/images/id11.jpg
+id12,ring,bright_lighting,35669675-16eb-407b-9a7a-b646eabbcdde,evaluation/images/id12.jpeg
+id13,ring,clutter,7c97de59-8640-44b0-b67f-4d4d794e3956,evaluation/images/id13.jpeg
+id14,ring,distance,cd192de7-a097-4e11-8ca9-1be2a1a9389e,evaluation/images/id14.jpeg
+id15,ring,hand_wrist,8b263036-1ec6-4f71-9adb-82f6acd046d6,evaluation/images/id15.jpeg
+id16,ring,motion_blur,221773e2-a017-42c3-939a-f0c0c3b6b50f,evaluation/images/id16.jpeg
+id17,ring,normal,9b65a9ce-3268-45c9-a774-9e777969b4af,evaluation/images/id17.jpeg
+id18,ring,occlusion,982ee979-730b-41b2-b7e4-0c202b6ac4f5,evaluation/images/id18.jpeg
+id19,ring,odd_angle,727da112-c78e-4ef4-a848-d1a9af913ae8,evaluation/images/id19.jpeg
+id20,ring,reflection,42dbf3ad-3af3-473f-9f17-49e0ed5bc48b,evaluation/images/id20.jpeg
+id21,bracelet,bad_lighting,e8e35c06-12d5-4074-bad0-300eb9f4077a,evaluation/images/id21.jpeg
+id22,bracelet,bright_lighting,7bb44b72-537a-467b-bbc1-ae719749a314,evaluation/images/id22.jpeg
+id23,bracelet,clutter,700479d3-ad07-40c8-b057-3999785b28e6,evaluation/images/id23.jpeg
+id24,bracelet,distance,2098c1ed-4cf3-41c6-b192-069535efb17f,evaluation/images/id24.jpeg
+id25,bracelet,hand_wrist,bf9996a1-ab5a-48f3-acfc-0866e1bf3cfe,evaluation/images/id25.jpeg
+id26,bracelet,motion_blur,2c25d119-40ad-434b-85cf-147380cda356,evaluation/images/id26.jpeg
+id27,bracelet,normal,728b1268-b2cc-493b-9121-ba8c06e9e843,evaluation/images/id27.jpeg
+id28,bracelet,normal,7b64c8ab-b1b2-47f0-aeb7-f98804ab3857,evaluation/images/id28.jpeg
+id29,bracelet,occlusion,9eabb195-6dbb-4dc7-81b6-8da32fc4aaca,evaluation/images/id29.jpeg
+id30,bracelet,odd_angle,00fa809a-d3b1-469b-9114-fd4b0f271377,evaluation/images/id30.jpeg
+id31,necklace,bad_lighting,9946b3cb-959b-49f1-ae3a-7f8294781d09,evaluation/images/id31.jpeg
+id32,necklace,bright_lighting,19c228dc-d374-409e-81e7-09ef60e7403c,evaluation/images/id32.jpeg
+id33,necklace,clutter,24dfcd98-7129-4a18-8a68-a2e7a295a248,evaluation/images/id33.jpeg
+id34,necklace,distance,9bb79310-11db-4d9d-b893-0024d7b254f1,evaluation/images/id34.jpeg
+id35,necklace,hand_wrist,2585f5fb-5c38-4cf6-b0c0-8b20602e271b,evaluation/images/id35.jpeg
+id36,necklace,motion_blur,85deb24c-fcd0-4817-99d8-4ee53aee6d5f,evaluation/images/id36.jpeg
+id37,necklace,normal,9f24d64b-9e83-4b27-9804-d09e4fbdae35,evaluation/images/id37.jpeg
+id38,necklace,occlusion,f21fd990-bf59-42e0-9a3c-efa4e43167ae,evaluation/images/id38.jpeg
+id39,necklace,odd_angle,aaaedafe-1bd4-4df8-a955-44b2ab838969,evaluation/images/id39.jpeg
+id40,bracelet,normal,JW_0061766,evaluation/images/id40.jpeg
+id41,bracelet,bad_lighting,JW_0061766,evaluation/images/id41.jpeg
+id42,bracelet,bright_lighting,JW_0061766,evaluation/images/id42.jpeg
+id43,bracelet,odd_angle,JW_0061766,evaluation/images/id43.jpeg
+id44,bracelet,occlusion,JW_0061766,evaluation/images/id44.jpeg
+id45,bracelet,motion_blur,JW_0061766,evaluation/images/id45.jpeg
+id46,bracelet,distance,JW_0061766,evaluation/images/id46.jpeg
+id49,bracelet,normal,JW_061769,evaluation/images/id49.jpeg
+id50,bracelet,bad_lighting,JW_061769,evaluation/images/id50.jpeg
+id51,bracelet,bright_lighting,JW_061769,evaluation/images/id51.jpeg
+id52,bracelet,odd_angle,JW_061769,evaluation/images/id52.jpeg
+id53,bracelet,occlusion,JW_061769,evaluation/images/id53.jpeg
+id54,bracelet,clutter,JW_061769,evaluation/images/id54.jpeg
+id55,bracelet,motion_blur,JW_061769,evaluation/images/id55.jpeg
+id56,bracelet,hand_wrist,JW_061769,evaluation/images/id56.jpeg
+id57,bracelet,distance,JW_061769,evaluation/images/id57.jpeg
+id58,ring,clutter,JW_061770,evaluation/images/id58.jpeg
+id59,ring,motion_blur,JW_061770,evaluation/images/id59.jpeg
+id60,ring,hand_wrist,JW_061770,evaluation/images/id60.jpeg
+id61,ring,normal,JW_061770,evaluation/images/id61.jpeg
+id62,ring,bright_lighting,JW_061770,evaluation/images/id62.jpeg
+id63,ring,odd_angle,JW_061770,evaluation/images/id63.jpeg
+id64,ring,distance,JW_061770,evaluation/images/id64.jpeg
+id65,ring,occlusion,JW_061770,evaluation/images/id65.jpeg
+id66,bracelet,normal,JW_061771,evaluation/images/id66.jpeg
+id67,bracelet,bright_lighting,JW_061771,evaluation/images/id67.jpeg
+id68,bracelet,odd_angle,JW_061771,evaluation/images/id68.jpeg
+id69,bracelet,occlusion,JW_061771,evaluation/images/id69.jpeg
+id70,bracelet,clutter,JW_061771,evaluation/images/id70.jpeg
+id71,bracelet,motion_blur,JW_061771,evaluation/images/id71.jpeg
+id72,bracelet,hand_wrist,JW_061771,evaluation/images/id72.jpeg
+id73,bracelet,distance,JW_061771,evaluation/images/id73.jpeg
+id74,bracelet,normal,JW_061772,evaluation/images/id74.jpeg
+id75,bracelet,bright_lighting,JW_061772,evaluation/images/id75.jpeg
+id76,bracelet,odd_angle,JW_061772,evaluation/images/id76.jpeg
+id77,bracelet,occlusion,JW_061772,evaluation/images/id77.jpeg
+id78,bracelet,clutter,JW_061772,evaluation/images/id78.jpeg
+id79,bracelet,motion_blur,JW_061772,evaluation/images/id79.jpeg
+id80,bracelet,hand_wrist,JW_061772,evaluation/images/id80.jpeg
+id81,bracelet,distance,JW_061772,evaluation/images/id81.jpeg
+id82,bracelet,normal,JW_061773,evaluation/images/id82.jpeg
+id83,bracelet,bright_lighting,JW_061773,evaluation/images/id83.jpeg
+id84,bracelet,odd_angle,JW_061773,evaluation/images/id84.jpeg
+id85,bracelet,occlusion,JW_061773,evaluation/images/id85.jpeg
+id86,bracelet,clutter,JW_061773,evaluation/images/id86.jpeg
+id87,bracelet,motion_blur,JW_061773,evaluation/images/id87.jpeg
+id88,bracelet,hand_wrist,JW_061773,evaluation/images/id88.jpeg
+id89,bracelet,distance,JW_061773,evaluation/images/id89.jpeg
+id90,bracelet,normal,JW_061774,evaluation/images/id90.jpeg
+id91,bracelet,odd_angle,JW_061774,evaluation/images/id91.jpeg
+id92,bracelet,occlusion,JW_061774,evaluation/images/id92.jpeg
+id93,bracelet,clutter,JW_061774,evaluation/images/id93.jpeg
+id94,bracelet,motion_blur,JW_061774,evaluation/images/id94.jpeg
+id95,bracelet,hand_wrist,JW_061774,evaluation/images/id95.jpeg
+id96,bracelet,distance,JW_061774,evaluation/images/id96.jpeg
+id97,bracelet,bright_lighting,JW_061774,evaluation/images/id97.jpeg
+id98,ring,normal,JW_061775,evaluation/images/id98.jpeg
+id99,ring,odd_angle,JW_061775,evaluation/images/id99.jpeg
+id100,ring,clutter,JW_061775,evaluation/images/id100.jpeg
+id101,ring,motion_blur,JW_061775,evaluation/images/id101.jpeg
+id102,ring,occlusion,JW_061775,evaluation/images/id102.jpeg
+id103,ring,bright_lighting,JW_061775,evaluation/images/id103.jpeg
+id104,ring,hand_wrist,JW_061775,evaluation/images/id104.jpeg
+id105,ring,distance,JW_061775,evaluation/images/id105.jpeg
+id106,bracelet,normal,JW_061776,evaluation/images/id106.jpeg
+id107,bracelet,bright_lighting,JW_061776,evaluation/images/id107.jpeg
+id108,bracelet,odd_angle,JW_061776,evaluation/images/id108.jpeg
+id109,bracelet,occlusion,JW_061776,evaluation/images/id109.jpeg
+id110,bracelet,clutter,JW_061776,evaluation/images/id110.jpeg
+id111,bracelet,motion_blur,JW_061776,evaluation/images/id111.jpeg
+id112,bracelet,hand_wrist,JW_061776,evaluation/images/id112.jpeg
+id113,bracelet,distance,JW_061776,evaluation/images/id113.jpeg
+id114,ring,normal,Handheld reference photo in ambient light,evaluation/images/id114.jpeg
+id115,ring,bad_lighting,Dim hallway with harsh shadow,evaluation/images/id115.jpeg
+id116,ring,normal,Handheld reference photo in ambient light,evaluation/images/id116.jpeg
+id117,ring,bad_lighting,Dim hallway with harsh shadow,evaluation/images/id117.jpeg
