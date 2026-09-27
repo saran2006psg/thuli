@@ -31,7 +31,7 @@ evaluation dashboards for testing model robustness.
 ## ⚡ Easy Setup (Run in 1 Minute)
 
 > 🚀 **Looking for the fastest, simplest setup?**
-> Click here for the dedicated guide: 👉 [**EASY_SETUP.md**](EASY_SETUP.md)
+> Click here for the dedicated guide: 👉 [**SETUP.md**](SETUP.md)
 >
 > Run the entire project and interactive web application on **`http://localhost:3000`** using **Python only** (no Node.js or npm needed):
 >
@@ -51,7 +51,7 @@ evaluation dashboards for testing model robustness.
 >
 > 👉 Then open your browser to: **[http://localhost:3000](http://localhost:3000)**
 >
-> 📖 *For complete manual steps, Google Drive dataset links, and troubleshooting, see [**EASY_SETUP.md**](EASY_SETUP.md).*
+> 📖 *For complete manual steps, Google Drive dataset links, and troubleshooting, see [**SETUP.md**](SETUP.md).*
 
 ---
 
