@@ -317,6 +317,8 @@ For multiple jewellery items:
                Remove Duplicates
                        ↓
                Multiple Results
+```
+
 ---
 
 ## 13. Extra Tasks Completed
