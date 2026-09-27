@@ -1,164 +1,146 @@
-# Thuli Setup
+# ⚡ Setup Guide — Thuli Jewellery Retrieval Engine
 
-This is the simple CPU-only setup for a new machine. No Docker is required.
+Welcome to the setup guide for Thuli. You can get up and running on **any device** (Windows, macOS, Linux) in **less than 2 minutes using Python only**.
 
-## Requirements
+---
 
-- Python 3.10 or newer
-- Internet access for the first CLIP model download
-- Enough disk space for the catalogue images, model cache, and generated artifacts
+## 📋 Prerequisites
 
-## 1. Get the Code and Catalogue
+- **Python 3.10, 3.11, or 3.12** installed ([python.org](https://www.python.org/downloads/))
+- **Git** installed ([git-scm.com](https://git-scm.com/))
+- **Node.js / npm is NOT required!** The production React web UI is already pre-compiled into `app/static/` and served directly by Python.
 
-Clone or download this repository, then download the catalogue archive from [Google Drive](https://drive.google.com/file/d/1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct/view?usp=sharing).
+---
 
-Extract the Drive archive into the repository root. The final layout must be:
+## 🚀 3-Step Quick Start
 
-```text
-thuli/
-  data/
-    catalogue.csv
-    catalogue/
-      jewelry_dataset/
-        bracelet/
-        earring/
-        necklace/
-        ring/
-```
-
-Do not extract it as `data/thuli-data/` or `thuli-data/`.
-
-The `evaluation/` directory comes from Git. Do not replace it with the Drive data.
-
-## 2. Check Catalogue Paths
-
-Open `data/catalogue.csv`. Each `image_path` must be relative to the repository root and use forward slashes:
-
-```text
-data/catalogue/jewelry_dataset/ring/ring_00001.jpg
-```
-
-Do not use paths from another computer, such as:
-
-```text
-D:\PL\thuli\data\catalogue\ring\ring_00001.jpg
-C:\Users\someone\Downloads\jewelry\ring_00001.jpg
-```
-
-The official catalogue CSV already uses the correct format. Normally, no code or CSV edit is needed after extracting the official archive.
-
-## 3. Create the Python Environment
-
-Open PowerShell in the repository root:
-
-```powershell
+### Step 1: Clone the Repository & Enter Folder
+Open your terminal (PowerShell on Windows, or Bash/Zsh on Linux/Mac):
+```bash
+git clone https://github.com/saran2006psg/thuli.git
 cd thuli
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+```
+
+### Step 2: Create Virtual Environment & Install Requirements
+
+**On Windows (PowerShell):**
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
+```
+*(If PowerShell blocks script execution, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` once, then activate again)*
+
+**On Linux / macOS:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
 ```
 
-If PowerShell blocks activation, run this once in PowerShell as your user:
+### Step 3: Run the All-in-One Setup & Server
 
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```bash
+python -m scripts.setup --run
 ```
 
-Then activate again:
+**That's it! 🎉** 
+This single command automatically:
+1. Normalizes all CSV paths to cross-platform relative paths.
+2. Checks for the 6,157 item catalogue dataset. If missing, it streams and extracts the archive directly from Google Drive.
+3. Pre-caches the CLIP vision transformer model.
+4. Verifies FastSAM segmentation weights (`FastSAM-s.pt`).
+5. Generates embeddings and builds the FAISS vector index if needed.
+6. Starts the server immediately on **port 3000**.
 
-```powershell
-.\.venv\Scripts\Activate.ps1
+---
+
+## 🌐 Open in Your Browser
+
+Once your terminal shows:
+```text
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:3000 (Press CTRL+C to quit)
 ```
 
-## 4. Prepare the Model and Catalogue Index
+Open your browser and navigate to:
+👉 **[http://localhost:3000](http://localhost:3000)**
 
-For a Drive-only catalogue, run:
+You will see the complete interactive web interface:
+- **Visual Search Tab:** Test jewellery images with similarity percentages and confidence gates.
+- **Multi-Item Search:** Automatically detect and segment multiple pieces in a single image using FastSAM.
+- **Evaluation Arena:** Run live accuracy benchmarks against real-world mobile captures.
+- **Automated Stumper Benchmark:** Explore 900 synthetic stress tests under 9 physical conditions.
 
-```powershell
-python scripts/setup.py --rebuild
-```
+---
 
-This downloads `openai/clip-vit-base-patch32` once, stores it in `.cache/`, generates catalogue embeddings, and builds the FAISS index under `artifacts/`.
+## 📦 Google Drive Dataset (Manual Download Fallback)
 
-The first run may take several minutes because it processes thousands of images on the CPU. Do not repeat it unless the catalogue or `data/catalogue.csv` changes.
+If your network blocks automated Google Drive downloads:
+1. Download the catalogue archive manually from:
+   👉 **[Google Drive Dataset Link (182 MB)](https://drive.google.com/file/d/1P_CvDHlEmH3iyZ5XwaPl2w86jY7yxgct/view?usp=sharing)**
+2. Extract the archive into the `data/` folder so your folder layout is:
+   ```text
+   thuli/
+     data/
+       catalogue.csv
+       catalogue/
+         jewelry_dataset/
+           bracelet/
+           earring/
+           necklace/
+           ring/
+   ```
+3. Run `python -m scripts.setup --run` again.
 
-## 5. Start the Application
- 
-```powershell
+---
+
+## 🛠️ Alternative Start Command
+
+If you want to start the Uvicorn server directly:
+```bash
 python -m uvicorn app.main:app --host 0.0.0.0 --port 3000
 ```
 
-Open `http://localhost:3000`.
+---
 
-Check the service from another PowerShell window:
+## 🧪 Testing System Health
 
-```powershell
+You can check API health anytime from another terminal:
+```bash
+# On Windows PowerShell:
 Invoke-RestMethod http://localhost:3000/api/health
+
+# On Linux / macOS:
+curl http://localhost:3000/api/health
 ```
 
-The response should report `status` as `healthy` and `dimension` as `512`.
-
-Stop the application with `Ctrl+C` in the terminal running Uvicorn.
-
-## Later Runs
-
-Activate the environment and start the application:
-
-```powershell
-cd D:\PL\thuli
-.\.venv\Scripts\Activate.ps1
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+Expected response:
+```json
+{
+  "status": "healthy",
+  "index_size": 6196,
+  "dimension": 512,
+  "model": "openai/clip-vit-base-patch32",
+  "default_threshold": 0.75,
+  "default_top_k": 5
+}
 ```
 
-The model and FAISS index are reused. Do not run `--rebuild` again unless the catalogue changes.
+---
 
-## What Is Stored Where
+## ❓ Frequently Asked Questions
 
-| Item                            | Location       | Source                 |
-| ------------------------------- | -------------- | ---------------------- |
-| Application and evaluation code | Git repository | Git                    |
-| Evaluation datasets and reports | `evaluation/`  | Git                    |
-| Catalogue CSV and images        | `data/`        | Google Drive           |
-| Downloaded model                | `.cache/`      | Created on first setup |
-| Embeddings and FAISS index      | `artifacts/`   | Created by setup       |
+**Q: Do I need to install Node.js or run npm?**  
+A: No! The web UI is pre-compiled into `app/static/`. Python serves the UI directly on port 3000.
 
-Do not commit `.env`, `.cache/`, catalogue images, or generated artifacts.
+**Q: How do I stop the server?**  
+A: Press `Ctrl + C` in the terminal running the server.
 
-## When the Catalogue Changes
-
-Replace or update `data/`, confirm that `data/catalogue.csv` points to the correct relative image paths, then run:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-python scripts/setup.py --rebuild
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
+**Q: How do I change the port?**  
+A: Pass `--port <number>`:
+```bash
+python -m scripts.setup --run --port 8080
 ```
-
-## Common Problems
-
-### `data/catalogue.csv` not found
-
-The Drive archive is in the wrong location. Move it so this file exists:
-
-```text
-D:\PL\thuli\data\catalogue.csv
-```
-
-### Images are not found
-
-Compare the CSV `image_path` values with the actual files. Use relative paths, forward slashes, and exact filenames.
-
-### Model download fails
-
-Check internet access and rerun `python scripts/setup.py --rebuild`. The model download is cached after a successful run.
-
-### Port 8000 is busy
-
-Use another port:
-
-```powershell
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8001
-```
-
-Then open `http://localhost:8001`.

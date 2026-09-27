@@ -28,6 +28,33 @@ evaluation dashboards for testing model robustness.
 | Multi-item proposals | FastSAM-s |
 | Data and reports | CSV, JSON, NumPy, FAISS artifacts |
 
+## ⚡ Easy Setup (Run in 1 Minute)
+
+> 🚀 **Looking for the fastest, simplest setup?**
+> Click here for the dedicated guide: 👉 [**EASY_SETUP.md**](EASY_SETUP.md)
+>
+> Run the entire project and interactive web application on **`http://localhost:3000`** using **Python only** (no Node.js or npm needed):
+>
+> ```bash
+> # 1. Clone & enter repository
+> git clone https://github.com/saran2006psg/thuli.git
+> cd thuli
+>
+> # 2. Create virtual environment & install requirements
+> python -m venv venv
+> .\venv\Scripts\Activate.ps1    # (Linux/macOS: source venv/bin/activate)
+> pip install -r requirements.txt
+>
+> # 3. One-Command Setup & Launch (Port 3000)
+> python -m scripts.setup --run
+> ```
+>
+> 👉 Then open your browser to: **[http://localhost:3000](http://localhost:3000)**
+>
+> 📖 *For complete manual steps, Google Drive dataset links, and troubleshooting, see [**EASY_SETUP.md**](EASY_SETUP.md).*
+
+---
+
 ## Quick start
 
 ### 1. Prerequisites

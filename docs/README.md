@@ -10,6 +10,7 @@ This documentation hub covers the entire system from scratch: architecture, mach
 
 | Document | Description |
 |---|---|
+| [⚡ Easy Setup Guide](../EASY_SETUP.md) | Quick 1-minute setup to run the complete system on any machine using Python only. |
 | [Architecture Overview](file:///d:/PL/thuli/docs/ARCHITECTURE.md) | High-level system design, CLIP ViT-B/32 vision encoder, FAISS vector search, FastSAM segmentation, and data structures. |
 | [Implementation architecture & user flows](IMPLEMENTATION_ARCHITECTURE_AND_USER_FLOWS.md) | Code-grounded runtime architecture, complete user flows, persisted state, and production-hardening recommendations. |
 | [Pipeline & Ingestion](file:///d:/PL/thuli/docs/PIPELINE.md) | Step-by-step walkthrough of the offline embedding generation, FAISS index construction, and real-time query inference pipeline. |
