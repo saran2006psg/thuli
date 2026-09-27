@@ -106,7 +106,8 @@ python -m scripts.setup --run
 ## 4. Key Features & Capabilities
 
 - 🔍 **Visual Similarity Search:** Upload any jewellery photograph and retrieve Top-K catalogue candidates with similarity scores, product metadata, and high-resolution comparison imagery.
-- 🛡️ **Confidence-Aware Gating:** Automatically flags out-of-catalogue or low-confidence queries as `UNKNOWN` rather than forcing a wrong match.
+- 🛡️ **Confidence-Aware Gating:** Automatically flags out-of-catalogue or low-confidence queries as `UNKNOWN` rather than forcing a wrong match. still can't achive good results.
+
 - 💍 **Multi-Item Search:** Automatically decomposes complex scenes containing multiple jewellery pieces (e.g. necklace, earrings, and rings) into individual crops, matching each independently without blending them into a single confused vector.
 - 📱 **Mobile Stumper Collector:** A dedicated web tool to capture test images directly from a smartphone (using an exposed local tunnel) across 10 distinct physical conditions (bad lighting, motion blur, odd angle, occlusion, clutter, hand/wrist, etc.).
 - 🧪 **Programmatic Stress-Testing Suite:** An automated evaluation generator creating **900 synthetic stumper images** across 9 controlled physical perturbations to isolate and measure individual failure modes.
